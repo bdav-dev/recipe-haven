@@ -1,23 +1,45 @@
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { Colors } from '@/constants/Colors';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Image, Platform, View, Text, useColorScheme } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { getAllIngredients, insertExampleIngredient } from '@/database/IngredientDao';
+import { useEffect, useState } from 'react';
+import { StyleSheet, View, Button, FlatList } from 'react-native';
 
 
 export default function IngredientsScreen() {
+  let [ingredients, setIngredients] = useState<Ingredient[]>([]);
 
+  useEffect(() => {
+    fetch();
+  }, []);
+
+  function fetch() {
+    getAllIngredients()
+      .then(ing => setIngredients(() => ing));
+  }
+
+  function insert() {
+    insertExampleIngredient();
+  }
 
   return (
     <View>
 
-      <ThemedText>testsetset</ThemedText>
+      <Button title='fetch' onPress={fetch} />
+      <Button title='insert' onPress={insert} />
 
+      <FlatList
+        data={ingredients}
+        renderItem={item => (
+          <View style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
+            <ThemedText>{item.item.name}</ThemedText>
+            <ThemedText>{item.item.imageSrc}</ThemedText>
+          </View>
+        )}
+      />
 
     </View>
   );
 }
+
 
 
 const styles = StyleSheet.create({

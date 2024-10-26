@@ -21,7 +21,7 @@ export default function TabLayout() {
         options={{
           title: 'Einkaufsliste',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'cart' : 'cart-outline'} color={color}/>
+            <TabBarIcon name={focused ? 'cart' : 'cart-outline'} color={color} />
           ),
         }}
       />
@@ -31,7 +31,7 @@ export default function TabLayout() {
         options={{
           title: 'Rezepte',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'book' : 'book-outline'} color={color} size={26}/>
+            <TabBarIcon name={focused ? 'book' : 'book-outline'} color={color} size={26} />
           ),
         }}
       />
