@@ -1,4 +1,17 @@
 
+type Ingredient = {
+    ingredientId?: number,
+    name: string,
+    pluralName?: string,
+    imageSrc?: string,
+    unit: Unit,
+    kcalPerUnit?: number
+}
+
+type QuantizedIngredient = {
+    amount?: number,
+    ingredient: Ingredient
+}
 
 type Recipe = {
     recipeId?: number,
@@ -8,18 +21,19 @@ type Recipe = {
     ingredientsForOnePortion: QuantizedIngredient[]
 }
 
-type QuantizedIngredient = {
-    amount: number,
-    ingredient: Ingredient
+type ShoppingList = {
+    ingredientItems: ShoppingListIngredientItem[],
+    customItems: ShoppingListCustomItem[]
 }
 
-type Ingredient = {
-    ingredientId?: number,
-    name: string,
-    pluralName?: string,
-    imageSrc?: string,
-    unit: Unit,
-    kcalPerUnit?: number
+type ShoppingListIngredientItem = {
+    shoppingListIngredientItemId: number,
+    ingredient: QuantizedIngredient
+}
+
+type ShoppingListCustomItem = {
+    shoppingListCustomItemId: number,
+    text: string
 }
 
 enum Unit {
