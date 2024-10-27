@@ -7,6 +7,9 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { initializeDatabase } from '@/database/Database';
 import { createIngredientTable } from '@/database/IngredientDao';
+import IngredientContextProvider from '@/context/IngredientContextProvider';
+import ShoppingListContextProvider from '@/context/ShoppingListContextProvider';
+import RecipeContextProvider from '@/context/RecipeContextProvider';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -21,10 +24,16 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+      <RecipeContextProvider>
+        <ShoppingListContextProvider>
+          <IngredientContextProvider>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+          </IngredientContextProvider>
+        </ShoppingListContextProvider>
+      </RecipeContextProvider>
     </ThemeProvider>
   );
 }

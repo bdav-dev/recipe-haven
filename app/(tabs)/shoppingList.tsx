@@ -1,11 +1,22 @@
 import { ThemedText } from "@/components/ThemedText";
-import { View } from "react-native";
+import { IngredientContext } from "@/context/IngredientContextProvider";
+import { useContext } from "react";
+import { Button, View } from "react-native";
 
 export default function ShoppingListScreen() {
+
+  const { ingredients, setIngredients } = useContext(IngredientContext);
+
+  const ingredient: Ingredient = {
+    name: "test",
+    unit: 1
+  }
 
   return (
     <View>
       <ThemedText>Shopping List</ThemedText>
+
+      <Button title="Test" onPress={() => { setIngredients(() => [ ingredient ]) }} />
     </View>
   );
 }
