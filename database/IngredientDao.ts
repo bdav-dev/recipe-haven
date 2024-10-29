@@ -1,7 +1,6 @@
 import database from "./Database";
 
-export async function createIngredientTable() {
-
+export async function createIngredientTableIfNotExists() {
     await database.execAsync(`
         CREATE TABLE IF NOT EXISTS Ingredient(
             ingredientId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -12,11 +11,26 @@ export async function createIngredientTable() {
             kcalPerUnit REAL
         );
     `);
-
 }
 
 export async function insertIngredient(ingredient: Ingredient) {
+    const insertResult = await database.runAsync(
+        `
+        INSERT INTO
+            Ingredient (name, pluralName, imageSrc, unit, kcalPerUnit)
+            VALUES (?, ?, ?, ?, ?);
+        `,
+        ingredient.name,
+        ingredient.pluralName ?? null,
+        ingredient.imageSrc ?? null,
+        ingredient.unit.valueOf(),
+        ingredient.kcalPerUnit ?? null
+    );
+    ingredient.ingredientId = insertResult.lastInsertRowId;
+}
 
+export async function deleteAllIngredients() {
+    await database.execAsync(`DELETE FROM Ingredient`);
 }
 
 export async function insertExampleIngredient() {
