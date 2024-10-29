@@ -1,30 +1,16 @@
 import { ThemedText } from '@/components/ThemedText';
+import { IngredientContext } from '@/context/IngredientContextProvider';
 import { getAllIngredients, insertExampleIngredient } from '@/database/IngredientDao';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { StyleSheet, View, Button, FlatList } from 'react-native';
 
 
 export default function IngredientsScreen() {
-  let [ingredients, setIngredients] = useState<Ingredient[]>([]);
-
-  useEffect(() => {
-    fetch();
-  }, []);
-
-  function fetch() {
-    getAllIngredients()
-      .then(ing => setIngredients(() => ing));
-  }
-
-  function insert() {
-    insertExampleIngredient();
-  }
+  const { ingredients, setIngredients } = useContext(IngredientContext);
 
   return (
     <View>
-
-      <Button title='fetch' onPress={fetch} />
-      <Button title='insert' onPress={insert} />
+      
 
       <FlatList
         data={ingredients}
