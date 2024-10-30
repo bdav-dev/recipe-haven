@@ -1,10 +1,10 @@
-import CustomModal from '@/components/CustomModal';
 import FloatingActionButton from '@/components/FloatingActionButton';
-import { ThemedText } from '@/components/ThemedText';
+import Page from '@/components/Page';
+import { ThemedText } from '@/components/themed/ThemedText';
 import { IngredientContext } from '@/context/IngredientContextProvider';
-import { getAllIngredients, insertExampleIngredient, insertIngredient } from '@/database/IngredientDao';
-import { useContext, useEffect, useState } from 'react';
-import { StyleSheet, View, FlatList, Modal, Text, TextInput, Button } from 'react-native';
+import { useContext, useState } from 'react';
+import { StyleSheet, View, FlatList } from 'react-native';
+import CreateIngredientModal from '@/components/ingredient/CreateIngredientModal';
 
 
 export default function IngredientsScreen() {
@@ -12,30 +12,11 @@ export default function IngredientsScreen() {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const [name, setName] = useState('');
-  const [pluralName, setPluralName] = useState('');
-  const [imageSrc, setImageSrc] = useState('');
-  const [unit, setUnit] = useState('');
-  const [kcalPerUnit, setKcalPerUnit] = useState('');
 
-  function submit() {
-    const ingredient: Ingredient = {
-      name: name,
-      pluralName: pluralName || undefined,
-      imageSrc: imageSrc || undefined,
-      unit: Number(unit),
-      kcalPerUnit: Number(kcalPerUnit)
-    };
-
-    insertIngredient(ingredient)
-      .then(() => {
-        setIngredients(current => [...current, ingredient])
-      });
-  }
 
   return (
-    <View style={styles.page}>
-      <FloatingActionButton onPress={() => setIsModalVisible(true)}/>
+    <Page>
+      <FloatingActionButton onPress={() => setIsModalVisible(true)} />
 
 
       <FlatList
@@ -52,20 +33,12 @@ export default function IngredientsScreen() {
         )}
       />
 
-      <CustomModal
-        onRequestClose={() => setIsModalVisible(false)}
-        isVisible={isModalVisible}
-      >
-        <TextInput placeholder='name' onChangeText={setName} style={styles.textInput} />
-        <TextInput placeholder='pluralName' onChangeText={setPluralName} style={styles.textInput} />
-        <TextInput placeholder='imageSrc' onChangeText={setImageSrc} style={styles.textInput} />
-        <TextInput placeholder='unit' onChangeText={setUnit} style={styles.textInput} />
-        <TextInput placeholder='kcalPerUnit' onChangeText={setKcalPerUnit} style={styles.textInput} />
+      <CreateIngredientModal
+          isVisible={isModalVisible}
+          onRequestClose={() => setIsModalVisible(false)}
+      />
 
-        <Button title='Submit' onPress={submit}/>
-      </CustomModal>
-
-    </View>
+    </Page>
   );
 }
 
@@ -73,9 +46,6 @@ export default function IngredientsScreen() {
 const styles = StyleSheet.create({
   textInput: {
     width: 100
-  },
-  page: {
-    flexGrow: 1
   },
   titleContainer: {
     flexDirection: 'row',
