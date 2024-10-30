@@ -1,5 +1,5 @@
 
-type Ingredient = {
+export type Ingredient = {
     ingredientId?: number,
     name: string,
     pluralName?: string,
@@ -8,12 +8,12 @@ type Ingredient = {
     kcalPerUnit?: number
 }
 
-type QuantizedIngredient = {
+export type QuantizedIngredient = {
     amount?: number,
     ingredient: Ingredient
 }
 
-type Recipe = {
+export type Recipe = {
     recipeId?: number,
     title: string,
     imageSrc?: string,
@@ -21,23 +21,32 @@ type Recipe = {
     ingredientsForOnePortion: QuantizedIngredient[]
 }
 
-type ShoppingList = {
+export type ShoppingList = {
     ingredientItems: ShoppingListIngredientItem[],
     customItems: ShoppingListCustomItem[]
 }
 
-type ShoppingListIngredientItem = {
+export type ShoppingListIngredientItem = {
     shoppingListIngredientItemId: number,
     ingredient: QuantizedIngredient
 }
 
-type ShoppingListCustomItem = {
+export type ShoppingListCustomItem = {
     shoppingListCustomItemId: number,
     text: string
 }
 
-enum Unit {
+export enum Unit {
     GRAMM,
     LITER,
     PIECE
+}
+
+
+export function unitToString(unit: Unit) {
+    switch (+unit) {
+        case Unit.GRAMM: return "Gramm"
+        case Unit.LITER: return "Liter"
+        case Unit.PIECE: return "Stück"
+    }
 }
