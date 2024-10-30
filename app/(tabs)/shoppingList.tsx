@@ -1,5 +1,6 @@
-import { ThemedText } from "@/components/ThemedText";
+import { ThemedText } from "@/components/themed/ThemedText";
 import { IngredientContext } from "@/context/IngredientContextProvider";
+import { Ingredient } from "@/types/MainAppTypes";
 import { useContext } from "react";
 import { Button, View } from "react-native";
 

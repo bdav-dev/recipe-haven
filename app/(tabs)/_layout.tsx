@@ -2,23 +2,24 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const theme = useAppTheme();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
+        tabBarActiveTintColor: theme.accent,
+        tabBarInactiveTintColor: theme.iconSecondary,
         headerShown: true,
       }}>
       <Tabs.Screen
+        
         name="shoppingList"
         options={{
+          
           title: 'Einkaufsliste',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'cart' : 'cart-outline'} color={color} />

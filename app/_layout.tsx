@@ -4,12 +4,13 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+
 import { initializeDatabase } from '@/database/Database';
 import { createIngredientTableIfNotExists, deleteAllIngredients } from '@/database/IngredientDao';
 import IngredientContextProvider from '@/context/IngredientContextProvider';
 import ShoppingListContextProvider from '@/context/ShoppingListContextProvider';
 import RecipeContextProvider from '@/context/RecipeContextProvider';
+import { useColorScheme } from 'react-native';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
