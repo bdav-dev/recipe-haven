@@ -26,7 +26,7 @@ export type AppTheme = {
         borderWidth: number,
         shadowOpacity: number
     }
-    
+    erroneousTextFieldBorder: string
 }
 
 const darkTheme = DarkTheme;
@@ -48,7 +48,8 @@ const AppThemes: { [key: string]: AppTheme } = {
         modal: {
             borderWidth: 0,
             shadowOpacity: 0.4
-        }
+        },
+        erroneousTextFieldBorder: "#FF0221"
     },
     dark: {
         primary: darkTheme.colors.primary,
@@ -63,7 +64,8 @@ const AppThemes: { [key: string]: AppTheme } = {
         modal: {
             borderWidth: 0.5,
             shadowOpacity: 1
-        }
+        },
+        erroneousTextFieldBorder: "#FF0221"
     },
 };
 

@@ -1,29 +1,39 @@
-import { AppTheme } from "@/hooks/useAppTheme";
+import { AppTheme, useAppTheme } from "@/hooks/useAppTheme";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
-import { StyleProp, StyleSheet, TextInput, TextInputProps, TextStyle } from "react-native";
+import { StyleSheet, TextInput, TextInputProps } from "react-native";
 
 
+type TextFieldProps = TextInputProps & {
+    isErroneous?: boolean
+}
 
 export default function TextField({
+    isErroneous,
     style,
     placeholder,
     onChangeText,
     ...rest
-}: TextInputProps) {
-    const styles = useThemedStyleSheet(theme => createStylesheet(theme));
+}: TextFieldProps) {
+    const styles = useThemedStyleSheet(theme => createStyles(theme));
+    const theme = useAppTheme();
 
     return (
         <TextInput
             placeholder={placeholder}
             onChangeText={onChangeText}
-            style={[styles.textInput, style]}
+            style={[
+                { borderWidth: isErroneous ? 1.5 : 0 },
+                styles.textInput,
+                style
+            ]}
             {...rest}
         />
     );
 }
 
-const createStylesheet = (theme: AppTheme) => StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
     textInput: {
+        borderColor: theme.erroneousTextFieldBorder,
         backgroundColor: theme.border,
         paddingHorizontal: 8,
         paddingVertical: 6,

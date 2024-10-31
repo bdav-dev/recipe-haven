@@ -1,14 +1,15 @@
-import { Button, StyleSheet, View } from "react-native";
+import { Button, Image, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
 import FullScreenModal from "../FullScreenModal";
-import { useContext, useMemo, useState } from "react";
-import { insertIngredient } from "@/database/IngredientDao";
+import { useContext, useState } from "react";
 import { IngredientContext } from "@/context/IngredientContextProvider";
 import TextField from "../TextField";
 import { Picker } from "@react-native-picker/picker";
 import { AppTheme, useAppTheme } from "@/hooks/useAppTheme";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
-import { Ingredient, Unit, unitToString } from "@/types/MainAppTypes";
-import { ThemedText } from "../themed/ThemedText";
+import { Unit } from "@/types/MainAppTypes";
+import CardView from "../themed/CardView";
+import * as ImagePicker from 'expo-image-picker';
+import CalorieInput from "./CalorieInput";
 
 type CreateIngredientModalProps = {
     isVisible: boolean,
@@ -16,33 +17,30 @@ type CreateIngredientModalProps = {
 }
 
 export default function CreateIngredientModal(props: CreateIngredientModalProps) {
+    const theme = useAppTheme();
+    const styles = useThemedStyleSheet(theme => createStyles(theme));
+
     const { ingredients, setIngredients } = useContext(IngredientContext);
 
     const [name, setName] = useState('');
     const [pluralName, setPluralName] = useState('');
-    const [imageSrc, setImageSrc] = useState('');
-
-    const [kcalPerUnit, setKcalPerUnit] = useState('');
-
-    const theme = useAppTheme();
-    const styles = useThemedStyleSheet(theme => createStyles(theme));
+    
 
     const [unit, setUnit] = useState(Unit.GRAMM);
 
+    const [imageUri, setImageUri] = useState<string | null>(null);
 
-    function submit() {
-        const ingredient: Ingredient = {
-            name: name,
-            pluralName: pluralName || undefined,
-            imageSrc: imageSrc || undefined,
-            unit: Number(unit),
-            kcalPerUnit: Number(kcalPerUnit)
-        };
+    async function pickImage() {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1
+        });
 
-        insertIngredient(ingredient)
-            .then(() => {
-                setIngredients(current => [...current, ingredient])
-            });
+        if (!result.canceled) {
+            setImageUri(result.assets[0].uri);
+        }
     }
 
     return (
@@ -58,7 +56,16 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
             <View style={styles.contentContainer}>
 
                 <View style={styles.imageAndNamesContainer}>
-                    <View style={styles.imgPlaceholder}></View>
+
+                    <View style={styles.imagePlaceholder}>
+                        <TouchableWithoutFeedback onPress={pickImage} onLongPress={() => setImageUri(null)}>
+                            {
+                                imageUri == null
+                                    ? <Button title="Bild auswählen" onPress={pickImage} />
+                                    : <Image source={{ uri: imageUri }} style={styles.image} />
+                            }
+                        </TouchableWithoutFeedback>
+                    </View>
 
                     <View style={styles.namesContainer}>
                         <TextField
@@ -74,22 +81,17 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
                     </View>
                 </View>
 
-
-                <View style={styles.a}>
+                <CardView title="Einheit" style={styles.unitCard}>
                     <Picker selectedValue={unit} onValueChange={(value, index) => setUnit(value ?? Unit.GRAMM)} style={styles.picker} itemStyle={styles.pickerItem}>
+                        <Picker.Item label="Stück" value={Unit.PIECE} color={theme.text} />
                         <Picker.Item label="Gramm" value={Unit.GRAMM} color={theme.text} />
                         <Picker.Item label="Liter" value={Unit.LITER} color={theme.text} />
-                        <Picker.Item label="Stück" value={Unit.PIECE} color={theme.text} />
                     </Picker>
+                </CardView>
 
-                </View>
-
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
-                    <TextField placeholder='kcal' onChangeText={setKcalPerUnit} style={styles.smallTextField} />
-                    <ThemedText>kcal pro</ThemedText>
-                    <TextField placeholder={unitToString(unit)} onChangeText={setKcalPerUnit} style={styles.smallTextField} />
-                    <ThemedText>{unitToString(unit)}</ThemedText>
-                </View>
+                <CardView title="Kalorienangabe" style={styles.caloriesCard}>
+                    <CalorieInput unit={unit}/>
+                </CardView>
 
             </View>
 
@@ -102,8 +104,8 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         padding: 20,
         display: "flex",
         flexDirection: "column",
+        gap: 8,
         width: "100%",
-        flex: 1
     },
     imageAndNamesContainer: {
         flexDirection: "row",
@@ -111,15 +113,12 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     namesContainer: {
         flexDirection: "column",
         flex: 1,
-        paddingHorizontal: 10,
+        paddingLeft: 8,
         justifyContent: "center",
         gap: 7
     },
 
-    smallTextField: {
-        minWidth: 80,
-        textAlign: "center"
-    },
+    
 
     nameTextField: {
         fontSize: 28
@@ -127,23 +126,42 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
 
     picker: {
         color: theme.text,
-        width: 200
+        width: 200,
     },
 
     pickerItem: {
         fontSize: 18
     },
 
-    imgPlaceholder: {
+    imagePlaceholder: {
+        display: "flex",
+        justifyContent: "center",
         borderRadius: 10,
-        width: 130,
-        height: 130,
-        backgroundColor: "red"
+        width: 140,
+        height: 140,
+        borderWidth: 1,
+        borderColor: theme.border
     },
     textField: {
         width: "100%"
     },
-    a: {
-        backgroundColor: theme.card
+    caloriesCard: {
+        height: 100,
+        padding: 0,
+        paddingTop: 0,
+        justifyContent: "center",
+        alignContent: "center"
+    },
+    unitCard: {
+        padding: 0,
+        paddingTop: 0,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
+    },
+    image: {
+        width: "100%",
+        height: "100%",
+        borderRadius: 10
     }
 });
