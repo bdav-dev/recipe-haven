@@ -9,7 +9,8 @@ type FullScreenModalProps = {
     title: string | React.ReactNode,
     primaryActionButton?: {
         title: string
-        onPress: () => void
+        onPress: () => void,
+        disabled?: boolean
     }
     onRequestClose?: () => void
 }
@@ -23,7 +24,6 @@ export default function FullScreenModal(props: FullScreenModalProps) {
             transparent={true}
             visible={props.isVisible}
             onRequestClose={props.onRequestClose}
-
         >
             <View style={styles.centered}>
 
@@ -50,7 +50,11 @@ export default function FullScreenModal(props: FullScreenModalProps) {
                         <View style={[styles.expandingFlexContainer, { justifyContent: "flex-end" }]}>
                             {
                                 props.primaryActionButton
-                                    ? <Button title={props.primaryActionButton.title} onPress={props.primaryActionButton.onPress} />
+                                    ? <Button
+                                        title={props.primaryActionButton.title}
+                                        onPress={props.primaryActionButton.onPress}
+                                        disabled={props.primaryActionButton.disabled}
+                                    />
                                     : <></>
                             }
                         </View>
