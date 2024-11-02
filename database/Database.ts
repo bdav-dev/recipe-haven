@@ -1,7 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 
 const database = SQLite.openDatabaseSync('recipe-haven');
-
 export default database;
 
 export async function initializeDatabase() {

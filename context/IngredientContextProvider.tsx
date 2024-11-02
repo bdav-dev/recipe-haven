@@ -4,6 +4,7 @@ import { ContextProviderProps } from "@/types/OtherTypes";
 import { createContext, useContext, useEffect, useState } from "react";
 import { RecipeContext } from "./RecipeContextProvider";
 import { ShoppingListContext } from "./ShoppingListContextProvider";
+import { Ingredient } from "@/types/MainAppTypes";
 
 type IngredientContext = {
   ingredients: Ingredient[],

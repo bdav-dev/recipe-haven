@@ -1,3 +1,4 @@
+import { ShoppingList } from "@/types/MainAppTypes";
 import { ContextProviderProps } from "@/types/OtherTypes";
 import { createContext, useEffect, useState } from "react";
 
@@ -13,10 +14,6 @@ export const ShoppingListContext = createContext<ShoppingListContext>({
 
 export default function ShoppingListContextProvider(props: ContextProviderProps) {
   const [shoppingList, setShoppingList] = useState<ShoppingList>({ customItems: [], ingredientItems: [] });
-
-  useEffect(() => {
-    console.log("ShoppingList geändert");
-  }, [shoppingList]);
 
   return (
     <ShoppingListContext.Provider value={{ shoppingList, setShoppingList }}>

@@ -1,3 +1,4 @@
+import { Recipe } from "@/types/MainAppTypes";
 import { ContextProviderProps } from "@/types/OtherTypes";
 import { createContext, useEffect, useState } from "react";
 
@@ -13,10 +14,6 @@ export const RecipeContext = createContext<RecipeContext>({
 
 export default function RecipeContextProvider(props: ContextProviderProps) {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
-
-  useEffect(() => {
-    console.log("Recipes geändert");
-  }, [recipes]);
 
   return (
     <RecipeContext.Provider value={{ recipes, setRecipes }}>
