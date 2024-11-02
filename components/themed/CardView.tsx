@@ -1,7 +1,7 @@
-import { AppTheme } from "@/hooks/useAppTheme";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { StyleSheet, View, ViewProps } from "react-native";
 import { ThemedText } from "./ThemedText";
+import { AppTheme } from "@/types/ThemeTypes";
 
 type CardViewProps = ViewProps & {
     title?: string

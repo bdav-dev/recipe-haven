@@ -1,5 +1,5 @@
-import { AppTheme, useAppTheme } from "@/hooks/useAppTheme";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
+import { AppTheme } from "@/types/ThemeTypes";
 import { StyleSheet, TextInput, TextInputProps } from "react-native";
 
 
@@ -15,7 +15,6 @@ export default function TextField({
     ...rest
 }: TextFieldProps) {
     const styles = useThemedStyleSheet(theme => createStyles(theme));
-    const theme = useAppTheme();
 
     return (
         <TextInput

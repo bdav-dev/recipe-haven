@@ -1,7 +1,6 @@
-
 import { Recipe } from "@/types/RecipeTypes";
 import { ContextProviderProps } from "@/types/TechnicalTypes";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 
 type RecipeContext = {
   recipes: Recipe[],

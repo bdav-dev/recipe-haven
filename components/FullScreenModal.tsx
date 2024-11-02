@@ -1,7 +1,7 @@
 import { Button, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, View } from "react-native";
 import { ThemedText } from "./themed/ThemedText";
-import { AppTheme } from "@/hooks/useAppTheme";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
+import { AppTheme } from "@/types/ThemeTypes";
 
 type FullScreenModalProps = {
     children?: React.ReactNode,

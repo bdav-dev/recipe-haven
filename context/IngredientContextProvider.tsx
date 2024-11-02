@@ -1,5 +1,3 @@
-
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { RecipeContext } from "./RecipeContextProvider";
 import { ShoppingListContext } from "./ShoppingListContextProvider";

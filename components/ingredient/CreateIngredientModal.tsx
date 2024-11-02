@@ -4,7 +4,7 @@ import { useContext, useState } from "react";
 import { IngredientContext } from "@/context/IngredientContextProvider";
 import TextField from "../TextField";
 import { Picker } from "@react-native-picker/picker";
-import { AppTheme, useAppTheme } from "@/hooks/useAppTheme";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import CardView from "../themed/CardView";
 import * as ImagePicker from 'expo-image-picker';
@@ -12,6 +12,7 @@ import CalorificValueInput from "./CalorificValueInput";
 import { isBlank } from "../../utils/StringUtils";
 import { createIngredient } from "@/database/IngredientDao";
 import { CalorificValue, Unit } from "@/types/MiscellaneousTypes";
+import { AppTheme } from "@/types/ThemeTypes";
 
 type CreateIngredientModalProps = {
     isVisible: boolean,

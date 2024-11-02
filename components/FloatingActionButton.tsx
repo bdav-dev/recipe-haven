@@ -16,7 +16,7 @@ export default function FloatingActionButton(props: FloatingActionButtonProps) {
                     { backgroundColor: pressed ? '#444444' : "#FFFFFF" }
                 ]}
             >
-                <Ionicons name="add-outline"/>
+                <Ionicons name="add-outline" />
             </Pressable>
         </View>
     );
