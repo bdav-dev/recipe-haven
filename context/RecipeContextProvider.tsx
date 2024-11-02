@@ -1,5 +1,6 @@
-import { Recipe } from "@/types/MainAppTypes";
-import { ContextProviderProps } from "@/types/OtherTypes";
+
+import { Recipe } from "@/types/RecipeTypes";
+import { ContextProviderProps } from "@/types/TechnicalTypes";
 import { createContext, useEffect, useState } from "react";
 
 type RecipeContext = {

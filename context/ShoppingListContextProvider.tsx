@@ -1,6 +1,6 @@
-import { ShoppingList } from "@/types/MainAppTypes";
-import { ContextProviderProps } from "@/types/OtherTypes";
-import { createContext, useEffect, useState } from "react";
+import { ShoppingList } from "@/types/ShoppingListTypes";
+import { ContextProviderProps } from "@/types/TechnicalTypes";
+import { createContext, useState } from "react";
 
 type ShoppingListContext = {
   shoppingList: ShoppingList,

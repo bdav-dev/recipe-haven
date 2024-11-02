@@ -6,13 +6,12 @@ import TextField from "../TextField";
 import { Picker } from "@react-native-picker/picker";
 import { AppTheme, useAppTheme } from "@/hooks/useAppTheme";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
-import { Unit } from "@/types/MainAppTypes";
 import CardView from "../themed/CardView";
 import * as ImagePicker from 'expo-image-picker';
 import CalorificValueInput from "./CalorificValueInput";
 import { isBlank } from "../../utils/StringUtils";
 import { createIngredient } from "@/database/IngredientDao";
-import { CalorificValue } from "@/types/OtherTypes";
+import { CalorificValue, Unit } from "@/types/MiscellaneousTypes";
 
 type CreateIngredientModalProps = {
     isVisible: boolean,
