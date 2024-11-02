@@ -1,3 +1,12 @@
+import { CalorificValue } from "./OtherTypes"
+
+export type IngredientBlueprint = {
+    name: string,
+    pluralName?: string,
+    temporaryImageUri?: string,
+    unit: Unit,
+    calorificValue?: CalorificValue
+}
 
 export type Ingredient = {
     ingredientId?: number,
@@ -5,7 +14,17 @@ export type Ingredient = {
     pluralName?: string,
     imageSrc?: string,
     unit: Unit,
-    kcalPerUnit?: number
+    calorificValue?: CalorificValue
+}
+
+export type DatabaseIngredient = {
+    ingredientId?: number,
+    name: string,
+    pluralName?: string,
+    imageSrc?: string,
+    unit: Unit,
+    calorificValueKcal?: number,
+    calorificValueNUnits?: number
 }
 
 export type QuantizedIngredient = {

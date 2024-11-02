@@ -9,12 +9,17 @@ import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { Unit } from "@/types/MainAppTypes";
 import CardView from "../themed/CardView";
 import * as ImagePicker from 'expo-image-picker';
-import CalorieInput from "./CalorieInput";
+import CalorificValueInput from "./CalorificValueInput";
+import { isBlank } from "../../utils/StringUtils";
+import { createIngredient } from "@/database/IngredientDao";
+import { CalorificValue } from "@/types/OtherTypes";
 
 type CreateIngredientModalProps = {
     isVisible: boolean,
     onRequestClose?: () => void
 }
+
+const INITIAL_UNIT = Unit.GRAMM;
 
 export default function CreateIngredientModal(props: CreateIngredientModalProps) {
     const theme = useAppTheme();
@@ -22,35 +27,68 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
 
     const { ingredients, setIngredients } = useContext(IngredientContext);
 
+    const [temporaryImageUri, setTemporaryImageUri] = useState<string | undefined>(undefined);
     const [name, setName] = useState('');
     const [pluralName, setPluralName] = useState('');
-    
+    const [unit, setUnit] = useState(INITIAL_UNIT);
+    const [calorificValue, setCalorificValue] = useState<CalorificValue | undefined>(undefined);
 
-    const [unit, setUnit] = useState(Unit.GRAMM);
-
-    const [imageUri, setImageUri] = useState<string | null>(null);
+    function isReadyForSubmit() {
+        return !isBlank(name);
+    }
 
     async function pickImage() {
-        let result = await ImagePicker.launchImageLibraryAsync({
+        const imagePickerResult = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [1, 1],
             quality: 1
         });
 
-        if (!result.canceled) {
-            setImageUri(result.assets[0].uri);
+        if (!imagePickerResult.canceled) {
+            setTemporaryImageUri(imagePickerResult.assets[0].uri);
         }
+    }
+
+    function reset() {
+        setTemporaryImageUri(undefined);
+        setName('');
+        setPluralName('');
+        setUnit(INITIAL_UNIT);
+        setCalorificValue(undefined);
+    }
+
+    function close() {
+        reset();
+        if (props.onRequestClose)
+            props.onRequestClose();
+    }
+
+    function submit() {
+        createIngredient({
+            name: name,
+            pluralName: pluralName,
+            unit: unit,
+            temporaryImageUri: temporaryImageUri,
+            calorificValue: calorificValue
+        })
+            .then(
+                ingredient => {
+                    close();
+                    setIngredients(currentIngredients => [...currentIngredients, ingredient]);
+                }
+            );
     }
 
     return (
         <FullScreenModal
             isVisible={props.isVisible}
-            onRequestClose={props.onRequestClose}
+            onRequestClose={close}
             title={"Neue Zutat"}
             primaryActionButton={{
                 title: "Hinzufügen",
-                onPress: () => { }
+                onPress: () => submit(),
+                disabled: !isReadyForSubmit()
             }}
         >
             <View style={styles.contentContainer}>
@@ -58,11 +96,11 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
                 <View style={styles.imageAndNamesContainer}>
 
                     <View style={styles.imagePlaceholder}>
-                        <TouchableWithoutFeedback onPress={pickImage} onLongPress={() => setImageUri(null)}>
+                        <TouchableWithoutFeedback onPress={pickImage} onLongPress={() => setTemporaryImageUri(undefined)}>
                             {
-                                imageUri == null
-                                    ? <Button title="Bild auswählen" onPress={pickImage} />
-                                    : <Image source={{ uri: imageUri }} style={styles.image} />
+                                temporaryImageUri
+                                    ? <Image source={{ uri: temporaryImageUri }} style={styles.image} />
+                                    : <Button title="Bild auswählen" onPress={pickImage} />
                             }
                         </TouchableWithoutFeedback>
                     </View>
@@ -74,7 +112,7 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
                             style={[styles.nameTextField, styles.textField]}
                         />
                         <TextField
-                            placeholder='Mehrzahlname (optional)'
+                            placeholder='Mehrzahlname'
                             onChangeText={setPluralName}
                             style={styles.textField}
                         />
@@ -90,7 +128,7 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
                 </CardView>
 
                 <CardView title="Kalorienangabe" style={styles.caloriesCard}>
-                    <CalorieInput unit={unit}/>
+                    <CalorificValueInput initialValue={calorificValue} onValueChanged={setCalorificValue} unit={unit} />
                 </CardView>
 
             </View>
@@ -98,6 +136,7 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
         </FullScreenModal>
     );
 }
+
 
 const createStyles = (theme: AppTheme) => StyleSheet.create({
     contentContainer: {
@@ -117,22 +156,16 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         justifyContent: "center",
         gap: 7
     },
-
-    
-
     nameTextField: {
         fontSize: 28
     },
-
     picker: {
         color: theme.text,
         width: 200,
     },
-
     pickerItem: {
         fontSize: 18
     },
-
     imagePlaceholder: {
         display: "flex",
         justifyContent: "center",
