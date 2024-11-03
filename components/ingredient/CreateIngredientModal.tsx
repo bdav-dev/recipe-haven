@@ -3,8 +3,6 @@ import FullScreenModal from "../FullScreenModal";
 import { useContext, useState } from "react";
 import { IngredientContext } from "@/context/IngredientContextProvider";
 import TextField from "../TextField";
-import { Picker } from "@react-native-picker/picker";
-import { useAppTheme } from "@/hooks/useAppTheme";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import CardView from "../themed/CardView";
 import * as ImagePicker from 'expo-image-picker';
@@ -13,6 +11,7 @@ import { isBlank } from "../../utils/StringUtils";
 import { createIngredient } from "@/database/IngredientDao";
 import { CalorificValue, Unit } from "@/types/MiscellaneousTypes";
 import { AppTheme } from "@/types/ThemeTypes";
+import UnitPicker from "./UnitPicker";
 
 type CreateIngredientModalProps = {
     isVisible: boolean,
@@ -22,16 +21,15 @@ type CreateIngredientModalProps = {
 const INITIAL_UNIT = Unit.GRAMM;
 
 export default function CreateIngredientModal(props: CreateIngredientModalProps) {
-    const theme = useAppTheme();
     const styles = useThemedStyleSheet(createStyles);
 
-    const { ingredients, setIngredients } = useContext(IngredientContext);
+    const { setIngredients } = useContext(IngredientContext);
 
-    const [temporaryImageUri, setTemporaryImageUri] = useState<string | undefined>(undefined);
+    const [temporaryImageUri, setTemporaryImageUri] = useState<string | undefined>();
     const [name, setName] = useState('');
     const [pluralName, setPluralName] = useState('');
     const [unit, setUnit] = useState(INITIAL_UNIT);
-    const [calorificValue, setCalorificValue] = useState<CalorificValue | undefined>(undefined);
+    const [calorificValue, setCalorificValue] = useState<CalorificValue | undefined>();
 
     function isReadyForSubmit() {
         return !isBlank(name);
@@ -60,11 +58,12 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
 
     function close() {
         reset();
-        if (props.onRequestClose)
+        if (props.onRequestClose) {
             props.onRequestClose();
+        }
     }
 
-    function submit() {
+    function create() {
         createIngredient({
             name: name,
             pluralName: pluralName,
@@ -87,7 +86,7 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
             title={"Neue Zutat"}
             primaryActionButton={{
                 title: "Hinzufügen",
-                onPress: () => submit(),
+                onPress: () => create(),
                 disabled: !isReadyForSubmit()
             }}
         >
@@ -120,11 +119,7 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
                 </View>
 
                 <CardView title="Einheit" style={styles.unitCard}>
-                    <Picker selectedValue={unit} onValueChange={(value, index) => setUnit(value ?? Unit.GRAMM)} style={styles.picker} itemStyle={styles.pickerItem}>
-                        <Picker.Item label="Stück" value={Unit.PIECE} color={theme.text} />
-                        <Picker.Item label="Gramm" value={Unit.GRAMM} color={theme.text} />
-                        <Picker.Item label="Liter" value={Unit.LITER} color={theme.text} />
-                    </Picker>
+                    <UnitPicker selectedValue={unit} onValueChange={(value, index) => setUnit(value)} />
                 </CardView>
 
                 <CardView title="Brennwert" style={styles.caloriesCard}>
@@ -136,7 +131,6 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
         </FullScreenModal>
     );
 }
-
 
 const createStyles = (theme: AppTheme) => StyleSheet.create({
     contentContainer: {
@@ -158,13 +152,6 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     },
     nameTextField: {
         fontSize: 28
-    },
-    picker: {
-        color: theme.text,
-        width: 200,
-    },
-    pickerItem: {
-        fontSize: 18
     },
     imagePlaceholder: {
         display: "flex",
@@ -198,3 +185,5 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         borderRadius: 10
     }
 });
+
+export const createIngredientModalStyles = createStyles;

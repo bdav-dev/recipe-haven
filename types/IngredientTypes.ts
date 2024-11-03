@@ -14,12 +14,17 @@ export type QuantizedIngredient = {
     ingredient: Ingredient
 }
 
-export type IngredientBlueprint = {
+export type CreateIngredientBlueprint = {
     name: string,
     pluralName?: string,
     temporaryImageUri?: string,
     unit: Unit,
     calorificValue?: CalorificValue
+}
+
+export type UpdateIngredientBlueprint = {
+    originalIngredient: Ingredient
+    updatedValues: Omit<Ingredient, 'ingredientId'>
 }
 
 export type DatabaseIngredient = {

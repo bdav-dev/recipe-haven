@@ -10,14 +10,14 @@ import { AppTheme } from "@/types/ThemeTypes";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 
 type IngredientListItemProps = {
-    ingredient: Ingredient
+    ingredient: Ingredient,
+    onEditButtonPress?: () => void
 }
 
 export default function IngredientListItem(props: IngredientListItemProps) {
     const ingredient = props.ingredient;
     const theme = useAppTheme();
     const styles = useThemedStyleSheet(createStyles);
-
 
     return (
         <CardView style={styles.card} noPadding>
@@ -51,7 +51,7 @@ export default function IngredientListItem(props: IngredientListItemProps) {
                 }
             </View>
 
-            <TouchableOpacity style={styles.editButton}>
+            <TouchableOpacity style={styles.editButton} onPress={props.onEditButtonPress}>
                 <Ionicons name="pencil-outline" size={28} color={theme.primary} />
             </TouchableOpacity>
 

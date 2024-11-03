@@ -11,16 +11,25 @@ import { useAppTheme } from '@/hooks/useAppTheme';
 import { includesIgnoreCase, isBlank } from '@/utils/StringUtils';
 import { unitToString } from '@/utils/UnitUtils';
 import { Ingredient } from '@/types/IngredientTypes';
+import EditIngredientModal from '@/components/ingredient/EditIngredientModal';
 
 
 export default function IngredientsScreen() {
   const theme = useAppTheme();
 
   const { ingredients, setIngredients } = useContext(IngredientContext);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
 
+  const [editIngredient, setEditIngredient] = useState<Ingredient | undefined>(undefined);
+
   const filteredIngredients = useMemo(() => filterIngredients(ingredients, searchText), [ingredients, searchText]);
+
+  function launchEditIngredientModal(ingredient: Ingredient) {
+    setEditIngredient(ingredient);
+    setIsEditModalVisible(true);
+  }
 
   return (
     <Page>
@@ -34,16 +43,28 @@ export default function IngredientsScreen() {
         data={filteredIngredients}
         style={styles.ingredientList}
         ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-        renderItem={listItemInfo => <IngredientListItem ingredient={listItemInfo.item} />}
+        renderItem={listItemInfo => (
+          <IngredientListItem
+            key={listItemInfo.index}
+            ingredient={listItemInfo.item}
+            onEditButtonPress={() => launchEditIngredientModal(listItemInfo.item)}
+          />
+        )}
       />
 
-      <FloatingActionButton onPress={() => setIsModalVisible(true)}>
+      <FloatingActionButton onPress={() => setIsCreateModalVisible(true)}>
         <Ionicons name='add-outline' color={theme.card} size={35} />
       </FloatingActionButton>
 
       <CreateIngredientModal
-        isVisible={isModalVisible}
-        onRequestClose={() => setIsModalVisible(false)}
+        isVisible={isCreateModalVisible}
+        onRequestClose={() => setIsCreateModalVisible(false)}
+      />
+
+      <EditIngredientModal
+        isVisible={isEditModalVisible}
+        onRequestClose={() => setIsEditModalVisible(false)}
+        editIngredient={editIngredient}
       />
 
     </Page>

@@ -1,4 +1,4 @@
-import { DatabaseIngredient, Ingredient, IngredientBlueprint } from "@/types/IngredientTypes";
+import { DatabaseIngredient, Ingredient, CreateIngredientBlueprint, UpdateIngredientBlueprint } from "@/types/IngredientTypes";
 import database from "./Database";
 import * as FileSystem from 'expo-file-system';
 import { createDirectoryIfNotExists, getFileExtension } from "@/utils/FileSystemUtils";
@@ -27,25 +27,53 @@ export async function getAllIngredients() {
     return result.map(databaseIngredient => mapFromDatabaseModel(databaseIngredient));
 }
 
-export async function createIngredient(createIngredient: IngredientBlueprint) {
+export async function createIngredient(blueprint: CreateIngredientBlueprint) {
     const ingredient: Ingredient = {
-        name: createIngredient.name,
-        unit: createIngredient.unit,
-        pluralName: createIngredient.pluralName,
-        calorificValue: createIngredient.calorificValue
+        name: blueprint.name,
+        unit: blueprint.unit,
+        pluralName: blueprint.pluralName,
+        calorificValue: blueprint.calorificValue
     }
 
-    const ingredientId = await insertIngredient(ingredient);
+    const ingredientId = await insertIngredientInDatabase(ingredient);
     ingredient.ingredientId = ingredientId;
 
-    if (createIngredient.temporaryImageUri) {
-        const imageSrc = await saveIngredientImage(ingredientId, createIngredient.temporaryImageUri);
+    if (blueprint.temporaryImageUri) {
+        const imageSrc = await saveIngredientImage(ingredientId, blueprint.temporaryImageUri);
 
-        await updateImageSrc(ingredientId, imageSrc);
+        await updateImageSrcInDatabase(ingredientId, imageSrc);
         ingredient.imageSrc = imageSrc;
     }
 
     return ingredient;
+}
+
+export async function updateIngredient(blueprint: UpdateIngredientBlueprint) {
+    const originalImageUri = blueprint.originalIngredient.imageSrc;
+    const newImageUri = blueprint.updatedValues.imageSrc;
+
+    if (originalImageUri !== newImageUri) {
+        if (originalImageUri !== undefined) {
+            await FileSystem.deleteAsync(originalImageUri)
+        }
+
+        if (newImageUri !== undefined) {
+            await saveIngredientImage(blueprint.originalIngredient.ingredientId!, newImageUri)
+        }
+    }
+
+    const updatedIngredient: Ingredient = {
+        ingredientId: blueprint.originalIngredient.ingredientId,
+        imageSrc: newImageUri,
+        name: blueprint.updatedValues.name,
+        pluralName: blueprint.updatedValues.pluralName,
+        unit: blueprint.updatedValues.unit,
+        calorificValue: blueprint.updatedValues.calorificValue
+    }
+
+    await updateIngredientInDatabase(updatedIngredient);
+
+    return updatedIngredient;
 }
 
 export async function deleteAllIngredients() {
@@ -62,7 +90,31 @@ async function saveIngredientImage(ingredientId: number, temporaryImageUri: stri
     return imageUri;
 }
 
-async function updateImageSrc(ingredientId: number, imageSrc: string) {
+async function updateIngredientInDatabase(ingredient: Ingredient) {
+    await database.runAsync(
+        `
+        UPDATE Ingredient
+        SET name = ?,
+            pluralName = ?,
+            imageSrc = ?,
+            unit = ?,
+            calorificValueKcal = ?,
+            calorificValueNUnits = ?
+        WHERE ingredientId = ?
+        `,
+        [
+            ingredient.name,
+            ingredient.pluralName ?? null,
+            ingredient.imageSrc ?? null,
+            ingredient.unit,
+            ingredient.calorificValue?.kcal ?? null,
+            ingredient.calorificValue?.nUnits ?? null,
+            ingredient.ingredientId!.toString()
+        ]
+    );
+}
+
+async function updateImageSrcInDatabase(ingredientId: number, imageSrc: string) {
     await database.runAsync(
         `
         UPDATE Ingredient
@@ -74,7 +126,7 @@ async function updateImageSrc(ingredientId: number, imageSrc: string) {
     );
 }
 
-async function insertIngredient(ingredient: Ingredient) {
+async function insertIngredientInDatabase(ingredient: Ingredient) {
     const insertResult = await database.runAsync(
         `
         INSERT INTO
@@ -103,11 +155,11 @@ function mapFromDatabaseModel(databaseIngredient: DatabaseIngredient): Ingredien
     }
 
     return {
-        name: databaseIngredient.name,
-        unit: databaseIngredient.unit,
-        imageSrc: databaseIngredient.imageSrc,
         ingredientId: databaseIngredient.ingredientId,
+        imageSrc: databaseIngredient.imageSrc,
+        name: databaseIngredient.name,
         pluralName: databaseIngredient.pluralName,
+        unit: databaseIngredient.unit,
         calorificValue: calorificValue
     }
 }
