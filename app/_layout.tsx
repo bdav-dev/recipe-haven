@@ -41,6 +41,8 @@ export default function RootLayout() {
 async function initDb() {
   initializeDatabase();
   createIngredientTableIfNotExists();
-  deleteAllIngredients();
+  // deleteAllIngredients();
+
+  
 }
 
