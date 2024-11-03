@@ -12,8 +12,8 @@ import { includesIgnoreCase, isBlank } from '@/utils/StringUtils';
 import { unitToString } from '@/utils/UnitUtils';
 import { Ingredient } from '@/types/IngredientTypes';
 import EditIngredientModal from '@/components/ingredient/EditIngredientModal';
-import { ThemedText } from '@/components/themed/ThemedText';
 import NoIngredientsInfo from '@/components/ingredient/NoIngredientsInfo';
+import NoResultsInfo from '@/components/NoResultsInfo';
 
 
 export default function IngredientsScreen() {
@@ -33,29 +33,39 @@ export default function IngredientsScreen() {
     setIsEditModalVisible(true);
   }
 
+  const areIngredientsEmpty = () => ingredients.length === 0;
+  const areFilteredIngredientsEmpty = () => filteredIngredients.length === 0;
+
   return (
     <Page>
 
-      <View style={styles.searchBar}>
-        <Ionicons name='search-outline' size={25} color={theme.iconSecondary} style={styles.searchBarIcon} />
-        <TextField style={{ flex: 1 }} placeholder='Suche' value={searchText} onChangeText={setSearchText} />
-      </View>
+      {
+        !areIngredientsEmpty() &&
+        <View style={styles.searchBar}>
+          <Ionicons name='search-outline' size={25} color={theme.iconSecondary} style={styles.searchBarIcon} />
+          <TextField style={{ flex: 1 }} placeholder='Suche' value={searchText} onChangeText={setSearchText} />
+        </View>
+      }
 
       {
-        ingredients.length === 0
-          ? <NoIngredientsInfo/>
-          : <FlatList
-            data={filteredIngredients}
-            style={styles.ingredientList}
-            ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-            renderItem={listItemInfo => (
-              <IngredientListItem
-                key={listItemInfo.index}
-                ingredient={listItemInfo.item}
-                onEditButtonPress={() => launchEditIngredientModal(listItemInfo.item)}
+        areIngredientsEmpty()
+          ? <NoIngredientsInfo />
+          : (
+            areFilteredIngredientsEmpty()
+              ? <NoResultsInfo />
+              : <FlatList
+                data={filteredIngredients}
+                style={styles.ingredientList}
+                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                renderItem={listItemInfo => (
+                  <IngredientListItem
+                    key={listItemInfo.index}
+                    ingredient={listItemInfo.item}
+                    onEditButtonPress={() => launchEditIngredientModal(listItemInfo.item)}
+                  />
+                )}
               />
-            )}
-          />
+          )
       }
 
       <FloatingActionButton onPress={() => setIsCreateModalVisible(true)}>
@@ -103,7 +113,8 @@ const styles = StyleSheet.create({
     margin: 8,
     display: "flex",
     flexDirection: "row",
-    alignItems: "center"
+    alignItems: "center",
+    marginTop: 12
   },
   searchBarIcon: {
     marginRight: 4
