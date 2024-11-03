@@ -25,11 +25,11 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
 
     const { setIngredients } = useContext(IngredientContext);
 
-    const [temporaryImageUri, setTemporaryImageUri] = useState<string | undefined>();
+    const [temporaryImageUri, setTemporaryImageUri] = useState<string>();
     const [name, setName] = useState('');
     const [pluralName, setPluralName] = useState('');
     const [unit, setUnit] = useState(INITIAL_UNIT);
-    const [calorificValue, setCalorificValue] = useState<CalorificValue | undefined>();
+    const [calorificValue, setCalorificValue] = useState<CalorificValue>();
 
     function isReadyForSubmit() {
         return !isBlank(name);
@@ -123,7 +123,7 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
                 </CardView>
 
                 <CardView title="Brennwert" style={styles.caloriesCard}>
-                    <CalorificValueInput initialValue={calorificValue} onValueChanged={setCalorificValue} unit={unit} />
+                    <CalorificValueInput onValueChanged={setCalorificValue} unit={unit} />
                 </CardView>
 
             </View>

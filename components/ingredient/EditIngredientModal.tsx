@@ -25,11 +25,13 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
 
     const { setIngredients } = useContext(IngredientContext);
 
-    const [imageUri, setImageUri] = useState<string | undefined>();
+    const [imageUri, setImageUri] = useState<string>();
     const [name, setName] = useState('');
     const [pluralName, setPluralName] = useState('');
     const [unit, setUnit] = useState(Unit.GRAMM);
-    const [calorificValue, setCalorificValue] = useState<CalorificValue | undefined>();
+    const [calorificValue, setCalorificValue] = useState<CalorificValue>();
+
+    const [initialCalorificValue, setInitialCalorificValue] = useState<CalorificValue>();
 
     useEffect(() => {
         reset();
@@ -41,6 +43,7 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
         setPluralName(props.editIngredient?.pluralName ?? '');
         setUnit(props.editIngredient?.unit ?? Unit.GRAMM);
         setCalorificValue(props.editIngredient?.calorificValue);
+        setInitialCalorificValue(props.editIngredient?.calorificValue);
     }
 
     function close() {
@@ -153,7 +156,7 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
                 </CardView>
 
                 <CardView title="Brennwert" style={styles.caloriesCard}>
-                    <CalorificValueInput initialValue={calorificValue} onValueChanged={setCalorificValue} unit={unit} />
+                    <CalorificValueInput initialValue={initialCalorificValue} onValueChanged={setCalorificValue} unit={unit} />
                 </CardView>
 
                 <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: 5 }}>
