@@ -2,9 +2,9 @@ import { StyleSheet, View } from "react-native";
 import TextField from "../TextField";
 import { ThemedText } from "../themed/ThemedText";
 import { useEffect, useState } from "react";
-import { CalorificValue, Unit } from "@/types/MiscellaneousTypes";
 import { isBlank, isNumeric } from "../../utils/StringUtils";
 import { unitToString } from "@/utils/UnitUtils";
+import { CalorificValue, Unit } from "@/types/IngredientTypes";
 
 type CalorificValueInputProps = {
     initialValue?: CalorificValue,

@@ -1,5 +1,5 @@
+import { ContextProviderProps } from "@/types/MiscellaneousTypes";
 import { Recipe } from "@/types/RecipeTypes";
-import { ContextProviderProps } from "@/types/TechnicalTypes";
 import { createContext, useState } from "react";
 
 type RecipeContext = {

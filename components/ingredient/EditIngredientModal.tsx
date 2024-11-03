@@ -8,11 +8,10 @@ import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { createIngredientModalStyles } from "./CreateIngredientModal";
 import { useContext, useEffect, useState } from "react";
 import { IngredientContext } from "@/context/IngredientContextProvider";
-import { CalorificValue, Unit } from "@/types/MiscellaneousTypes";
 import { isBlank } from "@/utils/StringUtils";
 import * as ImagePicker from 'expo-image-picker';
 import DeleteButton from "../DeleteButton";
-import { Ingredient } from "@/types/IngredientTypes";
+import { CalorificValue, Ingredient, Unit } from "@/types/IngredientTypes";
 import { deleteIngredient, updateIngredient } from "@/database/IngredientDao";
 
 type EditIngredientModalProps = {

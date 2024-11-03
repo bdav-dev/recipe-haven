@@ -1,4 +1,4 @@
-import { Unit } from "@/types/MiscellaneousTypes"
+import { Unit } from "@/types/IngredientTypes"
 
 export function unitToString(unit: Unit) {
     switch (+unit) {

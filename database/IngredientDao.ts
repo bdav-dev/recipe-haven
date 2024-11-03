@@ -1,8 +1,9 @@
-import { DatabaseIngredient, Ingredient, CreateIngredientBlueprint, UpdateIngredientBlueprint } from "@/types/IngredientTypes";
+import { CalorificValue, Ingredient } from "@/types/IngredientTypes";
 import database from "./Database";
 import * as FileSystem from 'expo-file-system';
 import { createDirectoryIfNotExists, getFileExtension } from "@/utils/FileSystemUtils";
-import { CalorificValue } from "@/types/MiscellaneousTypes";
+import { CreateIngredientBlueprint, UpdateIngredientBlueprint } from "@/types/dao/IngredientDaoTypes";
+import { DatabaseIngredient } from "@/types/DatabaseTypes";
 
 export async function createIngredientTableIfNotExists() {
     await database.execAsync(`

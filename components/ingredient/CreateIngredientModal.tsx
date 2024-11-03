@@ -9,9 +9,9 @@ import * as ImagePicker from 'expo-image-picker';
 import CalorificValueInput from "./CalorificValueInput";
 import { isBlank } from "../../utils/StringUtils";
 import { createIngredient } from "@/database/IngredientDao";
-import { CalorificValue, Unit } from "@/types/MiscellaneousTypes";
 import { AppTheme } from "@/types/ThemeTypes";
 import UnitPicker from "./UnitPicker";
+import { CalorificValue, Unit } from "@/types/IngredientTypes";
 
 type CreateIngredientModalProps = {
     isVisible: boolean,

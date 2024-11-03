@@ -1,6 +1,6 @@
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
-import { Unit } from "@/types/MiscellaneousTypes";
+import { Unit } from "@/types/IngredientTypes";
 import { AppTheme } from "@/types/ThemeTypes";
 import { unitToString } from "@/utils/UnitUtils";
 import { Picker } from "@react-native-picker/picker";

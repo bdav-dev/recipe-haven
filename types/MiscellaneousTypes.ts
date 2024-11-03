@@ -1,12 +1,3 @@
-
-export enum Unit {
-    GRAMM,
-    LITER,
-    PIECE
-}
-
-
-export type CalorificValue = {
-    kcal: number,
-    nUnits: number
+export type ContextProviderProps = {
+    children?: React.ReactNode
 }

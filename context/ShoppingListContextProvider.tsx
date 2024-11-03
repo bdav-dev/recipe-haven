@@ -1,5 +1,5 @@
+import { ContextProviderProps } from "@/types/MiscellaneousTypes";
 import { ShoppingList } from "@/types/ShoppingListTypes";
-import { ContextProviderProps } from "@/types/TechnicalTypes";
 import { createContext, useState } from "react";
 
 type ShoppingListContext = {
