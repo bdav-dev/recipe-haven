@@ -12,6 +12,8 @@ import { includesIgnoreCase, isBlank } from '@/utils/StringUtils';
 import { unitToString } from '@/utils/UnitUtils';
 import { Ingredient } from '@/types/IngredientTypes';
 import EditIngredientModal from '@/components/ingredient/EditIngredientModal';
+import { ThemedText } from '@/components/themed/ThemedText';
+import NoIngredientsInfo from '@/components/ingredient/NoIngredientsInfo';
 
 
 export default function IngredientsScreen() {
@@ -39,18 +41,22 @@ export default function IngredientsScreen() {
         <TextField style={{ flex: 1 }} placeholder='Suche' value={searchText} onChangeText={setSearchText} />
       </View>
 
-      <FlatList
-        data={filteredIngredients}
-        style={styles.ingredientList}
-        ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-        renderItem={listItemInfo => (
-          <IngredientListItem
-            key={listItemInfo.index}
-            ingredient={listItemInfo.item}
-            onEditButtonPress={() => launchEditIngredientModal(listItemInfo.item)}
+      {
+        ingredients.length === 0
+          ? <NoIngredientsInfo/>
+          : <FlatList
+            data={filteredIngredients}
+            style={styles.ingredientList}
+            ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+            renderItem={listItemInfo => (
+              <IngredientListItem
+                key={listItemInfo.index}
+                ingredient={listItemInfo.item}
+                onEditButtonPress={() => launchEditIngredientModal(listItemInfo.item)}
+              />
+            )}
           />
-        )}
-      />
+      }
 
       <FloatingActionButton onPress={() => setIsCreateModalVisible(true)}>
         <Ionicons name='add-outline' color={theme.card} size={35} />

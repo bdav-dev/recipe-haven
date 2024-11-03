@@ -76,6 +76,14 @@ export async function updateIngredient(blueprint: UpdateIngredientBlueprint) {
     return updatedIngredient;
 }
 
+export async function deleteIngredient(ingredient: Ingredient) {
+    if (ingredient.imageSrc !== undefined) {
+        FileSystem.deleteAsync(ingredient.imageSrc);
+    }
+
+    await deleteIngredientInDatabase(ingredient.ingredientId!);
+}
+
 export async function deleteAllIngredients() {
     await database.execAsync(`DELETE FROM Ingredient`);
 }
@@ -142,6 +150,17 @@ async function insertIngredientInDatabase(ingredient: Ingredient) {
     );
 
     return insertResult.lastInsertRowId;
+}
+
+async function deleteIngredientInDatabase(ingredientId: number) {
+    await database.runAsync(
+        `
+        DELETE
+        FROM Ingredient
+        WHERE ingredientId = ?
+        `,
+        ingredientId
+    );
 }
 
 function mapFromDatabaseModel(databaseIngredient: DatabaseIngredient): Ingredient {

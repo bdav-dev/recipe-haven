@@ -1,4 +1,4 @@
-import { Button, Image, TouchableWithoutFeedback, View } from "react-native";
+import { Alert, Button, Image, TouchableWithoutFeedback, View } from "react-native";
 import FullScreenModal from "../FullScreenModal";
 import TextField from "../TextField";
 import CardView from "../themed/CardView";
@@ -13,7 +13,7 @@ import { isBlank } from "@/utils/StringUtils";
 import * as ImagePicker from 'expo-image-picker';
 import DeleteButton from "../DeleteButton";
 import { Ingredient } from "@/types/IngredientTypes";
-import { updateIngredient } from "@/database/IngredientDao";
+import { deleteIngredient, updateIngredient } from "@/database/IngredientDao";
 
 type EditIngredientModalProps = {
     isVisible: boolean,
@@ -85,6 +85,27 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
             })
     }
 
+    function remove() {
+        deleteIngredient(props.editIngredient!)
+            .then(() => {
+                setIngredients(ingredients => removeIngredient(ingredients, props.editIngredient!))
+                close();
+            });
+    }
+
+    function showConfirmDeleteAlert() {
+        Alert.alert('Zutat löschen', 'Möchtest du diese Zutat wirklich löschen?', [
+            {
+                text: 'Abbrechen'
+            },
+            {
+                text: 'Löschen',
+                onPress: remove,
+                style: "destructive"
+            }
+        ]);
+    }
+
     return (
         <FullScreenModal
             isVisible={props.isVisible}
@@ -137,7 +158,7 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
                 </CardView>
 
                 <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: 5 }}>
-                    <DeleteButton>Zutat löschen</DeleteButton>
+                    <DeleteButton onPress={showConfirmDeleteAlert}>Zutat löschen</DeleteButton>
                 </View>
 
             </View>
@@ -146,14 +167,18 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
     );
 }
 
-
 function replaceIngredient(ingredients: Ingredient[], replacement: Ingredient) {
-    const clonedIngredients = [...ingredients];
+    return ingredients.map(
+        ingredient => (
+            ingredient.ingredientId === replacement.ingredientId
+                ? replacement
+                : ingredient
+        )
+    );
+}
 
-    for (let i = 0; i < clonedIngredients.length; i++) {
-        if (clonedIngredients[i].ingredientId === replacement.ingredientId) {
-            clonedIngredients[i] = replacement;
-        }
-    }
-    return clonedIngredients;
+function removeIngredient(ingredients: Ingredient[], ingredientToRemove: Ingredient) {
+    return ingredients.filter(
+        ingredient => ingredient.ingredientId !== ingredientToRemove.ingredientId
+    );
 }
