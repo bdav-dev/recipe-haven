@@ -79,7 +79,7 @@ export async function updateIngredient(blueprint: UpdateIngredientBlueprint) {
 
 export async function deleteIngredient(ingredient: Ingredient) {
     if (ingredient.imageSrc !== undefined) {
-        FileSystem.deleteAsync(ingredient.imageSrc);
+        await FileSystem.deleteAsync(ingredient.imageSrc);
     }
 
     await deleteIngredientInDatabase(ingredient.ingredientId!);
