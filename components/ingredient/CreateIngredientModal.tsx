@@ -23,7 +23,7 @@ const INITIAL_UNIT = Unit.GRAMM;
 
 export default function CreateIngredientModal(props: CreateIngredientModalProps) {
     const theme = useAppTheme();
-    const styles = useThemedStyleSheet(theme => createStyles(theme));
+    const styles = useThemedStyleSheet(createStyles);
 
     const { ingredients, setIngredients } = useContext(IngredientContext);
 

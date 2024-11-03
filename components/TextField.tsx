@@ -14,7 +14,7 @@ export default function TextField({
     onChangeText,
     ...rest
 }: TextFieldProps) {
-    const styles = useThemedStyleSheet(theme => createStyles(theme));
+    const styles = useThemedStyleSheet(createStyles);
 
     return (
         <TextInput

@@ -2,7 +2,7 @@ import FloatingActionButton from '@/components/FloatingActionButton';
 import Page from '@/components/Page';
 import { IngredientContext } from '@/context/IngredientContextProvider';
 import { useContext, useMemo, useState } from 'react';
-import { StyleSheet, View, FlatList } from 'react-native';
+import { StyleSheet, View, FlatList, Text } from 'react-native';
 import CreateIngredientModal from '@/components/ingredient/CreateIngredientModal';
 import IngredientListItem from '@/components/ingredient/IngredientListItem';
 import TextField from '@/components/TextField';
@@ -37,7 +37,9 @@ export default function IngredientsScreen() {
         renderItem={listItemInfo => <IngredientListItem ingredient={listItemInfo.item} />}
       />
 
-      <FloatingActionButton onPress={() => setIsModalVisible(true)} />
+      <FloatingActionButton onPress={() => setIsModalVisible(true)}>
+        <Ionicons name='add-outline' color={theme.card} size={35} />
+      </FloatingActionButton>
 
       <CreateIngredientModal
         isVisible={isModalVisible}

@@ -16,7 +16,7 @@ type IngredientListItemProps = {
 export default function IngredientListItem(props: IngredientListItemProps) {
     const ingredient = props.ingredient;
     const theme = useAppTheme();
-    const styles = useThemedStyleSheet(theme => createStyles(theme));
+    const styles = useThemedStyleSheet(createStyles);
 
 
     return (

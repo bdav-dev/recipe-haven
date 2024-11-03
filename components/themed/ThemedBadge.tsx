@@ -10,7 +10,7 @@ export default function ThemedBadge({
     style,
     ...rest
 }: ThemedBadgeProps) {
-    const styles = useThemedStyleSheet(theme => createStyles(theme));
+    const styles = useThemedStyleSheet(createStyles);
 
     return (
         <View style={styles.badge}>

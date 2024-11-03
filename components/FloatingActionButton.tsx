@@ -1,40 +1,42 @@
-import { Pressable, StyleSheet, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
+import { AppTheme } from "@/types/ThemeTypes";
+import { StyleSheet, TouchableOpacity } from "react-native";
 
 type FloatingActionButtonProps = {
+    children?: React.ReactNode,
     onPress?: () => void
 }
 
 export default function FloatingActionButton(props: FloatingActionButtonProps) {
+    const styles = useThemedStyleSheet(createStyles);
 
     return (
-        <View style={styles.container}>
-            <Pressable
-                onPress={props.onPress}
-                style={({ pressed }) => [
-                    styles.fab,
-                    { backgroundColor: pressed ? '#444444' : "#FFFFFF" }
-                ]}
-            >
-                <Ionicons name="add-outline" />
-            </Pressable>
-        </View>
+        <TouchableOpacity
+            onPress={props.onPress}
+            style={styles.fab}
+        >
+            {props.children}
+        </TouchableOpacity>
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
     fab: {
-        width: 55,
-        height: 55,
+        width: 60,
+        height: 60,
         borderRadius: 999,
         display: "flex",
         alignItems: "center",
-        justifyContent: "center"
-    },
-    container: {
+        justifyContent: "center",
+        backgroundColor: theme.accent,
         position: "absolute",
-        bottom: 20,
-        right: 20,
-        zIndex: 1
+        bottom: 25,
+        right: 25,
+        zIndex: 1,
+        shadowColor: "black",
+        shadowOffset: { height: 0, width: 0 },
+        shadowRadius: 10,
+        shadowOpacity: 0.2,
+        elevation: 5,
     }
 });

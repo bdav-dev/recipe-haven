@@ -17,7 +17,7 @@ export default function CardView({
     style,
     ...rest
 }: CardViewProps) {
-    const styles = useThemedStyleSheet(theme => createStyles(theme))
+    const styles = useThemedStyleSheet(createStyles)
 
     return (
         <View
