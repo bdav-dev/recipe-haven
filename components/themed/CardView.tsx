@@ -4,12 +4,14 @@ import { ThemedText } from "./ThemedText";
 import { AppTheme } from "@/types/ThemeTypes";
 
 type CardViewProps = ViewProps & {
-    title?: string
+    title?: string,
+    noPadding?: boolean
 }
 
 const padding = 11;
 
 export default function CardView({
+    noPadding,
     title,
     children,
     style,
@@ -21,7 +23,10 @@ export default function CardView({
         <View
             style={[
                 styles.cardView,
-                { paddingTop: title ? 37 : padding },
+                {
+                    padding: noPadding ? 0 : padding,
+                    paddingTop: noPadding ? 0 : (title ? 37 : padding)
+                },
                 style
             ]}
             {...rest}
@@ -39,7 +44,6 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     cardView: {
         backgroundColor: theme.card,
         borderRadius: 13,
-        padding: padding,
         position: "relative"
     },
     title: {

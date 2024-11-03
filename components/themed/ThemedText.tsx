@@ -3,7 +3,7 @@ import { Text, type TextProps, StyleSheet } from 'react-native';
 import { useAppTheme } from '@/hooks/useAppTheme';
 
 export type ThemedTextProps = TextProps & {
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
+  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link' | 'largeSemiBold';
 };
 
 export function ThemedText({
@@ -22,6 +22,7 @@ export function ThemedText({
         type === 'defaultSemiBold' ? styles.semiBold : undefined,
         type === 'subtitle' ? styles.subtitle : undefined,
         type === 'link' ? styles.link : undefined,
+        type === 'largeSemiBold' ? styles.largeSemiBold : undefined,
         style,
       ]}
       {...rest}
@@ -36,6 +37,11 @@ const styles = StyleSheet.create({
   },
   semiBold: {
     fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '600',
+  },
+  largeSemiBold: {
+    fontSize: 18,
     lineHeight: 24,
     fontWeight: '600',
   },

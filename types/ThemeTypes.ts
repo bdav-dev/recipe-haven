@@ -12,5 +12,6 @@ export type AppTheme = {
         borderWidth: number,
         shadowOpacity: number
     }
-    erroneousTextFieldBorder: string
+    erroneousTextFieldBorder: string,
+    badgeBackground: string
 }

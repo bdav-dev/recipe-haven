@@ -19,7 +19,8 @@ export const AppThemes: { [key: string]: AppTheme } = {
             borderWidth: 0,
             shadowOpacity: 0.4
         },
-        erroneousTextFieldBorder: "#FF0221"
+        erroneousTextFieldBorder: "#FF0221",
+        badgeBackground: "#DBDBDB"
     },
     dark: {
         primary: reactNativeDarkTheme.colors.primary,
@@ -35,7 +36,8 @@ export const AppThemes: { [key: string]: AppTheme } = {
             borderWidth: 0.5,
             shadowOpacity: 1
         },
-        erroneousTextFieldBorder: "#FF0221"
+        erroneousTextFieldBorder: "#FF0221",
+        badgeBackground: "#292929"
     },
 };
 
