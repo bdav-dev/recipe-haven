@@ -1,27 +1,43 @@
 import FloatingActionButton from '@/components/FloatingActionButton';
 import Page from '@/components/Page';
-import { ThemedText } from '@/components/themed/ThemedText';
 import { IngredientContext } from '@/context/IngredientContextProvider';
-import { useContext, useState } from 'react';
-import { StyleSheet, View, FlatList, Image } from 'react-native';
+import { useContext, useMemo, useState } from 'react';
+import { StyleSheet, View, FlatList } from 'react-native';
 import CreateIngredientModal from '@/components/ingredient/CreateIngredientModal';
 import IngredientListItem from '@/components/ingredient/IngredientListItem';
+import TextField from '@/components/TextField';
+import { Ionicons } from '@expo/vector-icons';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { includesIgnoreCase, isBlank } from '@/utils/StringUtils';
+import { unitToString } from '@/utils/UnitUtils';
+import { Ingredient } from '@/types/IngredientTypes';
 
 
 export default function IngredientsScreen() {
+  const theme = useAppTheme();
+
   const { ingredients, setIngredients } = useContext(IngredientContext);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState('');
+
+  const filteredIngredients = useMemo(() => filterIngredients(ingredients, searchText), [ingredients, searchText]);
 
   return (
     <Page>
-      <FloatingActionButton onPress={() => setIsModalVisible(true)} />
+
+      <View style={styles.searchBar}>
+        <Ionicons name='search-outline' size={25} color={theme.iconSecondary} style={styles.searchBarIcon} />
+        <TextField style={{ flex: 1 }} placeholder='Suche' value={searchText} onChangeText={setSearchText} />
+      </View>
 
       <FlatList
-        data={ingredients}
-        style={{ padding: 8 }}
-        ItemSeparatorComponent={() => <View style={{height: 8}} />}
+        data={filteredIngredients}
+        style={styles.ingredientList}
+        ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
         renderItem={listItemInfo => <IngredientListItem ingredient={listItemInfo.item} />}
       />
+
+      <FloatingActionButton onPress={() => setIsModalVisible(true)} />
 
       <CreateIngredientModal
         isVisible={isModalVisible}
@@ -32,8 +48,37 @@ export default function IngredientsScreen() {
   );
 }
 
+function filterIngredients(ingredients: Ingredient[], searchText: string) {
+  if (isBlank(searchText)) {
+    return ingredients;
+  }
+
+  const trimmedSearchText = searchText.trim();
+
+  return ingredients.filter(
+    item => (
+      includesIgnoreCase(item.name, trimmedSearchText) ||
+      includesIgnoreCase(item.pluralName ?? '', trimmedSearchText) ||
+      includesIgnoreCase((item.calorificValue?.kcal.toString() ?? '') + " kcal", trimmedSearchText) ||
+      includesIgnoreCase(item.calorificValue?.nUnits.toString() ?? '', trimmedSearchText) ||
+      includesIgnoreCase(unitToString(item.unit) ?? '', trimmedSearchText)
+    )
+  );
+}
 
 const styles = StyleSheet.create({
+  ingredientList: {
+    padding: 8
+  },
+  searchBar: {
+    margin: 8,
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center"
+  },
+  searchBarIcon: {
+    marginRight: 4
+  },
   textInput: {
     width: 100
   },

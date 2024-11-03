@@ -6,6 +6,8 @@ import { unitToString } from "@/utils/UnitUtils";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import ThemedBadge from "../themed/ThemedBadge";
+import { AppTheme } from "@/types/ThemeTypes";
+import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 
 type IngredientListItemProps = {
     ingredient: Ingredient
@@ -14,6 +16,8 @@ type IngredientListItemProps = {
 export default function IngredientListItem(props: IngredientListItemProps) {
     const ingredient = props.ingredient;
     const theme = useAppTheme();
+    const styles = useThemedStyleSheet(theme => createStyles(theme));
+
 
     return (
         <CardView style={styles.card} noPadding>
@@ -57,7 +61,7 @@ export default function IngredientListItem(props: IngredientListItemProps) {
 
 const GAP = 15;
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
     card: {
         height: 75,
         display: "flex",
@@ -68,6 +72,8 @@ const styles = StyleSheet.create({
         shadowOffset: { height: 0, width: 0 },
         shadowRadius: 5,
         shadowOpacity: 0.1,
+        borderWidth: theme.ingredientListItem.borderWidth,
+        borderColor: theme.border
     },
     image: {
         height: 75,

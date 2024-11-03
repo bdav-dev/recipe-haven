@@ -11,7 +11,10 @@ export type AppTheme = {
     modal: {
         borderWidth: number,
         shadowOpacity: number
-    }
+    },
+    ingredientListItem: {
+        borderWidth: number
+    },
     erroneousTextFieldBorder: string,
     badgeBackground: string
 }

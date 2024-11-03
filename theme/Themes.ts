@@ -19,6 +19,9 @@ export const AppThemes: { [key: string]: AppTheme } = {
             borderWidth: 0,
             shadowOpacity: 0.4
         },
+        ingredientListItem: {
+            borderWidth: 0
+        },
         erroneousTextFieldBorder: "#FF0221",
         badgeBackground: "#DBDBDB"
     },
@@ -35,6 +38,9 @@ export const AppThemes: { [key: string]: AppTheme } = {
         modal: {
             borderWidth: 0.5,
             shadowOpacity: 1
+        },
+        ingredientListItem: {
+            borderWidth: 1
         },
         erroneousTextFieldBorder: "#FF0221",
         badgeBackground: "#292929"
