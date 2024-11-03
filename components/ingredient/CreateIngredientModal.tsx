@@ -127,7 +127,7 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
                     </Picker>
                 </CardView>
 
-                <CardView title="Kalorienangabe" style={styles.caloriesCard}>
+                <CardView title="Brennwert" style={styles.caloriesCard}>
                     <CalorificValueInput initialValue={calorificValue} onValueChanged={setCalorificValue} unit={unit} />
                 </CardView>
 
