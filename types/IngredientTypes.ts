@@ -1,5 +1,5 @@
 export type Ingredient = {
-    ingredientId?: number,
+    ingredientId: number,
     name: string,
     pluralName?: string,
     imageSrc?: string,

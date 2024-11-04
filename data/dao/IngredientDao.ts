@@ -20,20 +20,17 @@ export function createIngredientTableIfNotExists() {
 }
 
 export async function createIngredient(blueprint: CreateIngredientBlueprint) {
-    const ingredient: Ingredient = {
+    const ingredient = await insertIngredientInDatabase({
         name: blueprint.name,
         unit: blueprint.unit,
         pluralName: blueprint.pluralName,
         calorificValue: blueprint.calorificValue
-    }
-
-    const ingredientId = await insertIngredientInDatabase(ingredient);
-    ingredient.ingredientId = ingredientId;
+    });
 
     if (blueprint.temporaryImageUri) {
-        const imageSrc = await saveIngredientImage(ingredientId, blueprint.temporaryImageUri);
+        const imageSrc = await saveIngredientImage(ingredient.ingredientId, blueprint.temporaryImageUri);
 
-        await updateImageSrcInDatabase(ingredientId, imageSrc);
+        await updateImageSrcInDatabase(ingredient.ingredientId, imageSrc);
         ingredient.imageSrc = imageSrc;
     }
 
@@ -54,7 +51,7 @@ export async function updateIngredient(blueprint: UpdateIngredientBlueprint) {
         }
 
         if (newImageUri !== undefined) {
-            newImageUri = await saveIngredientImage(blueprint.originalIngredient.ingredientId!, newImageUri)
+            newImageUri = await saveIngredientImage(blueprint.originalIngredient.ingredientId, newImageUri)
         }
     }
 
@@ -77,7 +74,7 @@ export async function deleteIngredient(ingredient: Ingredient) {
         await FileSystem.deleteAsync(ingredient.imageSrc);
     }
 
-    await deleteIngredientInDatabase(ingredient.ingredientId!);
+    await deleteIngredientInDatabase(ingredient.ingredientId);
 }
 
 
@@ -93,7 +90,7 @@ async function saveIngredientImage(ingredientId: number, temporaryImageUri: stri
 }
 
 
-async function insertIngredientInDatabase(ingredient: Ingredient) {
+async function insertIngredientInDatabase(ingredient: Omit<Ingredient, 'ingredientId'>): Promise<Ingredient> {
     const insertResult = await database.runAsync(
         `
         INSERT INTO
@@ -108,7 +105,10 @@ async function insertIngredientInDatabase(ingredient: Ingredient) {
         ingredient.calorificValue?.nUnits ?? null
     );
 
-    return insertResult.lastInsertRowId;
+    return {
+        ingredientId: insertResult.lastInsertRowId,
+        ...ingredient
+    };
 }
 
 async function getAllIngredientsFromDatabase() {
@@ -139,7 +139,7 @@ async function updateIngredientInDatabase(ingredient: Ingredient) {
             ingredient.unit,
             ingredient.calorificValue?.kcal ?? null,
             ingredient.calorificValue?.nUnits ?? null,
-            ingredient.ingredientId!.toString()
+            ingredient.ingredientId.toString()
         ]
     );
 }

@@ -24,7 +24,7 @@ export default function IngredientsScreen() {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
 
-  const [editIngredient, setEditIngredient] = useState<Ingredient | undefined>(undefined);
+  const [editIngredient, setEditIngredient] = useState<Ingredient>();
 
   const filteredIngredients = useMemo(() => filterIngredients(ingredients, searchText), [ingredients, searchText]);
 

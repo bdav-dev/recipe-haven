@@ -1,7 +1,7 @@
 import { Unit } from "./IngredientTypes"
 
 export type DatabaseIngredient = {
-    ingredientId?: number,
+    ingredientId: number,
     name: string,
     pluralName?: string,
     imageSrc?: string,

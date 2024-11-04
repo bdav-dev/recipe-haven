@@ -3,7 +3,7 @@ import { RecipeContext } from "./RecipeContextProvider";
 import { ShoppingListContext } from "./ShoppingListContextProvider";
 import { Ingredient } from "@/types/IngredientTypes";
 import { ContextProviderProps } from "@/types/MiscellaneousTypes";
-import { getAllIngredients } from "@/data/service/IngredientService";
+import { getAllIngredients } from "@/data/dao/IngredientDao";
 
 type IngredientContext = {
   ingredients: Ingredient[],
@@ -16,8 +16,8 @@ export const IngredientContext = createContext<IngredientContext>({
 });
 
 export default function IngredientContextProvider(props: ContextProviderProps) {
-  const { recipes, setRecipes } = useContext(RecipeContext);
-  const { shoppingList, setShoppingList } = useContext(ShoppingListContext);
+  const { setRecipes } = useContext(RecipeContext);
+  const { setShoppingList } = useContext(ShoppingListContext);
 
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 
