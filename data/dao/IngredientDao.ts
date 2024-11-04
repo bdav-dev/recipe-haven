@@ -1,12 +1,12 @@
 import { CalorificValue, Ingredient } from "@/types/IngredientTypes";
-import database from "./Database";
-import * as FileSystem from 'expo-file-system';
-import { createDirectoryIfNotExists, getFileExtension } from "@/utils/FileSystemUtils";
-import { CreateIngredientBlueprint, UpdateIngredientBlueprint } from "@/types/dao/IngredientDaoTypes";
+import database from "../database/Database";
 import { DatabaseIngredient } from "@/types/DatabaseTypes";
+import * as FileSystem from 'expo-file-system';
+import { CreateIngredientBlueprint, UpdateIngredientBlueprint } from "@/types/dao/IngredientDaoTypes";
+import { createDirectoryIfNotExists, getFileExtension } from "@/utils/FileSystemUtils";
 
-export async function createIngredientTableIfNotExists() {
-    await database.execAsync(`
+export function createIngredientTableIfNotExists() {
+    database.execSync(`
         CREATE TABLE IF NOT EXISTS Ingredient(
             ingredientId INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -17,15 +17,6 @@ export async function createIngredientTableIfNotExists() {
             calorificValueNUnits REAL
         );
     `);
-}
-
-export async function getAllIngredients() {
-    const result = await database.getAllAsync<DatabaseIngredient>(`
-        SELECT *
-        FROM Ingredient
-    `);
-
-    return result.map(databaseIngredient => mapFromDatabaseModel(databaseIngredient));
 }
 
 export async function createIngredient(blueprint: CreateIngredientBlueprint) {
@@ -47,6 +38,10 @@ export async function createIngredient(blueprint: CreateIngredientBlueprint) {
     }
 
     return ingredient;
+}
+
+export async function getAllIngredients() {
+    return await getAllIngredientsFromDatabase();
 }
 
 export async function updateIngredient(blueprint: UpdateIngredientBlueprint) {
@@ -85,9 +80,7 @@ export async function deleteIngredient(ingredient: Ingredient) {
     await deleteIngredientInDatabase(ingredient.ingredientId!);
 }
 
-export async function deleteAllIngredients() {
-    await database.execAsync(`DELETE FROM Ingredient`);
-}
+
 
 async function saveIngredientImage(ingredientId: number, temporaryImageUri: string) {
     const directoryUri = `${FileSystem.documentDirectory}ingredients/${ingredientId}/`
@@ -97,6 +90,34 @@ async function saveIngredientImage(ingredientId: number, temporaryImageUri: stri
     await FileSystem.copyAsync({ from: temporaryImageUri, to: imageUri });
 
     return imageUri;
+}
+
+
+async function insertIngredientInDatabase(ingredient: Ingredient) {
+    const insertResult = await database.runAsync(
+        `
+        INSERT INTO
+            Ingredient (name, pluralName, imageSrc, unit, calorificValueKcal, calorificValueNUnits)
+            VALUES (?, ?, ?, ?, ?, ?);
+        `,
+        ingredient.name,
+        ingredient.pluralName ?? null,
+        ingredient.imageSrc ?? null,
+        ingredient.unit.valueOf(),
+        ingredient.calorificValue?.kcal ?? null,
+        ingredient.calorificValue?.nUnits ?? null
+    );
+
+    return insertResult.lastInsertRowId;
+}
+
+async function getAllIngredientsFromDatabase() {
+    const result = await database.getAllAsync<DatabaseIngredient>(`
+        SELECT *
+        FROM Ingredient
+    `);
+
+    return result.map(databaseIngredient => mapFromDatabaseModel(databaseIngredient));
 }
 
 async function updateIngredientInDatabase(ingredient: Ingredient) {
@@ -123,6 +144,17 @@ async function updateIngredientInDatabase(ingredient: Ingredient) {
     );
 }
 
+async function deleteIngredientInDatabase(ingredientId: number) {
+    await database.runAsync(
+        `
+        DELETE
+        FROM Ingredient
+        WHERE ingredientId = ?
+        `,
+        ingredientId
+    );
+}
+
 async function updateImageSrcInDatabase(ingredientId: number, imageSrc: string) {
     await database.runAsync(
         `
@@ -135,34 +167,6 @@ async function updateImageSrcInDatabase(ingredientId: number, imageSrc: string) 
     );
 }
 
-async function insertIngredientInDatabase(ingredient: Ingredient) {
-    const insertResult = await database.runAsync(
-        `
-        INSERT INTO
-            Ingredient (name, pluralName, imageSrc, unit, calorificValueKcal, calorificValueNUnits)
-            VALUES (?, ?, ?, ?, ?, ?);
-        `,
-        ingredient.name,
-        ingredient.pluralName ?? null,
-        ingredient.imageSrc ?? null,
-        ingredient.unit.valueOf(),
-        ingredient.calorificValue?.kcal ?? null,
-        ingredient.calorificValue?.nUnits ?? null
-    );
-
-    return insertResult.lastInsertRowId;
-}
-
-async function deleteIngredientInDatabase(ingredientId: number) {
-    await database.runAsync(
-        `
-        DELETE
-        FROM Ingredient
-        WHERE ingredientId = ?
-        `,
-        ingredientId
-    );
-}
 
 function mapFromDatabaseModel(databaseIngredient: DatabaseIngredient): Ingredient {
     let calorificValue: CalorificValue | undefined;

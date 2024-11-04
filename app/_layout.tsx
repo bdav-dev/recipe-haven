@@ -5,8 +5,8 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 
-import { initializeDatabase } from '@/database/Database';
-import { createIngredientTableIfNotExists, deleteAllIngredients } from '@/database/IngredientDao';
+import { setDatabaseJournalingToWal } from '@/data/database/Database';
+import { createIngredientTableIfNotExists } from '@/data/dao/IngredientDao';
 import IngredientContextProvider from '@/context/IngredientContextProvider';
 import ShoppingListContextProvider from '@/context/ShoppingListContextProvider';
 import RecipeContextProvider from '@/context/RecipeContextProvider';
@@ -19,7 +19,7 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
-    initDb();
+    initializeApplication();
   }, []);
 
   return (
@@ -38,11 +38,8 @@ export default function RootLayout() {
   );
 }
 
-async function initDb() {
-  initializeDatabase();
+function initializeApplication() {
   createIngredientTableIfNotExists();
-  // deleteAllIngredients();
-
-  
+  setDatabaseJournalingToWal();
 }
 

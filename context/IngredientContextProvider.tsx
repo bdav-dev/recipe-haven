@@ -2,8 +2,8 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { RecipeContext } from "./RecipeContextProvider";
 import { ShoppingListContext } from "./ShoppingListContextProvider";
 import { Ingredient } from "@/types/IngredientTypes";
-import { getAllIngredients } from "@/database/IngredientDao";
 import { ContextProviderProps } from "@/types/MiscellaneousTypes";
+import { getAllIngredients } from "@/data/service/IngredientService";
 
 type IngredientContext = {
   ingredients: Ingredient[],

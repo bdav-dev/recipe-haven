@@ -8,10 +8,10 @@ import CardView from "../themed/CardView";
 import * as ImagePicker from 'expo-image-picker';
 import CalorificValueInput from "./CalorificValueInput";
 import { isBlank } from "../../utils/StringUtils";
-import { createIngredient } from "@/database/IngredientDao";
 import { AppTheme } from "@/types/ThemeTypes";
 import UnitPicker from "./UnitPicker";
 import { CalorificValue, Unit } from "@/types/IngredientTypes";
+import { createIngredient } from "@/data/dao/IngredientDao";
 
 type CreateIngredientModalProps = {
     isVisible: boolean,

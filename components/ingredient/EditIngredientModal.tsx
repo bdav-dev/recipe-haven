@@ -12,7 +12,7 @@ import { isBlank } from "@/utils/StringUtils";
 import * as ImagePicker from 'expo-image-picker';
 import DeleteButton from "../DeleteButton";
 import { CalorificValue, Ingredient, Unit } from "@/types/IngredientTypes";
-import { deleteIngredient, updateIngredient } from "@/database/IngredientDao";
+import { deleteIngredient, updateIngredient } from "@/data/dao/IngredientDao";
 
 type EditIngredientModalProps = {
     isVisible: boolean,
