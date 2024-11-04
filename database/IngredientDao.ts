@@ -51,7 +51,7 @@ export async function createIngredient(blueprint: CreateIngredientBlueprint) {
 
 export async function updateIngredient(blueprint: UpdateIngredientBlueprint) {
     const originalImageUri = blueprint.originalIngredient.imageSrc;
-    const newImageUri = blueprint.updatedValues.imageSrc;
+    let newImageUri = blueprint.updatedValues.imageSrc;
 
     if (originalImageUri !== newImageUri) {
         if (originalImageUri !== undefined) {
@@ -59,7 +59,7 @@ export async function updateIngredient(blueprint: UpdateIngredientBlueprint) {
         }
 
         if (newImageUri !== undefined) {
-            await saveIngredientImage(blueprint.originalIngredient.ingredientId!, newImageUri)
+            newImageUri = await saveIngredientImage(blueprint.originalIngredient.ingredientId!, newImageUri)
         }
     }
 
