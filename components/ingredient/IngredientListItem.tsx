@@ -52,7 +52,7 @@ export default function IngredientListItem(props: IngredientListItemProps) {
             </View>
 
             <TouchableOpacity style={styles.editButton} onPress={props.onEditButtonPress}>
-                <Ionicons name="pencil-outline" size={28} color={theme.primary} />
+                <Ionicons name="pencil-outline" size={28} color={theme.button.default} />
             </TouchableOpacity>
 
         </CardView>
@@ -87,9 +87,8 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     },
     badges: {
         display: "flex",
-        flexDirection: "row",
-        flexWrap: "wrap",
-        gap: GAP
+        flexDirection: "column",
+        gap: 6
     },
     editButton: {
         marginLeft: "auto",

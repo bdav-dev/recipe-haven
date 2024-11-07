@@ -13,7 +13,7 @@ export default function NoIngredientsInfo() {
     return (
         <View style={styles.container}>
             <CardView style={styles.noIngredientsCard}>
-                <Ionicons name='sad-outline' color={theme.iconSecondary} size={56} />
+                <Ionicons name='sad-outline' color={theme.icon.secondary} size={56} />
                 <ThemedText type="subtitle" style={styles.text}>Keine Zutaten</ThemedText>
                 <ThemedText style={styles.text}>Füge jetzt Zutaten hinzu!</ThemedText>
             </CardView>
@@ -42,6 +42,6 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         borderWidth: theme.modal.borderWidth
     },
     text: {
-        color: theme.iconSecondary
+        color: theme.icon.secondary
     }
 });

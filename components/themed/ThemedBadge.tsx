@@ -26,8 +26,9 @@ export default function ThemedBadge({
 
 const createStyles = (theme: AppTheme) => StyleSheet.create({
     badge: {
+        alignSelf: "flex-start",
         borderRadius: 99,
         paddingHorizontal: 8,
-        backgroundColor: theme.badgeBackground
+        backgroundColor: theme.badge.background
     }
 });

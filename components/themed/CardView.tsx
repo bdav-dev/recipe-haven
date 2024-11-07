@@ -25,16 +25,15 @@ export default function CardView({
                 styles.cardView,
                 {
                     padding: noPadding ? 0 : padding,
-                    paddingTop: noPadding ? 0 : (title ? 37 : padding)
+                    paddingTop: noPadding
+                        ? 0
+                        : title ? 33 : padding
                 },
                 style
             ]}
             {...rest}
         >
-            {
-                title && <ThemedText type="defaultSemiBold" style={styles.title}>{title}</ThemedText>
-            }
-
+            {title && <ThemedText type="defaultSemiBold" style={styles.title}>{title}</ThemedText>}
             {children}
         </View>
     );
@@ -44,7 +43,7 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     cardView: {
         backgroundColor: theme.card,
         borderRadius: 13,
-        position: "relative"
+        position: "relative",
     },
     title: {
         position: "absolute",

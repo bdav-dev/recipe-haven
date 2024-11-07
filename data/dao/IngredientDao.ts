@@ -21,9 +21,9 @@ export function createIngredientTableIfNotExists() {
 
 export async function createIngredient(blueprint: CreateIngredientBlueprint) {
     const ingredient = await insertIngredientInDatabase({
-        name: blueprint.name,
+        name: blueprint.name.trim(),
         unit: blueprint.unit,
-        pluralName: blueprint.pluralName,
+        pluralName: blueprint.pluralName?.trim(),
         calorificValue: blueprint.calorificValue
     });
 
@@ -58,8 +58,8 @@ export async function updateIngredient(blueprint: UpdateIngredientBlueprint) {
     const updatedIngredient: Ingredient = {
         ingredientId: blueprint.originalIngredient.ingredientId,
         imageSrc: newImageUri,
-        name: blueprint.updatedValues.name,
-        pluralName: blueprint.updatedValues.pluralName,
+        name: blueprint.updatedValues.name.trim(),
+        pluralName: blueprint.updatedValues.pluralName?.trim(),
         unit: blueprint.updatedValues.unit,
         calorificValue: blueprint.updatedValues.calorificValue
     }
@@ -70,7 +70,7 @@ export async function updateIngredient(blueprint: UpdateIngredientBlueprint) {
 }
 
 export async function deleteIngredient(ingredient: Ingredient) {
-    if (ingredient.imageSrc !== undefined) {
+    if (ingredient.imageSrc) {
         await FileSystem.deleteAsync(ingredient.imageSrc);
     }
 
