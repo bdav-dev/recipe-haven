@@ -1,3 +1,4 @@
+
 import { ShoppingListCustomItem } from "@/types/ShoppingListTypes";
 import CardView from "../themed/CardView";
 import { ThemedText } from "../themed/ThemedText";
@@ -7,12 +8,12 @@ import { useAppTheme } from "@/hooks/useAppTheme";
 import { AppTheme } from "@/types/ThemeTypes";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 
-type CustomIngredientListItemProps = {
+type CustomShoppingListItemProps = {
     item: ShoppingListCustomItem;
     onToggleCheck: (item: ShoppingListCustomItem) => void;
 }
 
-export default function CustomIngredientListItem(props: CustomIngredientListItemProps) {
+export default function CustomShoppingListItem(props: CustomShoppingListItemProps) {
     const { item, onToggleCheck } = props;
     const theme = useAppTheme();
     const styles = useThemedStyleSheet(createStyles);
