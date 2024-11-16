@@ -7,6 +7,8 @@
     "icon": "",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
+    // added for SDK version 52
+    "newArchEnabled": true,
     "splash": {
       "image": "",
       "resizeMode": "contain",
