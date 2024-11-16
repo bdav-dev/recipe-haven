@@ -10,14 +10,18 @@ export type DatabaseIngredient = {
     calorificValueNUnits?: number
 }
 
+export type DatabaseShoppingListItemBase = {
+    isChecked: boolean
+    creationTimestamp: Date
+}
 
-export type DatabaseShoppingListIngredientItem = {
+export type DatabaseShoppingListIngredientItem = DatabaseShoppingListItemBase & {
     shoppingListIngredientItemId: number,
     ingredientId: number,
     amount?: number
 }
 
-export type DatabaseShoppingListCustomItem = {
+export type DatabaseShoppingListCustomItem = DatabaseShoppingListItemBase & {
     shoppingListCustomItemId: number,
     text: string
 }
