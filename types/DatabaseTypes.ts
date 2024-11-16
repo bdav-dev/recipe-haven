@@ -9,3 +9,15 @@ export type DatabaseIngredient = {
     calorificValueKcal?: number,
     calorificValueNUnits?: number
 }
+
+
+export type DatabaseShoppingListIngredientItem = {
+    shoppingListIngredientItemId: number,
+    ingredientId: number,
+    amount?: number
+}
+
+export type DatabaseShoppingListCustomItem = {
+    shoppingListCustomItemId: number,
+    text: string
+}
