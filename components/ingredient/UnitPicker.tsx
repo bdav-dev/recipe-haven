@@ -2,13 +2,14 @@ import { useAppTheme } from "@/hooks/useAppTheme";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { Unit } from "@/types/IngredientTypes";
 import { AppTheme } from "@/types/ThemeTypes";
-import { unitToString } from "@/utils/UnitUtils";
-import { Picker } from "@react-native-picker/picker";
+import { unitFromValue, unitToString } from "@/utils/UnitUtils";
+import { Picker, PickerIOS } from "@react-native-picker/picker";
+import { ItemValue } from "@react-native-picker/picker/typings/Picker";
 import { StyleSheet } from "react-native";
 
 type UnitPickerProps = {
     selectedValue: Unit,
-    onValueChange?: (itemValue: Unit, itemIndex: number) => void
+    onValueChange?: (unit: Unit) => void
 }
 
 export default function UnitPicker(props: UnitPickerProps) {
@@ -17,10 +18,18 @@ export default function UnitPicker(props: UnitPickerProps) {
 
     const unitValues = Object.values(Unit).filter(item => typeof item !== 'string');
 
+    function triggerOnValueChange(itemValue: ItemValue) {
+        if(props.onValueChange) {
+            props.onValueChange(
+                unitFromValue(+itemValue) ?? Unit.GRAMM
+            );
+        }
+    }
+
     return (
-        <Picker
-            selectedValue={props.selectedValue}
-            onValueChange={props.onValueChange}
+        <PickerIOS
+            selectedValue={+props.selectedValue}
+            onValueChange={triggerOnValueChange}
             style={styles.picker}
             itemStyle={styles.pickerItem}
         >
@@ -30,13 +39,13 @@ export default function UnitPicker(props: UnitPickerProps) {
                         <Picker.Item
                             key={+unit}
                             label={unitToString(unit)}
-                            value={unit}
+                            value={unit.valueOf()}
                             color={theme.text}
                         />
                     )
                 )
             }
-        </Picker>
+        </PickerIOS>
     );
 }
 

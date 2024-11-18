@@ -7,14 +7,28 @@ export type AppTheme = {
     notification: string,
 
     accent: string,
-    iconSecondary: string,
-    modal: {
-        borderWidth: number,
-        shadowOpacity: number
+
+    badge: {
+        background: string
+    },
+    button: {
+        default: string,
+        destructive: string,
+        disabled: string
+    },
+    icon: {
+        secondary: string,
     },
     ingredientListItem: {
         borderWidth: number
     },
-    erroneousTextFieldBorder: string,
-    badgeBackground: string
+    modal: {
+        borderWidth: number,
+        shadowOpacity: number
+    }
+    textField: {
+        background: string,
+        placeholder: string,
+        borderErroneous: string,
+    }
 }

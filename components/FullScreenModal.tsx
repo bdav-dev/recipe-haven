@@ -1,7 +1,8 @@
-import { Button, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, View } from "react-native";
-import { ThemedText } from "./themed/ThemedText";
+import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, View } from "react-native";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { AppTheme } from "@/types/ThemeTypes";
+import { ThemedText } from "./themed/ThemedText";
+import Button from "./Button";
 
 type FullScreenModalProps = {
     children?: React.ReactNode,
@@ -35,32 +36,28 @@ export default function FullScreenModal(props: FullScreenModalProps) {
 
                     <View style={styles.header}>
 
-                        <View style={[styles.expandingFlexContainer, { justifyContent: "flex-start" }]}>
-                            <Button title="Schließen" onPress={props.onRequestClose} />
-                        </View>
+                        <Button title="Schließen" onPress={props.onRequestClose} style={styles.headerButton} />
 
-                        <View style={[styles.expandingFlexContainer, { justifyContent: "center" }]}>
-                            {
-                                typeof props.title === 'string'
-                                    ? <ThemedText type="subtitle">{props.title}</ThemedText>
-                                    : props.title
-                            }
-                        </View>
+                        {
+                            typeof props.title === 'string'
+                                ? <View style={styles.headerTitleContainer}>
+                                    <ThemedText type="subtitle" style={styles.headerTitle}>{props.title}</ThemedText>
+                                </View>
+                                : props.title
+                        }
 
-                        <View style={[styles.expandingFlexContainer, { justifyContent: "flex-end" }]}>
-                            {
-                                props.primaryActionButton
-                                    ? <Button
-                                        title={props.primaryActionButton.title}
-                                        onPress={props.primaryActionButton.onPress}
-                                        disabled={props.primaryActionButton.disabled}
-                                    />
-                                    : <></>
-                            }
-                        </View>
+                        {
+                            props.primaryActionButton &&
+                            <Button
+                                style={styles.headerButton}
+                                title={props.primaryActionButton.title}
+                                onPress={props.primaryActionButton.onPress}
+                                disabled={props.primaryActionButton.disabled}
+                            />
+                        }
                     </View>
 
-                    <ScrollView style={{ display: "flex", width: "100%" }}>
+                    <ScrollView style={styles.scrollView}>
                         {props.children}
                     </ScrollView>
 
@@ -74,12 +71,26 @@ export default function FullScreenModal(props: FullScreenModalProps) {
 
 
 const styleSheet = (theme: AppTheme) => StyleSheet.create({
+    headerTitleContainer: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        marginLeft: 0,
+        marginRight: 0
+    },
+    headerTitle: {
+        alignSelf: "center"
+    },
+    headerButton: {
+        zIndex: 2
+    },
     expandingFlexContainer: {
         flex: 1,
         display: "flex",
         flexDirection: "row"
     },
     header: {
+        position: "relative",
         height: 50,
         borderTopEndRadius: 20,
         borderTopStartRadius: 20,
@@ -110,5 +121,9 @@ const styleSheet = (theme: AppTheme) => StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+    },
+    scrollView: {
+        display: "flex",
+        width: "100%"
     }
 });

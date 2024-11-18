@@ -11,15 +11,25 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        headerTintColor: theme.text,
+        headerStyle: {
+          backgroundColor: theme.card,
+        },
+        tabBarStyle: {
+          backgroundColor: theme.card,
+          borderColor: theme.border
+        },
+        sceneStyle: {
+          backgroundColor: theme.background
+        },
         tabBarActiveTintColor: theme.accent,
-        tabBarInactiveTintColor: theme.iconSecondary,
+        tabBarInactiveTintColor: theme.icon.secondary,
         headerShown: true,
-      }}>
+      }}
+    >
       <Tabs.Screen
-        
         name="shoppingList"
         options={{
-          
           title: 'Einkaufsliste',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'cart' : 'cart-outline'} color={color} />
@@ -28,7 +38,6 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="index"
-
         options={{
           title: 'Rezepte',
           tabBarIcon: ({ color, focused }) => (

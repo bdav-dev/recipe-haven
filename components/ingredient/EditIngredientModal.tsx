@@ -1,4 +1,4 @@
-import { Alert, Button, Image, TouchableWithoutFeedback, View } from "react-native";
+import { Alert, Image, TouchableWithoutFeedback, View } from "react-native";
 import FullScreenModal from "../FullScreenModal";
 import TextField from "../TextField";
 import CardView from "../themed/CardView";
@@ -10,9 +10,9 @@ import { useContext, useEffect, useState } from "react";
 import { IngredientContext } from "@/context/IngredientContextProvider";
 import { isBlank } from "@/utils/StringUtils";
 import * as ImagePicker from 'expo-image-picker';
-import DeleteButton from "../DeleteButton";
 import { CalorificValue, Ingredient, Unit } from "@/types/IngredientTypes";
 import { deleteIngredient, updateIngredient } from "@/data/dao/IngredientDao";
+import Button from "../Button";
 
 type EditIngredientModalProps = {
     isVisible: boolean,
@@ -55,7 +55,7 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
 
     async function pickImage() {
         const imagePickerResult = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: 'images',
             allowsEditing: true,
             aspect: [1, 1],
             quality: 1
@@ -152,16 +152,14 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
                 </View>
 
                 <CardView title="Einheit" style={styles.unitCard}>
-                    <UnitPicker selectedValue={unit} onValueChange={(value, index) => setUnit(value)} />
+                    <UnitPicker selectedValue={unit} onValueChange={value => setUnit(value)} />
                 </CardView>
 
                 <CardView title="Brennwert" style={styles.caloriesCard}>
                     <CalorificValueInput initialValue={initialCalorificValue} onValueChanged={setCalorificValue} unit={unit} />
                 </CardView>
 
-                <View style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: 5 }}>
-                    <DeleteButton onPress={showConfirmDeleteAlert}>Zutat löschen</DeleteButton>
-                </View>
+                <Button style={{ marginTop: 4 }} title="Zutat löschen" ionicon="trash-outline" type="destructive" onPress={showConfirmDeleteAlert} />
 
             </View>
 

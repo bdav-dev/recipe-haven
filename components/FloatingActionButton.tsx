@@ -22,8 +22,8 @@ export default function FloatingActionButton(props: FloatingActionButtonProps) {
 
 const createStyles = (theme: AppTheme) => StyleSheet.create({
     fab: {
-        width: 60,
-        height: 60,
+        width: 55,
+        height: 55,
         borderRadius: 999,
         display: "flex",
         alignItems: "center",

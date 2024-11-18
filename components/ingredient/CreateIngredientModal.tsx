@@ -1,4 +1,4 @@
-import { Button, Image, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
+import { Image, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
 import FullScreenModal from "../FullScreenModal";
 import { useContext, useState } from "react";
 import { IngredientContext } from "@/context/IngredientContextProvider";
@@ -12,6 +12,7 @@ import { AppTheme } from "@/types/ThemeTypes";
 import UnitPicker from "./UnitPicker";
 import { CalorificValue, Unit } from "@/types/IngredientTypes";
 import { createIngredient } from "@/data/dao/IngredientDao";
+import Button from "../Button";
 
 type CreateIngredientModalProps = {
     isVisible: boolean,
@@ -37,7 +38,7 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
 
     async function pickImage() {
         const imagePickerResult = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: 'images',
             allowsEditing: true,
             aspect: [1, 1],
             quality: 1
@@ -119,13 +120,12 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
                 </View>
 
                 <CardView title="Einheit" style={styles.unitCard}>
-                    <UnitPicker selectedValue={unit} onValueChange={(value, index) => setUnit(value)} />
+                    <UnitPicker selectedValue={unit} onValueChange={(value) => setUnit(value)} />
                 </CardView>
 
                 <CardView title="Brennwert" style={styles.caloriesCard}>
                     <CalorificValueInput onValueChanged={setCalorificValue} unit={unit} />
                 </CardView>
-
             </View>
 
         </FullScreenModal>
@@ -137,7 +137,7 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         padding: 20,
         display: "flex",
         flexDirection: "column",
-        gap: 8,
+        gap: 12,
         width: "100%",
     },
     imageAndNamesContainer: {
@@ -146,9 +146,9 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     namesContainer: {
         flexDirection: "column",
         flex: 1,
-        paddingLeft: 8,
+        paddingLeft: 12,
         justifyContent: "center",
-        gap: 7
+        gap: 12
     },
     nameTextField: {
         fontSize: 28
@@ -157,8 +157,8 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         display: "flex",
         justifyContent: "center",
         borderRadius: 10,
-        width: 140,
-        height: 140,
+        width: 130,
+        height: 130,
         borderWidth: 1,
         borderColor: theme.border
     },
@@ -167,16 +167,12 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     },
     caloriesCard: {
         height: 100,
-        padding: 0,
-        paddingTop: 0,
-        justifyContent: "center",
+        justifyContent: "flex-start",
         alignContent: "center"
     },
     unitCard: {
-        padding: 0,
-        paddingTop: 0,
         display: "flex",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         alignItems: "center"
     },
     image: {

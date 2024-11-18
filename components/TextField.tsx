@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { AppTheme } from "@/types/ThemeTypes";
 import { StyleSheet, TextInput, TextInputProps } from "react-native";
@@ -15,14 +16,16 @@ export default function TextField({
     onChangeText,
     ...rest
 }: TextFieldProps) {
+    const theme = useAppTheme();
     const styles = useThemedStyleSheet(createStyles);
 
     return (
         <TextInput
             placeholder={placeholder}
+            placeholderTextColor={theme.textField.placeholder}
             onChangeText={onChangeText}
             style={[
-                { borderWidth: isErroneous ? 1.5 : 0 },
+                { borderColor: isErroneous ? theme.textField.borderErroneous : theme.border },
                 styles.textInput,
                 style
             ]}
@@ -35,12 +38,12 @@ export default function TextField({
 
 const createStyles = (theme: AppTheme) => StyleSheet.create({
     textInput: {
-        borderColor: theme.erroneousTextFieldBorder,
-        backgroundColor: theme.border,
-        paddingHorizontal: 8,
-        paddingVertical: 6,
-        borderRadius: 8,
+        borderWidth: 1,
+        backgroundColor: theme.textField.background,
+        paddingHorizontal: 7,
+        paddingVertical: 5,
+        borderRadius: 10,
         color: theme.text,
-        fontSize: 18
+        fontSize: 16
     }
 });

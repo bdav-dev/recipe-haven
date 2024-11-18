@@ -42,7 +42,7 @@ export default function IngredientsScreen() {
       {
         !areIngredientsEmpty() &&
         <View style={styles.searchBar}>
-          <Ionicons name='search-outline' size={25} color={theme.iconSecondary} style={styles.searchBarIcon} />
+          <Ionicons name='search-outline' size={25} color={theme.icon.secondary} style={styles.searchBarIcon} />
           <TextField style={{ flex: 1 }} placeholder='Suche' value={searchText} onChangeText={setSearchText} />
         </View>
       }
