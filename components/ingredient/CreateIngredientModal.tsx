@@ -38,7 +38,7 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
 
     async function pickImage() {
         const imagePickerResult = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: 'images',
             allowsEditing: true,
             aspect: [1, 1],
             quality: 1
