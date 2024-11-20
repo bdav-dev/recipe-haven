@@ -11,7 +11,9 @@ import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 
 type IngredientListItemProps = {
     ingredient: Ingredient,
-    onEditButtonPress?: () => void
+    editButton?: {
+        onPress: () => void
+    }
 }
 
 export default function IngredientListItem(props: IngredientListItemProps) {
@@ -51,10 +53,12 @@ export default function IngredientListItem(props: IngredientListItemProps) {
                 }
             </View>
 
-            <TouchableOpacity style={styles.editButton} onPress={props.onEditButtonPress}>
-                <Ionicons name="pencil-outline" size={28} color={theme.button.default} />
-            </TouchableOpacity>
-
+            {
+                props.editButton &&
+                <TouchableOpacity style={styles.editButton} onPress={props.editButton.onPress}>
+                    <Ionicons name="pencil-outline" size={28} color={theme.button.default} />
+                </TouchableOpacity>
+            }
         </CardView>
     );
 }

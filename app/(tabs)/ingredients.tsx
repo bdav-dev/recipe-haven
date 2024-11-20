@@ -61,7 +61,7 @@ export default function IngredientsScreen() {
                   <IngredientListItem
                     key={listItemInfo.index}
                     ingredient={listItemInfo.item}
-                    onEditButtonPress={() => launchEditIngredientModal(listItemInfo.item)}
+                    editButton={{ onPress: () => launchEditIngredientModal(listItemInfo.item) }}
                   />
                 )}
               />
