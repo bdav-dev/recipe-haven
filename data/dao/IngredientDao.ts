@@ -46,11 +46,11 @@ export async function updateIngredient(blueprint: UpdateIngredientBlueprint) {
     let newImageUri = blueprint.updatedValues.imageSrc;
 
     if (originalImageUri !== newImageUri) {
-        if (originalImageUri !== undefined) {
+        if (originalImageUri) {
             await FileSystem.deleteAsync(originalImageUri)
         }
 
-        if (newImageUri !== undefined) {
+        if (newImageUri) {
             newImageUri = await saveIngredientImage(blueprint.originalIngredient.ingredientId, newImageUri)
         }
     }
@@ -171,7 +171,7 @@ async function updateImageSrcInDatabase(ingredientId: number, imageSrc: string) 
 function mapFromDatabaseModel(databaseIngredient: DatabaseIngredient): Ingredient {
     let calorificValue: CalorificValue | undefined;
 
-    if (databaseIngredient.calorificValueKcal != undefined && databaseIngredient.calorificValueNUnits != undefined) {
+    if (databaseIngredient.calorificValueKcal != null && databaseIngredient.calorificValueNUnits != null) {
         calorificValue = {
             kcal: databaseIngredient.calorificValueKcal,
             nUnits: databaseIngredient.calorificValueNUnits
