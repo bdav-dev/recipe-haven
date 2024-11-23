@@ -64,7 +64,7 @@ export default function CalorificValueInput(props: CalorificValueInputProps) {
                 style={[
                     styles.smallTextField
                 ]}
-                isErroneous={!(parseKcalText() != undefined || isBlank(kcalText))}
+                isErroneous={!(parseKcalText() != null || isBlank(kcalText))}
             >
                 {props.initialValue?.kcal}
             </TextField>
@@ -74,7 +74,7 @@ export default function CalorificValueInput(props: CalorificValueInputProps) {
                 placeholder={unitToString(props.unit)}
                 onChangeText={setNUnitsText}
                 style={styles.smallTextField}
-                isErroneous={!(parseNUnitsText() != undefined || isBlank(nUnitsText))}
+                isErroneous={!(parseNUnitsText() != null || isBlank(nUnitsText))}
             >
                 {props.initialValue?.nUnits}
             </TextField>
