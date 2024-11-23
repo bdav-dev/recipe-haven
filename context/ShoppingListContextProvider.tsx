@@ -1,6 +1,9 @@
 import { ContextProviderProps } from "@/types/MiscellaneousTypes";
 import { ShoppingList } from "@/types/ShoppingListTypes";
-import { createContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { getAllCustomItems } from "@/data/dao/ShoppingListDao";
+import { RecipeContext } from "./RecipeContextProvider";
+import { IngredientContext } from "./IngredientContextProvider";
 
 type ShoppingListContext = {
   shoppingList: ShoppingList,
@@ -13,7 +16,22 @@ export const ShoppingListContext = createContext<ShoppingListContext>({
 });
 
 export default function ShoppingListContextProvider(props: ContextProviderProps) {
-  const [shoppingList, setShoppingList] = useState<ShoppingList>({ customItems: [], ingredientItems: [] });
+
+  //const { setRecipes } = useContext(RecipeContext);
+  //const { setIngredients } = useContext(IngredientContext);
+
+  const [shoppingList, setShoppingList] = useState<ShoppingList>({ 
+    customItems: [],
+    ingredientItems: [] 
+  });
+
+  useEffect(() => {
+    getAllCustomItems()
+      .then(items => setShoppingList(current => ({
+        ...current,
+        customItems: items
+      })));
+  }, []);
 
   return (
     <ShoppingListContext.Provider value={{ shoppingList, setShoppingList }}>

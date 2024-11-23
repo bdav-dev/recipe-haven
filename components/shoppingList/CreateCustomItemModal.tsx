@@ -38,15 +38,15 @@ export default function CreateCustomItemModal(props: CreateCustomItemModalProps)
     
     function create() {
         console.log('Creating item with text:', text);
-        createCustomItem({ text: text })
+        createCustomItem({ text: text.trim() })
             .then(item => {
                 console.log('Created item:', item);
                 // Check if item was created successfully
                 if (item) { // Null check for custom items
-                    setShoppingList({
+                    setShoppingList( shoppingList => ({
                         ...shoppingList,
-                        customItems: [...shoppingList.customItems, item]
-                    });
+                        customItems: [item, ...shoppingList.customItems]
+                    }));
                     
                     if (props.onItemCreated) {
                         props.onItemCreated(item);
