@@ -1,11 +1,12 @@
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, TouchableOpacity, TouchableOpacityProps } from "react-native";
+import { StyleSheet, Text, TextStyle, TouchableOpacity, TouchableOpacityProps } from "react-native";
 
 
 type ButtonProps = Omit<TouchableOpacityProps, 'children'> & {
     title: string,
     ionicon?: Ionicon,
+    textStyle?: TextStyle
     type?: 'normal' | 'destructive'
 }
 
@@ -15,6 +16,7 @@ export default function Button({
     type,
     style,
     disabled,
+    textStyle,
     ...rest
 }: ButtonProps) {
     const theme = useAppTheme();
@@ -33,7 +35,7 @@ export default function Button({
             {...rest}
         >
             {ioniconName && <Ionicons name={ioniconName} size={26} color={color} />}
-            <Text style={[styles.text, { color }]}>{title}</Text>
+            <Text style={[styles.text, { color }, textStyle]}>{title}</Text>
         </TouchableOpacity>
     );
 }

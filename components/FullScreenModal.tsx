@@ -49,6 +49,7 @@ export default function FullScreenModal(props: FullScreenModalProps) {
                         {
                             props.primaryActionButton &&
                             <Button
+                                textStyle={{ fontWeight: "600" }}
                                 style={styles.headerButton}
                                 title={props.primaryActionButton.title}
                                 onPress={props.primaryActionButton.onPress}
