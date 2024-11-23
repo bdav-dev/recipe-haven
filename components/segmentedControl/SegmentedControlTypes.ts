@@ -6,7 +6,7 @@
 import { SyntheticEvent } from 'react';
 import type { StyleProp, ViewStyle as ReactNativViewStyle, ColorValue, ViewProps } from 'react-native/';
 
-export type Event = SyntheticEvent<{
+export type SegmentedControlEvent = SyntheticEvent<{
     value: string,
     selectedSegmentIndex: number,
 }>;
@@ -62,7 +62,7 @@ export type SegmentedControlProps = ViewProps & {
      * Callback that is called when the user taps a segment;
      * passes the event as an argument
      */
-    onChange?: (event: Event) => any,
+    onChange?: (index: number) => any,
     /**
      * If false the user won't be able to interact with the control.
      * Default value is true.

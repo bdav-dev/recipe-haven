@@ -16,7 +16,7 @@ import {
   useColorScheme,
 } from 'react-native';
 
-import { SegmentedControlProps } from './SegmentedControlTypes';
+import { SegmentedControlEvent, SegmentedControlProps } from './SegmentedControlTypes';
 import { SegmentsSeparators } from './SegmentsSeperators';
 import { SegmentedControlTab } from './SegmentedControlTab';
 
@@ -45,14 +45,7 @@ const SegmentedControl = ({
   const ref = React.useRef<View>(null);
 
   const handleChange = (index: number) => {
-    // mocks iOS's nativeEvent
-    const event: any = {
-      nativeEvent: {
-        value: values[index],
-        selectedSegmentIndex: index,
-      },
-    };
-    onChange && onChange(event);
+    onChange && onChange(index);
     onValueChange && onValueChange(values[index]);
   };
 
