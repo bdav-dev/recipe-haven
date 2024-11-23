@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   largeSemiBold: {
-    fontSize: 18,
+    fontSize: 20,
     lineHeight: 24,
     fontWeight: '600',
   },

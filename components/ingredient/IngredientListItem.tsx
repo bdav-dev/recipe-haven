@@ -11,9 +11,7 @@ import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 
 type IngredientListItemProps = {
     ingredient: Ingredient,
-    editButton?: {
-        onPress: () => void
-    }
+    editButton?: { onPress: () => void }
 }
 
 export default function IngredientListItem(props: IngredientListItemProps) {
@@ -30,27 +28,33 @@ export default function IngredientListItem(props: IngredientListItemProps) {
             }
 
             <View style={styles.flexColumn}>
-                <ThemedText type="largeSemiBold">{ingredient.name}</ThemedText>
-                {
-                    ingredient.pluralName &&
-                    <ThemedText>{props.ingredient.pluralName}</ThemedText>
-                }
-            </View>
 
-            <View style={styles.badges}>
-                <ThemedBadge>
-                    <ThemedText>in </ThemedText>
-                    <ThemedText type="defaultSemiBold">{unitToString(ingredient.unit)}</ThemedText>
-                </ThemedBadge>
+                <ThemedText>
+                    <ThemedText type="largeSemiBold">{ingredient.name}</ThemedText>
+                    {ingredient.pluralName &&
+                        <>
+                            <View style={{ width: 8}}/>
+                            {props.ingredient.pluralName}
+                        </>
+                    }
+                </ThemedText>
 
-                {
-                    ingredient.calorificValue &&
+                <View style={styles.badges}>
                     <ThemedBadge>
-                        <ThemedText type="defaultSemiBold">{ingredient.calorificValue.kcal} kcal </ThemedText>
-                        <ThemedText>pro </ThemedText>
-                        <ThemedText type="defaultSemiBold">{ingredient.calorificValue.nUnits} {unitToString(ingredient.unit)}</ThemedText>
+                        <ThemedText>in </ThemedText>
+                        <ThemedText type="defaultSemiBold">{unitToString(ingredient.unit)}</ThemedText>
                     </ThemedBadge>
-                }
+
+                    {
+                        ingredient.calorificValue &&
+                        <ThemedBadge>
+                            <ThemedText type="defaultSemiBold">{ingredient.calorificValue.kcal} kcal </ThemedText>
+                            <ThemedText>pro </ThemedText>
+                            <ThemedText type="defaultSemiBold">{ingredient.calorificValue.nUnits} {unitToString(ingredient.unit)}</ThemedText>
+                        </ThemedBadge>
+                    }
+                </View>
+
             </View>
 
             {
@@ -63,11 +67,12 @@ export default function IngredientListItem(props: IngredientListItemProps) {
     );
 }
 
+const LIST_ITEM_HEIGHT = 85;
 const GAP = 15;
 
 const createStyles = (theme: AppTheme) => StyleSheet.create({
     card: {
-        height: 75,
+        height: LIST_ITEM_HEIGHT,
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
@@ -80,18 +85,25 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         borderColor: theme.border
     },
     image: {
-        height: 75,
-        width: 75,
+        height: LIST_ITEM_HEIGHT,
+        width: LIST_ITEM_HEIGHT,
         borderRadius: 13,
         padding: 0
     },
+    flexRow: {
+        display: "flex",
+        flexDirection: "row",
+        gap: 11,
+        backgroundColor: "red"
+    },
     flexColumn: {
         display: "flex",
-        flexDirection: "column"
+        flexDirection: "column",
+        gap: 8
     },
     badges: {
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "row",
         gap: 6
     },
     editButton: {
