@@ -35,17 +35,29 @@ export default function CreateCustomItemModal(props: CreateCustomItemModalProps)
         }
     }
 
+    
     function create() {
-        createCustomItem({ text })
+        console.log('Creating item with text:', text);
+        createCustomItem({ text: text })
             .then(item => {
-                setShoppingList({
-                    ...shoppingList,
-                    customItems: [...shoppingList.customItems, item]
-                });
-                close();
-                if (props.onItemCreated) {
-                    props.onItemCreated(item);
+                console.log('Created item:', item);
+                // Check if item was created successfully
+                if (item) { // Null check for custom items
+                    setShoppingList({
+                        ...shoppingList,
+                        customItems: [...shoppingList.customItems, item]
+                    });
+                    
+                    if (props.onItemCreated) {
+                        props.onItemCreated(item);
+                    }
+                    
+                    close();
                 }
+            })
+            .catch(error => {
+                // Error logging
+                console.error('Failed to create custom item:', error);
             });
     }
 
