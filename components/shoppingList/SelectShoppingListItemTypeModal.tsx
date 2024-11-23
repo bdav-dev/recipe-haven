@@ -69,7 +69,7 @@ export default function SelectShoppingListItemTypeModal(props: SelectShoppingLis
 
                 <TouchableOpacity onPress={handleCustomItemSelect}>
                     <CardView style={styles.optionCard}>
-                        <ThemedText type="largeSemiBold">Einkaufsgegenstand</ThemedText>
+                        <ThemedText type="largeSemiBold">Artikel</ThemedText>
                     </CardView>
                 </TouchableOpacity>
 
@@ -92,7 +92,7 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         width: "100%",
     },
     optionCard: {
-        padding: 20,
+        padding: 10,
         alignItems: "center"
     }
 });

@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { Modal, StyleSheet, View } from "react-native";
 import FullScreenModal from "../FullScreenModal";
 import { useContext, useState } from "react";
 import TextField from "../TextField";
@@ -65,7 +65,7 @@ export default function CreateCustomItemModal(props: CreateCustomItemModalProps)
         <FullScreenModal
             isVisible={props.isVisible}
             onRequestClose={close}
-            title="Neuer Einkaufsgegenstand"
+            title="Neuer Artikel"
             primaryActionButton={{
                 title: "Hinzufügen",
                 onPress: () => create(),
@@ -74,7 +74,7 @@ export default function CreateCustomItemModal(props: CreateCustomItemModalProps)
         >
             <View style={styles.contentContainer}>
                 <TextField
-                    placeholder="Name des Gegenstands"
+                    placeholder="Name des Artikels"
                     onChangeText={setText}
                     style={styles.textField}
                 />

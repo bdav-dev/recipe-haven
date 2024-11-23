@@ -35,7 +35,6 @@ export default function FullScreenModal(props: FullScreenModalProps) {
                 >
 
                     <View style={styles.header}>
-
                         <Button title="Schließen" onPress={props.onRequestClose} style={styles.headerButton} />
 
                         {
@@ -46,14 +45,14 @@ export default function FullScreenModal(props: FullScreenModalProps) {
                                 : props.title
                         }
 
-                        {
-                            props.primaryActionButton &&
-                            <Button
+                        {props.primaryActionButton 
+                            ? <Button
                                 style={styles.headerButton}
                                 title={props.primaryActionButton.title}
                                 onPress={props.primaryActionButton.onPress}
                                 disabled={props.primaryActionButton.disabled}
-                            />
+                              />
+                            : <View style={styles.headerButton} />  
                         }
                     </View>
 
@@ -75,14 +74,15 @@ const styleSheet = (theme: AppTheme) => StyleSheet.create({
         position: "absolute",
         left: 0,
         right: 0,
-        marginLeft: 0,
-        marginRight: 0
+        flex: 1,
+        marginHorizontal: 90,
     },
     headerTitle: {
         alignSelf: "center"
     },
     headerButton: {
-        zIndex: 2
+        zIndex: 2,
+        minWidth: 80
     },
     expandingFlexContainer: {
         flex: 1,
@@ -94,7 +94,7 @@ const styleSheet = (theme: AppTheme) => StyleSheet.create({
         height: 50,
         borderTopEndRadius: 20,
         borderTopStartRadius: 20,
-        paddingHorizontal: 6,
+        paddingHorizontal: 3,
         width: "100%",
         flexDirection: "row",
         justifyContent: "space-between",
