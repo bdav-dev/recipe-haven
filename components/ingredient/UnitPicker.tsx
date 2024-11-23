@@ -2,50 +2,36 @@ import { useAppTheme } from "@/hooks/useAppTheme";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { Unit } from "@/types/IngredientTypes";
 import { AppTheme } from "@/types/ThemeTypes";
-import { unitFromValue, unitToString } from "@/utils/UnitUtils";
-import { Picker, PickerIOS } from "@react-native-picker/picker";
-import { ItemValue } from "@react-native-picker/picker/typings/Picker";
+import { unitToString } from "@/utils/UnitUtils";
 import { StyleSheet } from "react-native";
+import SegmentedControl from "../segmentedControl/SegmentedControl";
 
 type UnitPickerProps = {
-    selectedValue: Unit,
-    onValueChange?: (unit: Unit) => void
+    selectedUnit: Unit,
+    onUnitChange?: (unit: Unit) => void
 }
 
 export default function UnitPicker(props: UnitPickerProps) {
     const theme = useAppTheme();
     const styles = useThemedStyleSheet(createStyles);
 
-    const unitValues = Object.values(Unit).filter(item => typeof item !== 'string');
-
-    function triggerOnValueChange(itemValue: ItemValue) {
-        if(props.onValueChange) {
-            props.onValueChange(
-                unitFromValue(+itemValue) ?? Unit.GRAMM
-            );
-        }
-    }
+    const unitSegments = (
+        Object.values(Unit)
+            .filter(item => typeof item !== 'string')
+            .map((unit, index) => ({ index, unit, label: unitToString(+unit)! }))
+    );
 
     return (
-        <PickerIOS
-            selectedValue={+props.selectedValue}
-            onValueChange={triggerOnValueChange}
-            style={styles.picker}
-            itemStyle={styles.pickerItem}
-        >
-            {
-                unitValues.map(
-                    unit => (
-                        <Picker.Item
-                            key={+unit}
-                            label={unitToString(unit)}
-                            value={unit.valueOf()}
-                            color={theme.text}
-                        />
-                    )
+        <SegmentedControl
+            style={{ width: "100%" }}
+            values={unitSegments.map(obj => obj.label)}
+            selectedIndex={unitSegments.find(segment => segment.unit === props.selectedUnit)!.index}
+            onChange={
+                selectedIndex => (
+                    props.onUnitChange && props.onUnitChange(unitSegments.find(segment => segment.index === selectedIndex)!.unit)
                 )
             }
-        </PickerIOS>
+        />
     );
 }
 

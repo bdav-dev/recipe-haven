@@ -152,7 +152,7 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
                 </View>
 
                 <CardView title="Einheit" style={styles.unitCard}>
-                    <UnitPicker selectedValue={unit} onValueChange={value => setUnit(value)} />
+                    <UnitPicker selectedUnit={unit} onUnitChange={value => setUnit(value)} />
                 </CardView>
 
                 <CardView title="Brennwert" style={styles.caloriesCard}>
