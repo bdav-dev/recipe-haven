@@ -3,13 +3,7 @@
  * react-native-segmented-control/segmented-control (https://github.com/react-native-segmented-control/segmented-control)
  */
 
-import { SyntheticEvent } from 'react';
 import type { StyleProp, ViewStyle as ReactNativViewStyle, ColorValue, ViewProps } from 'react-native/';
-
-export type SegmentedControlEvent = SyntheticEvent<{
-    value: string,
-    selectedSegmentIndex: number,
-}>;
 
 export type ViewStyle = StyleProp<ReactNativViewStyle>;
 
@@ -60,7 +54,7 @@ export type SegmentedControlProps = ViewProps & {
     onValueChange?: (value: string | number | Object) => any,
     /**
      * Callback that is called when the user taps a segment;
-     * passes the event as an argument
+     * passes the segment's index as an argument
      */
     onChange?: (index: number) => any,
     /**

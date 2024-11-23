@@ -16,7 +16,7 @@ import {
   useColorScheme,
 } from 'react-native';
 
-import { SegmentedControlEvent, SegmentedControlProps } from './SegmentedControlTypes';
+import { SegmentedControlProps } from './SegmentedControlTypes';
 import { SegmentsSeparators } from './SegmentsSeperators';
 import { SegmentedControlTab } from './SegmentedControlTab';
 
