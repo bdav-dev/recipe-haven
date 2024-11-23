@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useMemo } from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/useAppTheme';
@@ -9,11 +9,24 @@ import { ShoppingListContext } from '@/context/ShoppingListContextProvider';
 import CustomShoppingListItem from '@/components/shoppingList/CustomShoppingListItem';
 import { ShoppingListCustomItem } from '@/types/ShoppingListTypes';
 import { updateCustomItem } from '@/data/dao/ShoppingListDao';
+import ShoppingListViewToggle from '@/components/shoppingList/ShoppingListViewToggle';
+import { ThemeProvider } from '@react-navigation/native';
 
 export default function ShoppingListScreen() {
     const theme = useAppTheme();
     const { shoppingList, setShoppingList } = useContext(ShoppingListContext);
     const [isSelectTypeModalVisible, setIsSelectTypeModalVisible] = useState(false);
+    const [showCheckedItems, setShowCheckedItems] = useState(false);
+
+    const filteredItems = useMemo(() => 
+        shoppingList.customItems.filter(item => item.isChecked === showCheckedItems),
+        [shoppingList.customItems, showCheckedItems]
+    );
+
+    const hasMultipleItems = useMemo(() => 
+        shoppingList.customItems.length > 1,
+        [shoppingList.customItems.length]
+    );
 
     function handleToggleCheck(item: ShoppingListCustomItem) {
         const updatedItem = {
@@ -41,7 +54,7 @@ export default function ShoppingListScreen() {
     return (
         <Page>
             <FlatList
-                data={shoppingList.customItems}
+                data={filteredItems}
                 style={styles.list}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
                 renderItem={listItemInfo => (
@@ -52,6 +65,15 @@ export default function ShoppingListScreen() {
                   />
               )}
             />
+
+            <View style={styles.buttonContainer}>
+                <ShoppingListViewToggle 
+                    showChecked={showCheckedItems}
+                    onToggle={() => setShowCheckedItems(prev => !prev)}
+                    visible={hasMultipleItems}
+                />
+            </View>
+
 
             <FloatingActionButton onPress={() => setIsSelectTypeModalVisible(true)}>
                 <Ionicons name='add-outline' color={theme.card} size={35} />
@@ -68,5 +90,11 @@ export default function ShoppingListScreen() {
 const styles = StyleSheet.create({
     list: {
         padding: 8
+    },
+    buttonContainer: {
+        position: 'absolute',
+        bottom: 25,
+        left: 25,
+        zIndex: 1,
     }
 });

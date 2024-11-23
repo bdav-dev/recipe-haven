@@ -62,8 +62,8 @@ async function insertCustomItemInDatabase(item: Omit<ShoppingListCustomItem, 'sh
 
 async function getAllCustomItemsFromDatabase() {
     const result = await database.getAllAsync<DatabaseShoppingListCustomItem>(`
-        SELECT * FROM ShoppingListCustomItem
-        ORDER BY creationTimestamp DESC
+        SELECT *
+        FROM ShoppingListCustomItem;
     `);
 
     return result.map(dbItem => mapFromDatabaseModel(dbItem));
