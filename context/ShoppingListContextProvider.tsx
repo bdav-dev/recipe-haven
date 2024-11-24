@@ -28,7 +28,7 @@ export default function ShoppingListContextProvider(props: ContextProviderProps)
   useEffect(() => {
     getAllCustomItems()
       .then(items => setShoppingList(current => ({
-        ...current,
+        ingredientItems: current.ingredientItems,
         customItems: items
       })));
   }, []);
