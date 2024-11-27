@@ -5,7 +5,6 @@ import { useContext, useMemo, useState } from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import CreateIngredientModal from '@/components/ingredient/CreateIngredientModal';
 import IngredientListItem from '@/components/ingredient/IngredientListItem';
-import TextField from '@/components/TextField';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { includesIgnoreCase, isBlank } from '@/utils/StringUtils';
@@ -13,7 +12,7 @@ import { unitToString } from '@/utils/UnitUtils';
 import { Ingredient } from '@/types/IngredientTypes';
 import EditIngredientModal from '@/components/ingredient/EditIngredientModal';
 import NoIngredientsInfo from '@/components/ingredient/NoIngredientsInfo';
-import NoResultsInfo from '@/components/NoResultsInfo';
+import NoSearchResultsBadge from '@/components/NoSearchResultsBadge';
 import SearchBar from '@/components/SearchBar';
 
 
@@ -50,7 +49,7 @@ export default function IngredientsScreen() {
           ? <NoIngredientsInfo />
           : (
             areFilteredIngredientsEmpty()
-              ? <NoResultsInfo />
+              ? <NoSearchResultsBadge />
               : <FlatList
                 data={filteredIngredients}
                 style={styles.ingredientList}

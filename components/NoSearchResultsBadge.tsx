@@ -6,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "./themed/ThemedText";
 import { AppTheme } from "@/types/ThemeTypes";
 
-export default function NoResultsInfo() {
+export default function NoSearchResultsBadge() {
     const theme = useAppTheme();
     const styles = useThemedStyleSheet(createStyles);
 
