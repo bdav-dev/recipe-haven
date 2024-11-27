@@ -23,7 +23,7 @@ export default function IngredientContextProvider(props: ContextProviderProps) {
 
   useEffect(() => {
     getAllIngredients()
-      .then(ing => setIngredients(ing));
+      .then(setIngredients);
   }, []);
 
   useEffect(() => {
