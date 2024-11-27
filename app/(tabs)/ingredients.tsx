@@ -14,6 +14,7 @@ import { Ingredient } from '@/types/IngredientTypes';
 import EditIngredientModal from '@/components/ingredient/EditIngredientModal';
 import NoIngredientsInfo from '@/components/ingredient/NoIngredientsInfo';
 import NoResultsInfo from '@/components/NoResultsInfo';
+import SearchBar from '@/components/SearchBar';
 
 
 export default function IngredientsScreen() {
@@ -41,10 +42,7 @@ export default function IngredientsScreen() {
 
       {
         !areIngredientsEmpty() &&
-        <View style={styles.searchBar}>
-          <Ionicons name='search-outline' size={25} color={theme.icon.secondary} style={styles.searchBarIcon} />
-          <TextField style={{ flex: 1 }} placeholder='Suche' value={searchText} onChangeText={setSearchText} />
-        </View>
+        <SearchBar searchText={searchText} onSearchTextChange={setSearchText}/>
       }
 
       {
@@ -108,16 +106,6 @@ function filterIngredients(ingredients: Ingredient[], searchText: string) {
 const styles = StyleSheet.create({
   ingredientList: {
     padding: 8
-  },
-  searchBar: {
-    margin: 8,
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 12
-  },
-  searchBarIcon: {
-    marginRight: 4
   },
   textInput: {
     width: 100
