@@ -1,9 +1,20 @@
+import { Duration } from "@/data/misc/Duration"
 import { QuantizedIngredient } from "./IngredientTypes"
 
 export type Recipe = {
-    recipeId?: number,
-    title: string,
+    recipeId: number,
     imageSrc?: string,
+    title: string,
     description: string,
-    ingredientsForOnePortion: QuantizedIngredient[]
+    ingredientsForOnePortion: QuantizedIngredient[],
+    isFavorite: boolean,
+    preparationTime?: Duration,
+    difficulty?: RecipeDifficulty,
+    tags: string[]
+}
+
+export enum RecipeDifficulty {
+    EASY,
+    MEDIUM,
+    DIFFICULT
 }

@@ -11,6 +11,7 @@ import IngredientContextProvider from '@/context/IngredientContextProvider';
 import ShoppingListContextProvider from '@/context/ShoppingListContextProvider';
 import RecipeContextProvider from '@/context/RecipeContextProvider';
 import { useColorScheme } from 'react-native';
+import { createRecipeTablesIfNotExist } from '@/data/dao/RecipeDao';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -41,6 +42,7 @@ export default function RootLayout() {
 
 function initializeApplication() {
   createIngredientTableIfNotExists();
+  createRecipeTablesIfNotExist();
   setDatabaseJournalingToWal();
 }
 
