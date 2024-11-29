@@ -5,4 +5,5 @@ export default database;
 
 export function setDatabaseJournalingToWal() {
     database.execSync("PRAGMA journal_mode = WAL;");
+    database.execSync("PRAGMA foreign_keys = ON;");
 }
