@@ -5,19 +5,6 @@ import * as FileSystem from 'expo-file-system';
 import { CreateIngredientBlueprint, UpdateIngredientBlueprint } from "@/types/dao/IngredientDaoTypes";
 import { createDirectoryIfNotExists, getFileExtension } from "@/utils/FileSystemUtils";
 
-export function createIngredientTableIfNotExists() {
-    database.execSync(`
-        CREATE TABLE IF NOT EXISTS Ingredient(
-            ingredientId INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            pluralName TEXT,
-            imageSrc TEXT,
-            unit INTEGER NOT NULL,
-            calorificValueKcal REAL,
-            calorificValueNUnits REAL
-        );
-    `);
-}
 
 export async function createIngredient(blueprint: CreateIngredientBlueprint) {
     const ingredient = await insertIngredientInDatabase({
@@ -78,7 +65,6 @@ export async function deleteIngredient(ingredient: Ingredient) {
 }
 
 
-
 async function saveIngredientImage(ingredientId: number, temporaryImageUri: string) {
     const directoryUri = `${FileSystem.documentDirectory}ingredients/${ingredientId}/`
     const imageUri = `${directoryUri}img.${getFileExtension(temporaryImageUri)}`;
@@ -90,7 +76,7 @@ async function saveIngredientImage(ingredientId: number, temporaryImageUri: stri
 }
 
 
-async function insertIngredientInDatabase(ingredient: Omit<Ingredient, 'ingredientId'>): Promise<Ingredient> {
+export async function insertIngredientInDatabase(ingredient: Omit<Ingredient, 'ingredientId'>): Promise<Ingredient> {
     const insertResult = await database.runAsync(
         `
         INSERT INTO
@@ -186,4 +172,18 @@ function mapFromDatabaseModel(databaseIngredient: DatabaseIngredient): Ingredien
         unit: databaseIngredient.unit,
         calorificValue: calorificValue
     }
+}
+
+export function createIngredientTableIfNotExists() {
+    database.execSync(`
+        CREATE TABLE IF NOT EXISTS Ingredient(
+            ingredientId INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            pluralName TEXT,
+            imageSrc TEXT,
+            unit INTEGER NOT NULL,
+            calorificValueKcal REAL,
+            calorificValueNUnits REAL
+        );
+    `);
 }
