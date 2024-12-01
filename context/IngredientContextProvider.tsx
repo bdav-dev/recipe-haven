@@ -26,9 +26,11 @@ export default function IngredientContextProvider(props: ContextProviderProps) {
       .then(ing => setIngredients(ing));
   }, []);
 
+  // HIER: wird dann meine methode für die custom items und die shoppinglist sachen (nur eine methode für ingredient und custom item entries!)
+  // geholt!
   useEffect(() => {
-    setRecipes([]); // TODO: getAllRecipes() from DAO
-    setShoppingList({ customItems: [], ingredientItems: [] }); // TODO: getShoppingList() from DAO
+    // setRecipes([]); // TODO: getAllRecipes() from DAO
+    // setShoppingList({ customItems: [], ingredientItems: [] }); // TODO: getShoppingList() from DAO
   }, [ingredients]);
 
   return (

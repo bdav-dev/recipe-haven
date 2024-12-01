@@ -1,4 +1,4 @@
-import { useContext, useState, useMemo } from 'react';
+import { useContext, useState, useMemo, useEffect } from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/useAppTheme';
@@ -8,15 +8,15 @@ import SelectShoppingListItemTypeModal from '@/components/shoppingList/SelectSho
 import { ShoppingListContext } from '@/context/ShoppingListContextProvider';
 import CustomShoppingListItem from '@/components/shoppingList/CustomShoppingListItem';
 import { ShoppingListCustomItem } from '@/types/ShoppingListTypes';
-import { updateCustomItem } from '@/data/dao/ShoppingListDao';
+import { getAllCustomItems, updateCustomItem } from '@/data/dao/ShoppingListDao';
 import ShoppingListViewToggle from '@/components/shoppingList/ShoppingListViewToggle';
-import { ThemeProvider } from '@react-navigation/native';
 
 export default function ShoppingListScreen() {
     const theme = useAppTheme();
     const { shoppingList, setShoppingList } = useContext(ShoppingListContext);
     const [isSelectTypeModalVisible, setIsSelectTypeModalVisible] = useState(false);
     const [showCheckedItems, setShowCheckedItems] = useState(false);
+
 
     const filteredItems = useMemo(() => 
         shoppingList.customItems.filter(item => item.isChecked === showCheckedItems),
@@ -51,6 +51,20 @@ export default function ShoppingListScreen() {
         });
     }
 
+    // Er findet die Einträge in der Datenbank! Speichern funktioniert, nur das anzeigen nicht!
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const entries = await getAllCustomItems();
+                console.log('Folgende einträge gefunden:', entries);
+            } catch (error) {
+                console.error('Error fetching custom items:', error);
+            }
+        }
+
+        fetchData();
+    }, []);
+    
     return (
         <Page>
             <FlatList

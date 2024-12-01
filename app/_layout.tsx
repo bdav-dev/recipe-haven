@@ -7,7 +7,7 @@ import 'react-native-reanimated';
 
 import { setDatabaseJournalingToWal } from '@/data/database/Database';
 import { createIngredientTableIfNotExists } from '@/data/dao/IngredientDao';
-import { createShoppingListTableIfNotExists, getAllCustomItems, deleteAllCustomItems } from '@/data/dao/ShoppingListDao';
+import { createShoppingListTableIfNotExists, getAllCustomItems } from '@/data/dao/ShoppingListDao';
 import IngredientContextProvider from '@/context/IngredientContextProvider';
 import ShoppingListContextProvider from '@/context/ShoppingListContextProvider';
 import RecipeContextProvider from '@/context/RecipeContextProvider';
@@ -43,8 +43,6 @@ export default function RootLayout() {
 function initializeApplication() {
   createIngredientTableIfNotExists();
   createShoppingListTableIfNotExists();
-  getAllCustomItems();
-  deleteAllCustomItems();
   setDatabaseJournalingToWal();
 }
 

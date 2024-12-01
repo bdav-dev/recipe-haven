@@ -26,9 +26,6 @@ export async function getAllCustomItems() {
     return await getAllCustomItemsFromDatabase();
 }
 
-export async function deleteAllCustomItems() {
-    return await deleteAllCustomItemsInDatabase();
-}
 
 export async function updateCustomItem(blueprint: UpdateShoppingListCustomItemBlueprint) {
     const updatedItem: ShoppingListCustomItem = {
@@ -98,14 +95,6 @@ async function deleteCustomItemInDatabase(itemId: number) {
         WHERE shoppingListCustomItemId = ?
         `,
         itemId
-    );
-}
-
-async function deleteAllCustomItemsInDatabase() {
-    await database.runAsync(
-        `
-        DELETE FROM ShoppingListCustomItem;
-        `
     );
 }
 
