@@ -10,7 +10,6 @@ export async function getAllRecipes(allIngredients: Ingredient[]) {
     return await getAllRecipesFromDatabase(allIngredients);
 }
 
-
 async function getAllRecipesFromDatabase(allIngredients: Ingredient[]) {
     return (
         await database.getAllAsync<FullRecipeQueryResult>(`
@@ -76,6 +75,10 @@ function mapFromFullRecipeQueryResult(item: FullRecipeQueryResult, allIngredient
             }))
     );
 
+    if (quantizedIngredients.some(item => item.ingredient == undefined)) {
+        throw new Error("Some required ingredients are missing");
+    }
+
     return {
         recipeId: item.recipeId,
         description: item.description,
@@ -85,7 +88,7 @@ function mapFromFullRecipeQueryResult(item: FullRecipeQueryResult, allIngredient
         title: item.title,
         difficulty: item.difficulty,
         imageSrc: item.imageSrc,
-        preparationTime: item.preparationTimeInMinutes ? new Duration(item.preparationTimeInMinutes) : undefined
+        preparationTime: item.preparationTimeInMinutes ? Duration.ofMinutes(item.preparationTimeInMinutes) : undefined
     }
 }
 

@@ -29,7 +29,8 @@ export default function IngredientContextProvider(props: ContextProviderProps) {
 
   useEffect(() => {
     getAllRecipes(ingredients)
-      .then(setRecipes);
+      .then(setRecipes)
+      .catch(_e => setRecipes([]));
 
     setShoppingList({ customItems: [], ingredientItems: [] }); // TODO: getShoppingList() from DAO
   }, [ingredients]);
