@@ -30,5 +30,24 @@ export type AppTheme = {
         background: string,
         placeholder: string,
         borderErroneous: string,
+    },
+    autoColorBadge: {
+        backgroundColor: {
+            saturation: number,
+            value: number
+        },
+        border: {
+            saturation: number,
+            value: number
+        },
+        text: {
+            saturation: number,
+            value: number
+        }
+    },
+    ingredientsPreview: {
+        moreBadge: {
+            backgroundColor: string
+        }
     }
 }
