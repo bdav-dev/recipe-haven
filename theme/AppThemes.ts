@@ -29,6 +29,25 @@ export const AppThemes: { [key: string]: AppTheme } = {
             background: DefaultTheme.colors.border,
             placeholder: "#a9a9ab",
             borderErroneous: "#EB4E3E",
+        },
+        autoColorBadge: {
+            backgroundColor: {
+                saturation: 0.145539,
+                value: 0.991112
+            },
+            border: {
+                saturation: 0.218717,
+                value: 0.973443
+            },
+            text: {
+                saturation: 0.777718,
+                value: 0.2
+            }
+        },
+        ingredientsPreview: {
+            moreBadge: {
+                backgroundColor: DefaultTheme.colors.border
+            }
         }
     },
     dark: {
@@ -58,6 +77,25 @@ export const AppThemes: { [key: string]: AppTheme } = {
             background: DarkTheme.colors.border,
             placeholder: "#616166",
             borderErroneous: "#E75444"
+        },
+        autoColorBadge: {
+            backgroundColor: {
+                saturation: 0.734477,
+                value: 0.043734 + 0.11
+            },
+            border: {
+                saturation: 0.790038,
+                value: 0.076185 + 0.15
+            },
+            text: {
+                saturation: 0.27415,
+                value: 1
+            }
+        },
+        ingredientsPreview: {
+            moreBadge: {
+                backgroundColor: DarkTheme.colors.border
+            }
         }
     },
 };

@@ -1,4 +1,4 @@
-import { AppThemes } from "@/theme/Themes";
+import { AppThemes } from "@/theme/AppThemes";
 import { useColorScheme } from "react-native";
 
 export function useAppTheme() {
