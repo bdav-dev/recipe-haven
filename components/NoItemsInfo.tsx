@@ -1,21 +1,31 @@
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
-import CardView from "../themed/CardView";
-import { ThemedText } from "../themed/ThemedText";
+import CardView from "./themed/CardView";
+import { ThemedText } from "./themed/ThemedText";
 import { AppTheme } from "@/types/ThemeTypes";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 
-export default function NoIngredientsInfo() {
+type NoItemsInfoProps = {
+    type: 'recipes' | 'ingredients';
+}
+
+export default function NoItemsInfo(props: NoItemsInfoProps) {
     const theme = useAppTheme();
     const styles = useThemedStyleSheet(createStyles);
+
+    let text: string;
+    switch (props.type) {
+        case "recipes": text = "Rezepte";
+        case "ingredients": text = "Zutaten"
+    }
 
     return (
         <View style={styles.container}>
             <CardView style={styles.noIngredientsCard}>
                 <Ionicons name='sad-outline' color={theme.icon.secondary} size={56} />
-                <ThemedText type="subtitle" style={styles.text}>Keine Zutaten</ThemedText>
-                <ThemedText style={styles.text}>Füge jetzt Zutaten hinzu!</ThemedText>
+                <ThemedText type="subtitle" style={styles.text}>Keine {text}</ThemedText>
+                <ThemedText style={styles.text}>Füge jetzt {text} hinzu!</ThemedText>
             </CardView>
         </View>
     );

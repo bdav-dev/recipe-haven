@@ -11,15 +11,15 @@ import { includesIgnoreCase, isBlank } from '@/utils/StringUtils';
 import { unitToString } from '@/utils/UnitUtils';
 import { Ingredient } from '@/types/IngredientTypes';
 import EditIngredientModal from '@/components/ingredient/EditIngredientModal';
-import NoIngredientsInfo from '@/components/ingredient/NoIngredientsInfo';
 import NoSearchResultsBadge from '@/components/NoSearchResultsBadge';
 import SearchBar from '@/components/SearchBar';
+import NoItemsInfo from '@/components/NoItemsInfo';
 
 
 export default function IngredientsScreen() {
   const theme = useAppTheme();
+  const { ingredients } = useContext(IngredientContext);
 
-  const { ingredients, setIngredients } = useContext(IngredientContext);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -38,15 +38,14 @@ export default function IngredientsScreen() {
 
   return (
     <Page>
-
       {
         !areIngredientsEmpty() &&
-        <SearchBar searchText={searchText} onSearchTextChange={setSearchText}/>
+        <SearchBar searchText={searchText} onSearchTextChange={setSearchText} />
       }
 
       {
         areIngredientsEmpty()
-          ? <NoIngredientsInfo />
+          ? <NoItemsInfo type='ingredients' />
           : (
             areFilteredIngredientsEmpty()
               ? <NoSearchResultsBadge />
@@ -105,16 +104,5 @@ function filterIngredients(ingredients: Ingredient[], searchText: string) {
 const styles = StyleSheet.create({
   ingredientList: {
     padding: 8
-  },
-  textInput: {
-    width: 100
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  image: {
-    width: 60,
-    height: 60
   }
 });
