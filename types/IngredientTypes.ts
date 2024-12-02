@@ -8,7 +8,7 @@ export type Ingredient = {
 }
 
 export type QuantizedIngredient = {
-    amount?: number,
+    amount: number,
     ingredient: Ingredient
 }
 

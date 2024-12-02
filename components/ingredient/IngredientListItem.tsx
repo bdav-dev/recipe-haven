@@ -33,7 +33,7 @@ export default function IngredientListItem(props: IngredientListItemProps) {
                     <ThemedText type="largeSemiBold">{ingredient.name}</ThemedText>
                     {ingredient.pluralName &&
                         <>
-                            <View style={{ width: 8}}/>
+                            <View style={{ width: 8 }} />
                             {props.ingredient.pluralName}
                         </>
                     }
