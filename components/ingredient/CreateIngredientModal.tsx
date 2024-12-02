@@ -67,9 +67,9 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
     function create() {
         createIngredient({
             name: name,
-            pluralName: pluralName,
+            pluralName: pluralName || undefined,
             unit: unit,
-            temporaryImageUri: temporaryImageUri,
+            temporaryImageUri: temporaryImageUri || undefined,
             calorificValue: calorificValue
         })
             .then(

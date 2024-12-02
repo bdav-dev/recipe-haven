@@ -74,9 +74,9 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
         updateIngredient({
             originalIngredient: props.editIngredient!,
             updatedValues: {
-                imageSrc: imageUri,
+                imageSrc: imageUri || undefined,
                 name: name,
-                pluralName: pluralName,
+                pluralName: pluralName || undefined,
                 unit: unit,
                 calorificValue: calorificValue
             }
