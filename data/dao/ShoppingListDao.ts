@@ -44,20 +44,22 @@ export async function deleteCustomItem(item: ShoppingListCustomItem) {
 }
 
 async function insertCustomItemInDatabase(item: Omit<ShoppingListCustomItem, 'shoppingListCustomItemId'>): Promise<ShoppingListCustomItem> {
+    const timestamp = item.creationTimestamp.toISOString();
+    
     const insertResult = await database.runAsync(
         `
         INSERT INTO
             ShoppingListCustomItem (text, isChecked, creationTimestamp)
             VALUES (?, ?, ?);
         `,
-        item.text,
-        item.isChecked ? 1 : 0,
-        item.creationTimestamp.toISOString()
+        [item.text, item.isChecked ? 1 : 0, timestamp]
     );
 
     return {
         shoppingListCustomItemId: insertResult.lastInsertRowId,
-        ...item
+        text: item.text,
+        isChecked: item.isChecked,
+        creationTimestamp: item.creationTimestamp
     };
 }
 
@@ -102,7 +104,7 @@ function mapFromDatabaseModel(dbItem: DatabaseShoppingListCustomItem): ShoppingL
     return {
         shoppingListCustomItemId: dbItem.shoppingListCustomItemId,
         text: dbItem.text,
-        isChecked: dbItem.isChecked,
+        isChecked: Boolean(dbItem.isChecked),
         creationTimestamp: new Date(dbItem.creationTimestamp)
     };
 }

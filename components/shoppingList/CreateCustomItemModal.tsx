@@ -18,38 +18,29 @@ type CreateCustomItemModalProps = {
 export default function CreateCustomItemModal(props: CreateCustomItemModalProps) {
     const styles = useThemedStyleSheet(createStyles);
     const [text, setText] = useState('');
-    const { shoppingList, setShoppingList } = useContext(ShoppingListContext);
+    const { setShoppingList } = useContext(ShoppingListContext);
 
-    function isReadyForSubmit() {
-        return !isBlank(text);
-    }
-
-    function reset() {
-        setText('');
+    async function handleSubmit() {
+        if (!isBlank(text)) {
+            try {
+                const newItem = await createCustomItem({ text: text.trim() });
+                setShoppingList(current => ({
+                    ...current,
+                    customItems: [...current.customItems, newItem]
+                }));
+                close();
+            } catch (error) {
+                console.error('Failed to create item:', error);
+            }
+        }
     }
 
     function close() {
-        reset();
+        setText('');
         if (props.onRequestClose) {
             props.onRequestClose();
         }
     }
-
-    const handleCreate = async (text: string) => {
-        try {
-            const newItem = await createCustomItem({ text });
-            setShoppingList(current => ({
-                ...current,
-                customItems: [...current.customItems, newItem]
-            }));
-            if (props.onItemCreated) {
-                props.onItemCreated(newItem);
-            }
-            close();
-        } catch (error) {
-            console.error('Failed to create custom item:', error);
-        }
-    };
 
     return (
         <FullScreenModal
@@ -58,13 +49,14 @@ export default function CreateCustomItemModal(props: CreateCustomItemModalProps)
             title="Neuer Artikel"
             primaryActionButton={{
                 title: "Hinzufügen",
-                onPress: () => handleCreate(text),
-                disabled: !isReadyForSubmit()
+                onPress: handleSubmit,
+                disabled: isBlank(text)
             }}
         >
             <View style={styles.contentContainer}>
                 <TextField
                     placeholder="Name des Artikels"
+                    value={text}
                     onChangeText={setText}
                     style={styles.textField}
                 />

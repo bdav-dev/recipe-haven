@@ -24,8 +24,7 @@ export default function ShoppingListScreen() {
     );
 
     const hasMultipleItems = useMemo(() => 
-        shoppingList.customItems.some(item => item.isChecked) && 
-        shoppingList.customItems.some(item => !item.isChecked),
+        shoppingList.customItems.length > 0,
         [shoppingList.customItems]
     );
 
