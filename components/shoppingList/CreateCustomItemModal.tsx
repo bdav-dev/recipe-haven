@@ -20,18 +20,25 @@ export default function CreateCustomItemModal(props: CreateCustomItemModalProps)
     const [text, setText] = useState('');
     const { setShoppingList } = useContext(ShoppingListContext);
 
+    const isValidInput = (text: string) => !isBlank(text);
+
+    const addItemToShoppingList = (newItem: ShoppingListCustomItem) => {
+        setShoppingList(current => ({
+            ...current,
+            customItems: [...current.customItems, newItem]
+        }));
+    };
+
     async function handleSubmit() {
-        if (!isBlank(text)) {
-            try {
-                const newItem = await createCustomItem({ text: text.trim() });
-                setShoppingList(current => ({
-                    ...current,
-                    customItems: [...current.customItems, newItem]
-                }));
-                close();
-            } catch (error) {
-                console.error('Failed to create item:', error);
-            }
+        const trimmedText = text.trim();
+        if (!isValidInput(trimmedText)) return;
+
+        try {
+            const newItem = await createCustomItem({ text: trimmedText });
+            addItemToShoppingList(newItem);
+            close();
+        } catch (error) {
+            console.error('Failed to create item:', error);
         }
     }
 

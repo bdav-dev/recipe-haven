@@ -17,51 +17,52 @@ export default function ShoppingListScreen() {
     const [isSelectTypeModalVisible, setIsSelectTypeModalVisible] = useState(false);
     const [showCheckedItems, setShowCheckedItems] = useState(false);
 
-
-    const filteredItems = useMemo(() => 
+    const visibleItems = useMemo(() => 
         shoppingList.customItems.filter(item => item.isChecked === showCheckedItems),
         [shoppingList.customItems, showCheckedItems]
     );
 
-    const hasMultipleItems = useMemo(() => 
+    const shouldShowToggle = useMemo(() => 
         shoppingList.customItems.length > 0,
         [shoppingList.customItems]
     );
 
-    function handleToggleCheck(item: ShoppingListCustomItem) {
+    const updateItemCheckStatus = async (item: ShoppingListCustomItem) => {
         const updatedItem = {
             ...item,
             isChecked: !item.isChecked
         };
 
-        updateCustomItem({
-            originalItem: item,
-            updatedValues: updatedItem
-        }).then(() => {
-            const updatedItems = shoppingList.customItems.map(existingItem =>
-                existingItem.shoppingListCustomItemId === item.shoppingListCustomItemId
-                    ? updatedItem
-                    : existingItem
-            );
-
-            setShoppingList({
-                ...shoppingList,
-                customItems: updatedItems
+        try {
+            await updateCustomItem({
+                originalItem: item,
+                updatedValues: updatedItem
             });
-        });
-    }
+
+            setShoppingList(current => ({
+                ...current,
+                customItems: current.customItems.map(existingItem =>
+                    existingItem.shoppingListCustomItemId === item.shoppingListCustomItemId
+                        ? updatedItem
+                        : existingItem
+                )
+            }));
+        } catch (error) {
+            console.error('Failed to update item:', error);
+        }
+    };
 
     return (
         <Page>
             <FlatList
-                data={filteredItems}
+                data={visibleItems}
                 style={styles.list}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
                 renderItem={listItemInfo => (
                   <CustomShoppingListItem
                       key={listItemInfo.index}
                       item={listItemInfo.item}
-                      onToggleCheck={handleToggleCheck}
+                      onToggleCheck={updateItemCheckStatus}
                   />
               )}
             />
@@ -70,7 +71,7 @@ export default function ShoppingListScreen() {
                 <ShoppingListViewToggle 
                     showChecked={showCheckedItems}
                     onToggle={() => setShowCheckedItems(prev => !prev)}
-                    visible={hasMultipleItems}
+                    visible={shouldShowToggle}
                 />
             </View>
 

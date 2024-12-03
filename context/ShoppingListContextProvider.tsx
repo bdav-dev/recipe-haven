@@ -14,24 +14,23 @@ export const ShoppingListContext = createContext<ShoppingListContext>({
 });
 
 export default function ShoppingListContextProvider(props: ContextProviderProps) {
-  const [shoppingList, setShoppingList] = useState<ShoppingList>({ 
-    customItems: [],
-    ingredientItems: [] 
-  });
+  const [shoppingList, setShoppingList] = useState<ShoppingList>(getInitialState());
 
-  // Custom items bei start der App laden
+  const initializeCustomItems = async () => {
+    try {
+      const customItems = await getAllCustomItems();
+      console.debug('Loaded custom items:', customItems);
+      setShoppingList(current => ({
+        ...current,
+        customItems
+      }));
+    } catch (error) {
+      console.error('Failed to load custom items:', error);
+    }
+  };
+
   useEffect(() => {
-    getAllCustomItems()
-      .then(customItems => {
-        console.log('Loading custom items:', customItems);
-        setShoppingList(current => ({
-          ...current,
-          customItems
-        }));
-      })
-      .catch(error => {
-        console.error('Failed to load custom items:', error);
-      });
+    initializeCustomItems();
   }, []);
 
   return (
@@ -39,4 +38,11 @@ export default function ShoppingListContextProvider(props: ContextProviderProps)
       {props.children}
     </ShoppingListContext.Provider>
   );
+}
+
+function getInitialState(): ShoppingList {
+  return {
+    customItems: [],
+    ingredientItems: []
+  };
 }

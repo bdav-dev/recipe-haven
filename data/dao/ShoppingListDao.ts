@@ -44,23 +44,29 @@ export async function deleteCustomItem(item: ShoppingListCustomItem) {
 }
 
 async function insertCustomItemInDatabase(item: Omit<ShoppingListCustomItem, 'shoppingListCustomItemId'>): Promise<ShoppingListCustomItem> {
-    const timestamp = item.creationTimestamp.toISOString();
+    const dbItem = prepareItemForDatabase(item);
+    const insertResult = await executeInsertQuery(dbItem);
     
-    const insertResult = await database.runAsync(
-        `
-        INSERT INTO
-            ShoppingListCustomItem (text, isChecked, creationTimestamp)
-            VALUES (?, ?, ?);
-        `,
-        [item.text, item.isChecked ? 1 : 0, timestamp]
-    );
-
     return {
         shoppingListCustomItemId: insertResult.lastInsertRowId,
-        text: item.text,
-        isChecked: item.isChecked,
-        creationTimestamp: item.creationTimestamp
+        ...item
     };
+}
+
+function prepareItemForDatabase(item: Omit<ShoppingListCustomItem, 'shoppingListCustomItemId'>) {
+    return {
+        text: item.text,
+        isChecked: item.isChecked ? 1 : 0,
+        timestamp: item.creationTimestamp.toISOString()
+    };
+}
+
+async function executeInsertQuery(dbItem: any) {
+    return await database.runAsync(
+        `INSERT INTO ShoppingListCustomItem (text, isChecked, creationTimestamp)
+         VALUES (?, ?, ?);`,
+        [dbItem.text, dbItem.isChecked, dbItem.timestamp]
+    );
 }
 
 async function getAllCustomItemsFromDatabase() {
