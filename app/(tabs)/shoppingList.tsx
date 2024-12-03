@@ -1,4 +1,4 @@
-import { useContext, useState, useMemo, useEffect } from 'react';
+import { useContext, useState, useMemo } from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/useAppTheme';
@@ -24,8 +24,9 @@ export default function ShoppingListScreen() {
     );
 
     const hasMultipleItems = useMemo(() => 
-        shoppingList.customItems.length > 1,
-        [shoppingList.customItems.length]
+        shoppingList.customItems.some(item => item.isChecked) && 
+        shoppingList.customItems.some(item => !item.isChecked),
+        [shoppingList.customItems]
     );
 
     function handleToggleCheck(item: ShoppingListCustomItem) {
@@ -51,20 +52,6 @@ export default function ShoppingListScreen() {
         });
     }
 
-    // Er findet die Einträge in der Datenbank! Speichern funktioniert, nur das anzeigen nicht!
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const entries = await getAllCustomItems();
-                console.log('Folgende einträge gefunden:', entries);
-            } catch (error) {
-                console.error('Error fetching custom items:', error);
-            }
-        }
-
-        fetchData();
-    }, []);
-    
     return (
         <Page>
             <FlatList

@@ -35,31 +35,21 @@ export default function CreateCustomItemModal(props: CreateCustomItemModalProps)
         }
     }
 
-    
-    function create() {
-        console.log('Creating item with text:', text);
-        createCustomItem({ text: text.trim() })
-            .then(item => {
-                console.log('Created item:', item);
-                // Check if item was created successfully
-                if (item) { // Null check for custom items
-                    setShoppingList( shoppingList => ({
-                        ...shoppingList,
-                        customItems: [item, ...shoppingList.customItems]
-                    }));
-                    
-                    if (props.onItemCreated) {
-                        props.onItemCreated(item);
-                    }
-                    
-                    close();
-                }
-            })
-            .catch(error => {
-                // Error logging
-                console.error('Failed to create custom item:', error);
-            });
-    }
+    const handleCreate = async (text: string) => {
+        try {
+            const newItem = await createCustomItem({ text });
+            setShoppingList(current => ({
+                ...current,
+                customItems: [...current.customItems, newItem]
+            }));
+            if (props.onItemCreated) {
+                props.onItemCreated(newItem);
+            }
+            close();
+        } catch (error) {
+            console.error('Failed to create custom item:', error);
+        }
+    };
 
     return (
         <FullScreenModal
@@ -68,7 +58,7 @@ export default function CreateCustomItemModal(props: CreateCustomItemModalProps)
             title="Neuer Artikel"
             primaryActionButton={{
                 title: "Hinzufügen",
-                onPress: () => create(),
+                onPress: () => handleCreate(text),
                 disabled: !isReadyForSubmit()
             }}
         >
