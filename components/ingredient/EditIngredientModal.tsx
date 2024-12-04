@@ -1,5 +1,4 @@
 import { Alert, Image, TouchableWithoutFeedback, View } from "react-native";
-import FullScreenModal from "../FullScreenModal";
 import TextField from "../TextField";
 import CardView from "../themed/CardView";
 import UnitPicker from "./UnitPicker";
@@ -13,6 +12,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { CalorificValue, Ingredient, Unit } from "@/types/IngredientTypes";
 import { deleteIngredient, updateIngredient } from "@/data/dao/IngredientDao";
 import Button from "../Button";
+import FullScreenModal from "../modals/FullScreenModal";
 
 type EditIngredientModalProps = {
     isVisible: boolean,

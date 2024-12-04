@@ -1,5 +1,4 @@
 import { Image, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
-import FullScreenModal from "../FullScreenModal";
 import { useContext, useState } from "react";
 import { IngredientContext } from "@/context/IngredientContextProvider";
 import TextField from "../TextField";
@@ -13,6 +12,7 @@ import UnitPicker from "./UnitPicker";
 import { CalorificValue, Unit } from "@/types/IngredientTypes";
 import { createIngredient } from "@/data/dao/IngredientDao";
 import Button from "../Button";
+import FullScreenModal from "../modals/FullScreenModal";
 
 type CreateIngredientModalProps = {
     isVisible: boolean,
