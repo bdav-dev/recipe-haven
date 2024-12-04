@@ -5,6 +5,7 @@ import { Ingredient } from "@/types/IngredientTypes";
 import { ContextProviderProps } from "@/types/MiscellaneousTypes";
 import { getAllIngredients } from "@/data/dao/IngredientDao";
 import { getAllRecipes } from "@/data/dao/RecipeDao";
+import { getAllCustomItems } from "@/data/dao/ShoppingListDao";
 
 type IngredientContext = {
   ingredients: Ingredient[],
@@ -34,7 +35,9 @@ export default function IngredientContextProvider(props: ContextProviderProps) {
       .then(setRecipes)
       .catch(_e => setRecipes([]));
 
-    setShoppingList({ customItems: [], ingredientItems: [] }); // TODO: getShoppingList() from DAO
+    getAllCustomItems()
+      .then(customItems => setShoppingList({ ingredientItems: [], customItems }))
+      .catch(_e => setShoppingList({ customItems: [], ingredientItems: [] }));
   }, [ingredients]);
 
   return (
