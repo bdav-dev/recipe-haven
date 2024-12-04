@@ -26,7 +26,7 @@ export default function ShoppingListScreen() {
         [shoppingList.customItems, showCheckedItems]
     );
 
-    const shouldShowToggle = useMemo(() =>
+    const hasAnyItems = useMemo(() =>
         shoppingList.customItems.length > 0,
         [shoppingList.customItems]
     );
@@ -34,6 +34,11 @@ export default function ShoppingListScreen() {
     const hasCheckedItems = useMemo(() =>
         shoppingList.customItems.some(item => item.isChecked),
         [shoppingList.customItems]
+    );
+
+    const shouldShowToggle = useMemo(() =>
+        hasCheckedItems || shoppingList.customItems.some(item => !item.isChecked),
+        [hasCheckedItems, shoppingList.customItems]
     );
 
     const closeAllModals = () => setActiveModal('none');
@@ -78,6 +83,8 @@ export default function ShoppingListScreen() {
                 ...current,
                 customItems: current.customItems.filter(item => !item.isChecked)
             }));
+            // Automatically switch back to unchecked view when all checked items are deleted
+            setShowCheckedItems(false);
         } catch (error) {
             console.error('Failed to delete checked items:', error);
         }
