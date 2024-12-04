@@ -16,8 +16,12 @@ export default function NoItemsInfo(props: NoItemsInfoProps) {
 
     let text: string;
     switch (props.type) {
-        case "recipes": text = "Rezepte";
-        case "ingredients": text = "Zutaten"
+        case "recipes":
+            text = "Rezepte";
+            break;
+        case "ingredients":
+            text = "Zutaten";
+            break;
     }
 
     return (

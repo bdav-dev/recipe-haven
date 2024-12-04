@@ -42,9 +42,9 @@ export default function RootLayout() {
 }
 
 function initializeApplication() {
+  setDatabaseJournalingToWal();
   createIngredientTableIfNotExists();
   createShoppingListTableIfNotExists();
   createRecipeTablesIfNotExist();
-  setDatabaseJournalingToWal();
 }
 

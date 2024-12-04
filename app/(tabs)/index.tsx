@@ -24,6 +24,7 @@ export default function RecipesScreen() {
   const areRecipesEmpty = () => recipes.length === 0;
   const areFilteredRecipesEmpty = () => filteredRecipes.length === 0;
 
+
   return (
     <Page>
       {
@@ -45,7 +46,6 @@ export default function RecipesScreen() {
                   <RecipeListItem
                     key={listItemInfo.index}
                     recipe={listItemInfo.item}
-                    //editButton={{ onPress: () => launchEditIngredientModal(listItemInfo.item) }}
                   />
                 )}
               />

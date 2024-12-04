@@ -28,6 +28,7 @@ async function getAllRecipesFromDatabase(allIngredients: Ingredient[]) {
                 ON ril.ingredientId = i.ingredientId;
         `)
     )
+        .filter(item => item.recipeId != undefined) // If no items are in the database the query above selects a record where everything is null or and empty array. This fixes some bugs that would occur if this "ghost" record would be displayed.
         .map(item => mapFromFullRecipeQueryResult(item, allIngredients));
 }
 
