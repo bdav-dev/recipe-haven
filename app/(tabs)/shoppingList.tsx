@@ -9,8 +9,9 @@ import CreateCustomItemModal from '@/components/shoppingList/CreateCustomItemMod
 import { ShoppingListContext } from '@/context/ShoppingListContextProvider';
 import CustomShoppingListItem from '@/components/shoppingList/CustomShoppingListItem';
 import { ShoppingListCustomItem } from '@/types/ShoppingListTypes';
-import { updateCustomItem } from '@/data/dao/ShoppingListDao';
+import { updateCustomItem, deleteCheckedCustomItems } from '@/data/dao/ShoppingListDao';
 import ShoppingListViewToggle from '@/components/shoppingList/ShoppingListViewToggle';
+import ShoppingListViewDeleteButton from '@/components/shoppingList/ShoppingListViewDeleteButton';
 
 type ModalType = 'none' | 'selection' | 'custom' | 'ingredient' | 'recipe';
 
@@ -27,6 +28,11 @@ export default function ShoppingListScreen() {
 
     const shouldShowToggle = useMemo(() =>
         shoppingList.customItems.length > 0,
+        [shoppingList.customItems]
+    );
+
+    const hasCheckedItems = useMemo(() =>
+        shoppingList.customItems.some(item => item.isChecked),
         [shoppingList.customItems]
     );
 
@@ -65,6 +71,17 @@ export default function ShoppingListScreen() {
         }
     };
 
+    const handleDeleteCheckedItems = async () => {
+        try {
+            await deleteCheckedCustomItems();
+            setShoppingList(current => ({
+                ...current,
+                customItems: current.customItems.filter(item => !item.isChecked)
+            }));
+        } catch (error) {
+            console.error('Failed to delete checked items:', error);
+        }
+    };
 
     return (
         <Page>
@@ -89,9 +106,18 @@ export default function ShoppingListScreen() {
                 />
             </View>
 
-            <FloatingActionButton onPress={() => setActiveModal('selection')}>
-                <Ionicons name='add-outline' color={theme.card} size={35} />
-            </FloatingActionButton>
+            {showCheckedItems ? (
+                <View style={styles.deleteButtonContainer}>
+                    <ShoppingListViewDeleteButton
+                        onDelete={handleDeleteCheckedItems}
+                        visible={hasCheckedItems}
+                    />
+                </View>
+            ) : (
+                <FloatingActionButton onPress={() => setActiveModal('selection')}>
+                    <Ionicons name='add-outline' color={theme.card} size={35} />
+                </FloatingActionButton>
+            )}
 
             {
                 activeModal == 'selection' && // absolute bullshit, but needs to be there to work on iOS
@@ -135,6 +161,12 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 25,
         left: 25,
+        zIndex: 1,
+    },
+    deleteButtonContainer: {
+        position: 'absolute',
+        bottom: 25,
+        right: 25,
         zIndex: 1,
     }
 });

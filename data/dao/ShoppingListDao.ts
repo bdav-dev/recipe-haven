@@ -43,6 +43,13 @@ export async function deleteCustomItem(item: ShoppingListCustomItem) {
     await deleteCustomItemInDatabase(item.shoppingListCustomItemId);
 }
 
+export async function deleteCheckedCustomItems() {
+    await database.runAsync(
+        `DELETE FROM ShoppingListCustomItem
+         WHERE isChecked = 1;`
+    );
+}
+
 async function insertCustomItemInDatabase(item: Omit<ShoppingListCustomItem, 'shoppingListCustomItemId'>): Promise<ShoppingListCustomItem> {
     const dbItem = prepareItemForDatabase(item);
     const insertResult = await executeInsertQuery(dbItem);

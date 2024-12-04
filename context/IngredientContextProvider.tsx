@@ -35,7 +35,7 @@ export default function IngredientContextProvider(props: ContextProviderProps) {
       .then(setRecipes)
       .catch(_e => setRecipes([]));
 
-    getAllCustomItems()
+    getAllCustomItems() // TODO: replace with getAllShoppingListItems once custom items & ingredient items are implemented
       .then(customItems => setShoppingList({ ingredientItems: [], customItems }))
       .catch(_e => setShoppingList({ customItems: [], ingredientItems: [] }));
   }, [ingredients]);
