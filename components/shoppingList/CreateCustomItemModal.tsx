@@ -1,12 +1,11 @@
 import { StyleSheet, View } from "react-native";
-import FullScreenModal from "../FullScreenModal";
 import { useContext, useState } from "react";
 import TextField from "../TextField";
 import { isBlank } from "@/utils/StringUtils";
 import { createCustomItem } from "@/data/dao/ShoppingListDao";
 import { ShoppingListCustomItem } from "@/types/ShoppingListTypes";
 import { ShoppingListContext } from "@/context/ShoppingListContextProvider";
-import CardView from "../themed/CardView";
+import Modal from "../Modal";
 
 type CreateCustomItemModalProps = {
     isVisible: boolean,
@@ -41,7 +40,7 @@ export default function CreateCustomItemModal(props: CreateCustomItemModalProps)
     }
 
     return (
-        <FullScreenModal
+        <Modal
             isVisible={props.isVisible}
             onRequestClose={handleClose}
             title="Neuer Artikel"
@@ -52,16 +51,14 @@ export default function CreateCustomItemModal(props: CreateCustomItemModalProps)
             }}
         >
             <View style={styles.contentContainer}>
-                <CardView style={styles.inputCard}>
-                    <TextField
-                        placeholder="Name des Artikels"
-                        value={text}
-                        onChangeText={setText}
-                        style={styles.textField}
-                    />
-                </CardView>
+                <TextField
+                    placeholder="Artikelname"
+                    value={text}
+                    onChangeText={setText}
+                    style={styles.textField}
+                />
             </View>
-        </FullScreenModal>
+        </Modal>
     );
 }
 

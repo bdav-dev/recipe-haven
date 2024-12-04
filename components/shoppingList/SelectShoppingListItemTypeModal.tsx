@@ -1,9 +1,7 @@
 import { StyleSheet, View, TouchableOpacity } from "react-native";
-import FullScreenModal from "../FullScreenModal";
-import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
-import { AppTheme } from "@/types/ThemeTypes";
 import CardView from "../themed/CardView";
 import { ThemedText } from "../themed/ThemedText";
+import Modal from "../Modal";
 
 type SelectShoppingListItemTypeModalProps = {
     isVisible: boolean;
@@ -14,13 +12,11 @@ type SelectShoppingListItemTypeModalProps = {
 }
 
 export default function SelectShoppingListItemTypeModal(props: SelectShoppingListItemTypeModalProps) {
-    const styles = useThemedStyleSheet(createStyles);
 
     return (
-        <FullScreenModal
+        <Modal
             isVisible={props.isVisible}
             onRequestClose={props.onRequestClose}
-            title="Neuer Eintrag"
         >
             <View style={styles.contentContainer}>
                 <TouchableOpacity onPress={props.onSelectIngredient}>
@@ -41,11 +37,11 @@ export default function SelectShoppingListItemTypeModal(props: SelectShoppingLis
                     </CardView>
                 </TouchableOpacity>
             </View>
-        </FullScreenModal>
+        </Modal>
     );
 }
 
-const createStyles = (theme: AppTheme) => StyleSheet.create({
+const styles = StyleSheet.create({
     contentContainer: {
         padding: 20,
         display: "flex",
