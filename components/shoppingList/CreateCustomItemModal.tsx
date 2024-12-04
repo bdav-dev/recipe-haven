@@ -1,9 +1,7 @@
-import { Modal, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import FullScreenModal from "../FullScreenModal";
 import { useContext, useState } from "react";
 import TextField from "../TextField";
-import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
-import { AppTheme } from "@/types/ThemeTypes";
 import { isBlank } from "@/utils/StringUtils";
 import { createCustomItem } from "@/data/dao/ShoppingListDao";
 import { ShoppingListCustomItem } from "@/types/ShoppingListTypes";
@@ -17,7 +15,6 @@ type CreateCustomItemModalProps = {
 }
 
 export default function CreateCustomItemModal(props: CreateCustomItemModalProps) {
-    const styles = useThemedStyleSheet(createStyles);
     const [text, setText] = useState('');
     const { setShoppingList } = useContext(ShoppingListContext);
 
@@ -68,7 +65,7 @@ export default function CreateCustomItemModal(props: CreateCustomItemModalProps)
     );
 }
 
-const createStyles = (theme: AppTheme) => StyleSheet.create({
+const styles = StyleSheet.create({
     contentContainer: {
         padding: 20,
         gap: 12,

@@ -9,7 +9,7 @@ import CreateCustomItemModal from '@/components/shoppingList/CreateCustomItemMod
 import { ShoppingListContext } from '@/context/ShoppingListContextProvider';
 import CustomShoppingListItem from '@/components/shoppingList/CustomShoppingListItem';
 import { ShoppingListCustomItem } from '@/types/ShoppingListTypes';
-import { getAllCustomItems, updateCustomItem } from '@/data/dao/ShoppingListDao';
+import { updateCustomItem } from '@/data/dao/ShoppingListDao';
 import ShoppingListViewToggle from '@/components/shoppingList/ShoppingListViewToggle';
 
 type ModalType = 'none' | 'selection' | 'custom' | 'ingredient' | 'recipe';
@@ -17,19 +17,28 @@ type ModalType = 'none' | 'selection' | 'custom' | 'ingredient' | 'recipe';
 export default function ShoppingListScreen() {
     const theme = useAppTheme();
     const { shoppingList, setShoppingList } = useContext(ShoppingListContext);
-    const [isSelectTypeModalVisible, setIsSelectTypeModalVisible] = useState(false);
     const [showCheckedItems, setShowCheckedItems] = useState(false);
     const [activeModal, setActiveModal] = useState<ModalType>('none');
 
-    const visibleItems = useMemo(() => 
+    const visibleItems = useMemo(() =>
         shoppingList.customItems.filter(item => item.isChecked === showCheckedItems),
         [shoppingList.customItems, showCheckedItems]
     );
 
-    const shouldShowToggle = useMemo(() => 
+    const shouldShowToggle = useMemo(() =>
         shoppingList.customItems.length > 0,
         [shoppingList.customItems]
     );
+
+    const closeAllModals = () => setActiveModal('none');
+
+    const replaceActiveModal = (newValue: ModalType) => { // absolute bullshit, but needs to be there to work on iOS
+        setActiveModal("none");
+        setTimeout(
+            () => setActiveModal(newValue),
+            500
+        );
+    };
 
     const updateItemCheckStatus = async (item: ShoppingListCustomItem) => {
         const updatedItem = {
@@ -56,13 +65,6 @@ export default function ShoppingListScreen() {
         }
     };
 
-    const handleModalSelection = (type: ModalType) => {
-        setActiveModal(type);
-    };
-
-    const closeModals = () => {
-        setActiveModal('none');
-    };
 
     return (
         <Page>
@@ -71,16 +73,16 @@ export default function ShoppingListScreen() {
                 style={styles.list}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
                 renderItem={listItemInfo => (
-                  <CustomShoppingListItem
-                      key={listItemInfo.index}
-                      item={listItemInfo.item}
-                      onToggleCheck={updateItemCheckStatus}
-                  />
-              )}
+                    <CustomShoppingListItem
+                        key={listItemInfo.index}
+                        item={listItemInfo.item}
+                        onToggleCheck={updateItemCheckStatus}
+                    />
+                )}
             />
 
             <View style={styles.buttonContainer}>
-                <ShoppingListViewToggle 
+                <ShoppingListViewToggle
                     showChecked={showCheckedItems}
                     onToggle={() => setShowCheckedItems(prev => !prev)}
                     visible={shouldShowToggle}
@@ -91,18 +93,25 @@ export default function ShoppingListScreen() {
                 <Ionicons name='add-outline' color={theme.card} size={35} />
             </FloatingActionButton>
 
-            <SelectShoppingListItemTypeModal
-                isVisible={activeModal === 'selection'}
-                onRequestClose={closeModals}
-                onSelectCustomItem={() => handleModalSelection('custom')}
-                onSelectIngredient={() => handleModalSelection('ingredient')}
-                onSelectRecipe={() => handleModalSelection('recipe')}
-            />
+            {
+                activeModal == 'selection' && // absolute bullshit, but needs to be there to work on iOS
+                <SelectShoppingListItemTypeModal
+                    isVisible={activeModal == 'selection'}
+                    onRequestClose={closeAllModals}
+                    onSelectCustomItem={() => replaceActiveModal('custom')}
+                    onSelectIngredient={() => replaceActiveModal('ingredient')}
+                    onSelectRecipe={() => replaceActiveModal('recipe')}
+                />
+            }
 
-            <CreateCustomItemModal
-                isVisible={activeModal === 'custom'}
-                onRequestClose={closeModals}
-            />
+            {
+                activeModal == 'custom' && // absolute bullshit, but needs to be there to work on iOS
+                <CreateCustomItemModal
+                    isVisible={activeModal == 'custom'}
+                    onRequestClose={closeAllModals}
+                />
+            }
+
 
             {/* Add future modals here:
             <SelectIngredientModal 
