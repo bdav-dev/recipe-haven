@@ -8,6 +8,7 @@ import { isBlank } from "@/utils/StringUtils";
 import { createCustomItem } from "@/data/dao/ShoppingListDao";
 import { ShoppingListCustomItem } from "@/types/ShoppingListTypes";
 import { ShoppingListContext } from "@/context/ShoppingListContextProvider";
+import CardView from "../themed/CardView";
 
 type CreateCustomItemModalProps = {
     isVisible: boolean,
@@ -20,53 +21,48 @@ export default function CreateCustomItemModal(props: CreateCustomItemModalProps)
     const [text, setText] = useState('');
     const { setShoppingList } = useContext(ShoppingListContext);
 
-    const isValidInput = (text: string) => !isBlank(text);
-
-    const addItemToShoppingList = (newItem: ShoppingListCustomItem) => {
-        setShoppingList(current => ({
-            ...current,
-            customItems: [...current.customItems, newItem]
-        }));
-    };
+    const isValidInput = !isBlank(text);
 
     async function handleSubmit() {
-        const trimmedText = text.trim();
-        if (!isValidInput(trimmedText)) return;
+        if (!isValidInput) return;
 
         try {
-            const newItem = await createCustomItem({ text: trimmedText });
-            addItemToShoppingList(newItem);
-            close();
+            const newItem = await createCustomItem({ text: text.trim() });
+            setShoppingList(current => ({
+                ...current,
+                customItems: [...current.customItems, newItem]
+            }));
+            handleClose();
         } catch (error) {
             console.error('Failed to create item:', error);
         }
     }
 
-    function close() {
+    function handleClose() {
         setText('');
-        if (props.onRequestClose) {
-            props.onRequestClose();
-        }
+        props.onRequestClose?.();
     }
 
     return (
         <FullScreenModal
             isVisible={props.isVisible}
-            onRequestClose={close}
+            onRequestClose={handleClose}
             title="Neuer Artikel"
             primaryActionButton={{
                 title: "Hinzufügen",
                 onPress: handleSubmit,
-                disabled: isBlank(text)
+                disabled: !isValidInput
             }}
         >
             <View style={styles.contentContainer}>
-                <TextField
-                    placeholder="Name des Artikels"
-                    value={text}
-                    onChangeText={setText}
-                    style={styles.textField}
-                />
+                <CardView style={styles.inputCard}>
+                    <TextField
+                        placeholder="Name des Artikels"
+                        value={text}
+                        onChangeText={setText}
+                        style={styles.textField}
+                    />
+                </CardView>
             </View>
         </FullScreenModal>
     );
@@ -75,9 +71,11 @@ export default function CreateCustomItemModal(props: CreateCustomItemModalProps)
 const createStyles = (theme: AppTheme) => StyleSheet.create({
     contentContainer: {
         padding: 20,
-        display: "flex",
-        flexDirection: "column",
+        gap: 12,
         width: "100%",
+    },
+    inputCard: {
+        padding: 16,
     },
     textField: {
         width: "100%",

@@ -1,4 +1,3 @@
-
 import { ShoppingListCustomItem } from "@/types/ShoppingListTypes";
 import CardView from "../themed/CardView";
 import { ThemedText } from "../themed/ThemedText";
@@ -21,7 +20,7 @@ export default function CustomShoppingListItem(props: CustomShoppingListItemProp
     return (
         <CardView style={styles.card} noPadding>
             <TouchableOpacity 
-                style={styles.checkbox} 
+                style={styles.actionButton} 
                 onPress={() => onToggleCheck(item)}
             >
                 <Ionicons 
@@ -31,29 +30,23 @@ export default function CustomShoppingListItem(props: CustomShoppingListItemProp
                 />
             </TouchableOpacity>
 
-            <View style={styles.textContainer}>
-                <ThemedText type="largeSemiBold" 
-                    style={item.isChecked ? styles.checkedText : undefined}>
+            <View style={styles.contentContainer}>
+                <ThemedText 
+                    type="largeSemiBold" 
+                    style={item.isChecked ? styles.checkedText : undefined}
+                >
                     {item.text}
-                    {/* style={[
-                        styles.text,
-                        item.isChecked && styles.checkedText
-                    ]}*/}
                 </ThemedText>
             </View>
         </CardView>
     );
 }
 
-const GAP = 15;
-
 const createStyles = (theme: AppTheme) => StyleSheet.create({
     card: {
         height: 60,
-        display: "flex",
         flexDirection: "row",
         alignItems: "center",
-        gap: GAP,
         shadowColor: "black",
         shadowOffset: { height: 0, width: 0 },
         shadowRadius: 5,
@@ -61,10 +54,10 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         borderWidth: theme.ingredientListItem.borderWidth,
         borderColor: theme.border
     },
-    checkbox: {
-        marginLeft: 16,
+    actionButton: {
+        padding: 16,
     },
-    textContainer: {
+    contentContainer: {
         flex: 1,
         marginRight: 16,
     },

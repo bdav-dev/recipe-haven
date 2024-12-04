@@ -15,35 +15,16 @@ export default function ShoppingListViewToggle({ showChecked, onToggle, visible 
     if (!visible) return null;
 
     return (
-        <View style={styles.container}>
-            <Button 
-                title={showChecked ? "Erledigte anzeigen" : "Offene anzeigen"}
-                onPress={onToggle}
-                style={[
-                    styles.button,
-                    { backgroundColor: theme.accent }
-                ]}
-            />
-        </View>
+        <Button 
+            title={showChecked ? "Erledigte anzeigen" : "Offene anzeigen"}
+            onPress={onToggle}
+            style={[styles.toggleButton, { backgroundColor: theme.accent }]}
+        />
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignContent: 'center',
-        alignSelf: 'center',
-        alignItems: 'center',
-        height: 50,
-        shadowColor: 'black',
-        shadowOffset: { height: 0, width: 0 },
-        shadowRadius: 10,
-        shadowOpacity: 0.2,
-        elevation: 5
-    },
-    button: {
+    toggleButton: {
         paddingVertical: 12,
         paddingHorizontal: 16,
         borderRadius: 25,
@@ -52,5 +33,9 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
         shadowOpacity: 0.2,
         elevation: 5,
+    },
+    toggleButtonText: {
+        fontSize: 16,
+        fontWeight: '600'
     }
 });
