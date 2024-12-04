@@ -1,7 +1,6 @@
 import { QuantizedIngredient } from "./IngredientTypes"
 
 // Base type for all shopping list items
-// Basis-Typ für alle Einkaufslisten-Einträge
 type ShoppingListItemBase = {
     isChecked: boolean
     creationTimestamp: Date

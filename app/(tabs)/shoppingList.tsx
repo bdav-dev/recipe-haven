@@ -5,17 +5,21 @@ import { useAppTheme } from '@/hooks/useAppTheme';
 import Page from '@/components/Page';
 import FloatingActionButton from '@/components/FloatingActionButton';
 import SelectShoppingListItemTypeModal from '@/components/shoppingList/SelectShoppingListItemTypeModal';
+import CreateCustomItemModal from '@/components/shoppingList/CreateCustomItemModal';
 import { ShoppingListContext } from '@/context/ShoppingListContextProvider';
 import CustomShoppingListItem from '@/components/shoppingList/CustomShoppingListItem';
 import { ShoppingListCustomItem } from '@/types/ShoppingListTypes';
 import { getAllCustomItems, updateCustomItem } from '@/data/dao/ShoppingListDao';
 import ShoppingListViewToggle from '@/components/shoppingList/ShoppingListViewToggle';
 
+type ModalType = 'none' | 'selection' | 'custom' | 'ingredient' | 'recipe';
+
 export default function ShoppingListScreen() {
     const theme = useAppTheme();
     const { shoppingList, setShoppingList } = useContext(ShoppingListContext);
     const [isSelectTypeModalVisible, setIsSelectTypeModalVisible] = useState(false);
     const [showCheckedItems, setShowCheckedItems] = useState(false);
+    const [activeModal, setActiveModal] = useState<ModalType>('none');
 
     const visibleItems = useMemo(() => 
         shoppingList.customItems.filter(item => item.isChecked === showCheckedItems),
@@ -52,6 +56,14 @@ export default function ShoppingListScreen() {
         }
     };
 
+    const handleModalSelection = (type: ModalType) => {
+        setActiveModal(type);
+    };
+
+    const closeModals = () => {
+        setActiveModal('none');
+    };
+
     return (
         <Page>
             <FlatList
@@ -75,15 +87,33 @@ export default function ShoppingListScreen() {
                 />
             </View>
 
-
-            <FloatingActionButton onPress={() => setIsSelectTypeModalVisible(true)}>
+            <FloatingActionButton onPress={() => setActiveModal('selection')}>
                 <Ionicons name='add-outline' color={theme.card} size={35} />
             </FloatingActionButton>
 
             <SelectShoppingListItemTypeModal
-                isVisible={isSelectTypeModalVisible}
-                onRequestClose={() => setIsSelectTypeModalVisible(false)}
+                isVisible={activeModal === 'selection'}
+                onRequestClose={closeModals}
+                onSelectCustomItem={() => handleModalSelection('custom')}
+                onSelectIngredient={() => handleModalSelection('ingredient')}
+                onSelectRecipe={() => handleModalSelection('recipe')}
             />
+
+            <CreateCustomItemModal
+                isVisible={activeModal === 'custom'}
+                onRequestClose={closeModals}
+            />
+
+            {/* Add future modals here:
+            <SelectIngredientModal 
+                isVisible={activeModal === 'ingredient'}
+                onRequestClose={closeModals}
+            />
+
+            <SelectRecipeModal
+                isVisible={activeModal === 'recipe'}
+                onRequestClose={closeModals}
+            /> */}
         </Page>
     );
 }

@@ -14,6 +14,11 @@ export const ShoppingListContext = createContext<ShoppingListContext>({
 });
 
 export default function ShoppingListContextProvider(props: ContextProviderProps) {
+
+  // TODO: implement this l8r
+  // const { setRecipes } = useContext(RecipeContext);
+  // const { setIngredients } = useContext(IngredientContext);
+
   const [shoppingList, setShoppingList] = useState<ShoppingList>(getInitialState());
 
   const initializeCustomItems = async () => {
