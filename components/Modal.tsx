@@ -1,13 +1,13 @@
-import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, View } from "react-native";
+import { KeyboardAvoidingView, Platform, Modal as ReactNativeModal, StyleSheet, View } from "react-native";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { AppTheme } from "@/types/ThemeTypes";
-import { ThemedText } from "./themed/ThemedText";
 import Button from "./Button";
+import { ThemedText } from "./themed/ThemedText";
 
-type FullScreenModalProps = {
+type ModalProps = {
     children?: React.ReactNode,
     isVisible: boolean,
-    title: string | React.ReactNode,
+    title?: string | React.ReactNode
     primaryActionButton?: {
         title: string
         onPress: () => void,
@@ -16,18 +16,17 @@ type FullScreenModalProps = {
     onRequestClose?: () => void
 }
 
-export default function FullScreenModal(props: FullScreenModalProps) {
+export default function Modal(props: ModalProps) {
     const styles = useThemedStyleSheet(theme => styleSheet(theme));
 
     return (
-        <Modal
+        <ReactNativeModal
             animationType='slide'
             transparent={true}
             visible={props.isVisible}
             onRequestClose={props.onRequestClose}
         >
             <View style={styles.centered}>
-
                 <KeyboardAvoidingView
                     style={styles.modal}
                     keyboardVerticalOffset={Platform.select({ ios: 30, android: 40 })}
@@ -46,27 +45,23 @@ export default function FullScreenModal(props: FullScreenModalProps) {
                         }
 
                         {
-                            props.primaryActionButton
-                                ? <Button
-                                    textStyle={{ fontWeight: "600" }}
-                                    style={styles.headerButton}
-                                    title={props.primaryActionButton.title}
-                                    onPress={props.primaryActionButton.onPress}
-                                    disabled={props.primaryActionButton.disabled}
-                                />
-                                : <View style={styles.headerButton} />
+                            props.primaryActionButton &&
+                            <Button
+                                style={styles.headerButton}
+                                title={props.primaryActionButton.title}
+                                onPress={props.primaryActionButton.onPress}
+                                disabled={props.primaryActionButton.disabled}
+                            />
                         }
                     </View>
 
-                    <ScrollView style={styles.scrollView}>
+                    <View style={styles.contentView}>
                         {props.children}
-                    </ScrollView>
-
+                    </View>
                 </KeyboardAvoidingView>
 
             </View>
-
-        </Modal>
+        </ReactNativeModal >
     );
 }
 
@@ -83,8 +78,7 @@ const styleSheet = (theme: AppTheme) => StyleSheet.create({
         alignSelf: "center"
     },
     headerButton: {
-        zIndex: 2,
-        minWidth: 80
+        zIndex: 2
     },
     expandingFlexContainer: {
         flex: 1,
@@ -107,25 +101,23 @@ const styleSheet = (theme: AppTheme) => StyleSheet.create({
     },
     modal: {
         borderWidth: theme.modal.borderWidth,
-        width: "96%",
-        height: "100%",
-        marginTop: 75,
         borderRadius: 20,
-        alignItems: "center",
         shadowRadius: 20,
         shadowColor: "black",
         shadowOpacity: theme.modal.shadowOpacity,
         shadowOffset: { height: 0, width: 0 },
+        borderColor: theme.border,
         backgroundColor: theme.background,
-        borderColor: theme.border
+        width: "90%"
     },
     centered: {
         flex: 1,
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "center"
     },
-    scrollView: {
+    contentView: {
         display: "flex",
-        width: "100%"
+        width: "100%",
+        padding: 10
     }
 });

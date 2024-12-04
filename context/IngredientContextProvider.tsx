@@ -27,6 +27,8 @@ export default function IngredientContextProvider(props: ContextProviderProps) {
       .then(setIngredients);
   }, []);
 
+  // HIER: wird dann meine methode für die custom items und die shoppinglist sachen (nur eine methode für ingredient und custom item entries!)
+  // geholt!
   useEffect(() => {
     getAllRecipes(ingredients)
       .then(setRecipes)
