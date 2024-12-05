@@ -17,9 +17,12 @@ export default function CalorificValueInput(props: CalorificValueInputProps) {
     const [nUnitsText, setNUnitsText] = useState(props.initialValue?.nUnits?.toString() ?? "");
 
     useEffect(() => {
-        if (props.onValueChanged) {
-            props.onValueChanged(parseTextsToCalorificValue());
-        }
+        setKcalText(props.initialValue?.kcal?.toString() ?? "");
+        setNUnitsText(props.initialValue?.nUnits?.toString() ?? "");
+    }, [props.initialValue]);
+    
+    useEffect(() => {
+        props.onValueChanged?.(parseTextsToCalorificValue());
     }, [kcalText, nUnitsText]);
 
     function parseKcalText(): number | undefined {
@@ -60,24 +63,22 @@ export default function CalorificValueInput(props: CalorificValueInputProps) {
             <TextField
                 keyboardType="numeric"
                 placeholder='kcal'
-                onChangeText={setKcalText}
                 style={[
                     styles.smallTextField
                 ]}
                 isErroneous={!(parseKcalText() != null || isBlank(kcalText))}
-            >
-                {props.initialValue?.kcal}
-            </TextField>
+                onChangeText={setKcalText}
+                defaultValue={props.initialValue?.kcal.toString()}
+            />
             <ThemedText>kcal pro</ThemedText>
             <TextField
                 keyboardType="numeric"
                 placeholder={unitToString(props.unit)}
-                onChangeText={setNUnitsText}
                 style={styles.smallTextField}
                 isErroneous={!(parseNUnitsText() != null || isBlank(nUnitsText))}
-            >
-                {props.initialValue?.nUnits}
-            </TextField>
+                onChangeText={setNUnitsText}
+                defaultValue={props.initialValue?.nUnits.toString()}
+            />
             <ThemedText>{unitToString(props.unit)}</ThemedText>
         </View>
     );

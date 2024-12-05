@@ -19,7 +19,7 @@ export const AppThemes: { [key: string]: AppTheme } = {
             secondary: "#687076"
         },
         ingredientListItem: {
-            borderWidth: 0
+            borderWidth: 1
         },
         modal: {
             borderWidth: 0,

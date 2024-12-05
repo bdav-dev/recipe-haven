@@ -1,5 +1,4 @@
 import { Image, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
-import FullScreenModal from "../FullScreenModal";
 import { useContext, useState } from "react";
 import { IngredientContext } from "@/context/IngredientContextProvider";
 import TextField from "../TextField";
@@ -13,6 +12,7 @@ import UnitPicker from "./UnitPicker";
 import { CalorificValue, Unit } from "@/types/IngredientTypes";
 import { createIngredient } from "@/data/dao/IngredientDao";
 import Button from "../Button";
+import FullScreenModal from "../modals/FullScreenModal";
 
 type CreateIngredientModalProps = {
     isVisible: boolean,
@@ -59,9 +59,7 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
 
     function close() {
         reset();
-        if (props.onRequestClose) {
-            props.onRequestClose();
-        }
+        props.onRequestClose?.();
     }
 
     function create() {
@@ -178,7 +176,7 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     image: {
         width: "100%",
         height: "100%",
-        borderRadius: 10
+        borderRadius: 9
     }
 });
 

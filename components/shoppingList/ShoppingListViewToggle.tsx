@@ -1,5 +1,4 @@
-import { StyleSheet, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet } from 'react-native';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import Button from '../Button';
 

@@ -5,7 +5,7 @@ import { isBlank } from "@/utils/StringUtils";
 import { createCustomItem } from "@/data/dao/ShoppingListDao";
 import { ShoppingListCustomItem } from "@/types/ShoppingListTypes";
 import { ShoppingListContext } from "@/context/ShoppingListContextProvider";
-import Modal from "../Modal";
+import Modal from "../modals/Modal";
 
 type CreateCustomItemModalProps = {
     isVisible: boolean,

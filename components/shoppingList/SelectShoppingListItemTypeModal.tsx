@@ -1,7 +1,7 @@
 import { StyleSheet, View, TouchableOpacity } from "react-native";
 import CardView from "../themed/CardView";
 import { ThemedText } from "../themed/ThemedText";
-import Modal from "../Modal";
+import Modal from "../modals/Modal";
 
 type SelectShoppingListItemTypeModalProps = {
     isVisible: boolean;

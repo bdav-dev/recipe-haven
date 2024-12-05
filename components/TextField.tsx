@@ -9,7 +9,6 @@ type TextFieldProps = TextInputProps & {
 }
 
 export default function TextField({
-    children,
     isErroneous,
     style,
     placeholder,
@@ -30,9 +29,7 @@ export default function TextField({
                 style
             ]}
             {...rest}
-        >
-            {children}
-        </TextInput>
+        />
     );
 }
 
