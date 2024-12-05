@@ -10,10 +10,11 @@ import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 type CustomShoppingListItemProps = {
     item: ShoppingListCustomItem;
     onToggleCheck: (item: ShoppingListCustomItem) => void;
+    editButton?: { onPress: () => void };
 }
 
 export default function CustomShoppingListItem(props: CustomShoppingListItemProps) {
-    const { item, onToggleCheck } = props;
+    const { item, onToggleCheck, editButton } = props;
     const theme = useAppTheme();
     const styles = useThemedStyleSheet(createStyles);
 
@@ -38,6 +39,15 @@ export default function CustomShoppingListItem(props: CustomShoppingListItemProp
                     {item.text}
                 </ThemedText>
             </View>
+
+            {
+                editButton &&
+                <TouchableOpacity 
+                    style={styles.actionButton} 
+                    onPress={editButton.onPress}>
+                    <Ionicons name="pencil-outline" size={24} color={theme.primary} />
+                </TouchableOpacity>
+            }
         </CardView>
     );
 }

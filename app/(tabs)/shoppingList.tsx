@@ -12,6 +12,7 @@ import { ShoppingListCustomItem } from '@/types/ShoppingListTypes';
 import { updateCustomItem, deleteCheckedCustomItems } from '@/data/dao/ShoppingListDao';
 import ShoppingListViewToggle from '@/components/shoppingList/ShoppingListViewToggle';
 import ShoppingListViewDeleteButton from '@/components/shoppingList/ShoppingListViewDeleteButton';
+import EditCustomItemModal from '@/components/shoppingList/EditCustomItemModal';
 
 type ModalType = 'none' | 'selection' | 'custom' | 'ingredient' | 'recipe';
 
@@ -20,6 +21,8 @@ export default function ShoppingListScreen() {
     const { shoppingList, setShoppingList } = useContext(ShoppingListContext);
     const [showCheckedItems, setShowCheckedItems] = useState(false);
     const [activeModal, setActiveModal] = useState<ModalType>('none');
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    const [editItem, setEditItem] = useState<ShoppingListCustomItem>();
 
     const visibleItems = useMemo(() =>
         shoppingList.customItems.filter(item => item.isChecked === showCheckedItems),
@@ -42,6 +45,11 @@ export default function ShoppingListScreen() {
     );
 
     const closeAllModals = () => setActiveModal('none');
+
+    const launchEditItemModal = (item: ShoppingListCustomItem) => {
+        setEditItem(item);
+        setIsEditModalVisible(true);
+    }
 
     const replaceActiveModal = (newValue: ModalType) => { // absolute bullshit, but needs to be there to work on iOS
         setActiveModal("none");
@@ -101,6 +109,7 @@ export default function ShoppingListScreen() {
                         key={listItemInfo.index}
                         item={listItemInfo.item}
                         onToggleCheck={updateItemCheckStatus}
+                        editButton={{ onPress: () => launchEditItemModal(listItemInfo.item) }}
                     />
                 )}
             />
@@ -144,7 +153,12 @@ export default function ShoppingListScreen() {
                     onRequestClose={closeAllModals}
                 />
             }
-
+            {/* Edit custom item modal */}
+            <EditCustomItemModal
+                isVisible={isEditModalVisible}
+                onRequestClose={() => setIsEditModalVisible(false)}
+                editItem={editItem}
+            />
 
             {/* Add future modals here:
             <SelectIngredientModal 
