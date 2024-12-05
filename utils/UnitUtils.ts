@@ -13,3 +13,18 @@ export function unitFromValue(unitValue: number) {
         .filter(item => typeof item !== 'string')
         .find(unit => unit.valueOf() === unitValue);
 }
+
+export function unitToConvertedString(amount: number, unit: Unit) {
+    switch (+unit) {
+        case Unit.GRAMM:
+            return amount >= 1000
+                ? (amount / 1000) + "kg"
+                : amount + "g";
+        case Unit.LITER:
+            return amount < 1
+                ? (amount * 1000) + "ml"
+                : amount + "l";
+        default:
+            return amount + "";
+    }
+}

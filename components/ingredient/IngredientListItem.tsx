@@ -2,7 +2,7 @@ import { Ingredient } from "@/types/IngredientTypes";
 import CardView from "../themed/CardView";
 import { ThemedText } from "../themed/ThemedText";
 import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
-import { unitToString } from "@/utils/UnitUtils";
+import { unitToConvertedString, unitToString } from "@/utils/UnitUtils";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import ThemedBadge from "../themed/ThemedBadge";
@@ -21,62 +21,56 @@ export default function IngredientListItem(props: IngredientListItemProps) {
 
     return (
         <CardView style={styles.card} noPadding>
-            {
-                ingredient.imageSrc
-                    ? <Image source={{ uri: ingredient.imageSrc }} style={styles.image} />
-                    : <View style={{ width: 5 }} />
-            }
 
-            <View style={styles.flexColumn}>
+            <View style={styles.mainInfoView}>
+                {
+                    ingredient.imageSrc
+                        ? <Image source={{ uri: ingredient.imageSrc }} style={styles.image} />
+                        : <View style={{ width: 7 }} />
+                }
 
-                <ThemedText>
-                    <ThemedText type="largeSemiBold">{ingredient.name}</ThemedText>
-                    {ingredient.pluralName &&
-                        <>
-                            <View style={{ width: 8 }} />
-                            {props.ingredient.pluralName}
-                        </>
-                    }
-                </ThemedText>
-
-                <View style={styles.badges}>
-                    <ThemedBadge>
-                        <ThemedText>in </ThemedText>
-                        <ThemedText type="defaultSemiBold">{unitToString(ingredient.unit)}</ThemedText>
-                    </ThemedBadge>
-
+                <View style={styles.nameView}>
+                    <ThemedText type="largeSemiBold" numberOfLines={1}>{ingredient.name}</ThemedText>
                     {
-                        ingredient.calorificValue &&
-                        <ThemedBadge>
-                            <ThemedText type="defaultSemiBold">{ingredient.calorificValue.kcal} kcal </ThemedText>
-                            <ThemedText>pro </ThemedText>
-                            <ThemedText type="defaultSemiBold">{ingredient.calorificValue.nUnits} {unitToString(ingredient.unit)}</ThemedText>
-                        </ThemedBadge>
+                        ingredient.pluralName &&
+                        <ThemedText numberOfLines={1}>{props.ingredient.pluralName}</ThemedText>
                     }
                 </View>
 
+                {
+                    props.editButton &&
+                    <TouchableOpacity style={styles.editButton} onPress={props.editButton.onPress}>
+                        <Ionicons name="pencil-outline" size={28} color={theme.button.default} />
+                    </TouchableOpacity>
+                }
             </View>
 
-            {
-                props.editButton &&
-                <TouchableOpacity style={styles.editButton} onPress={props.editButton.onPress}>
-                    <Ionicons name="pencil-outline" size={28} color={theme.button.default} />
-                </TouchableOpacity>
-            }
+            <View style={styles.badgeView}>
+                <ThemedBadge>
+                    <ThemedText>in </ThemedText>
+                    <ThemedText type="defaultSemiBold">{unitToString(ingredient.unit)}</ThemedText>
+                </ThemedBadge>
+
+                {
+                    ingredient.calorificValue &&
+                    <ThemedBadge>
+                        <ThemedText type="defaultSemiBold">{ingredient.calorificValue.kcal} kcal </ThemedText>
+                        <ThemedText>pro </ThemedText>
+                        <ThemedText type="defaultSemiBold">{unitToConvertedString(ingredient.calorificValue.nUnits, ingredient.unit)}</ThemedText>
+                    </ThemedBadge>
+                }
+            </View>
+
         </CardView>
     );
 }
 
-const LIST_ITEM_HEIGHT = 85;
-const GAP = 15;
+const IMAGE_SIZE = 85;
 
 const createStyles = (theme: AppTheme) => StyleSheet.create({
     card: {
-        height: LIST_ITEM_HEIGHT,
         display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        gap: GAP,
+        flexDirection: "column",
         shadowColor: "black",
         shadowOffset: { height: 0, width: 0 },
         shadowRadius: 5,
@@ -84,30 +78,34 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         borderWidth: theme.ingredientListItem.borderWidth,
         borderColor: theme.border
     },
+    mainInfoView: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 7
+    },
+    nameView: {
+        flex: 1,
+        marginVertical: 10
+    },
     image: {
-        height: LIST_ITEM_HEIGHT,
-        width: LIST_ITEM_HEIGHT,
-        borderRadius: 13,
-        padding: 0
+        height: IMAGE_SIZE,
+        width: IMAGE_SIZE,
+        borderRadius: 9,
+        margin: 6
     },
-    flexRow: {
+    badgeView: {
         display: "flex",
         flexDirection: "row",
-        gap: 11,
-        backgroundColor: "red"
-    },
-    flexColumn: {
-        display: "flex",
-        flexDirection: "column",
-        gap: 8
-    },
-    badges: {
-        display: "flex",
-        flexDirection: "row",
-        gap: 6
+        gap: 6,
+        padding: 7,
+        backgroundColor: theme.background,
+        borderBottomLeftRadius: 11,
+        borderBottomRightRadius: 11,
+        justifyContent: "space-evenly",
+        overflow: "hidden"
     },
     editButton: {
         marginLeft: "auto",
-        margin: 16
+        marginRight: 16
     }
 });
