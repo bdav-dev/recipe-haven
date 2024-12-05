@@ -48,9 +48,7 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
 
     function close() {
         reset();
-        if (props.onRequestClose) {
-            props.onRequestClose();
-        }
+        props.onRequestClose?.();
     }
 
     async function pickImage() {
@@ -84,7 +82,7 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
             .then(updatedIngredient => {
                 setIngredients(ingredients => replaceIngredient(ingredients, updatedIngredient))
                 close();
-            })
+            });
     }
 
     function remove() {

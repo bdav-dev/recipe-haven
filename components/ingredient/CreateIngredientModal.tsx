@@ -59,9 +59,7 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
 
     function close() {
         reset();
-        if (props.onRequestClose) {
-            props.onRequestClose();
-        }
+        props.onRequestClose?.();
     }
 
     function create() {
@@ -178,7 +176,7 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     image: {
         width: "100%",
         height: "100%",
-        borderRadius: 10
+        borderRadius: 9
     }
 });
 
