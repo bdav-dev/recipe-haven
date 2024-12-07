@@ -4,11 +4,18 @@ import { AppTheme } from "@/types/ThemeTypes";
 import ModalHeader from "./ModalHeader";
 import { ModalProps } from "./Modal";
 
+
+type FullScreenModalProps = ModalProps & {
+    preScrollViewChildren?: React.ReactNode
+};
+
 export default function FullScreenModal({
     children,
     isVisible,
+    onContentViewLayout,
+    preScrollViewChildren,
     ...header
-}: ModalProps) {
+}: FullScreenModalProps) {
     const styles = useThemedStyleSheet(createStyles);
 
     return (
@@ -25,8 +32,10 @@ export default function FullScreenModal({
                     behavior="padding"
                 >
                     <ModalHeader {...header} />
-                    <ScrollView style={styles.scrollView}>
+                    {preScrollViewChildren}
+                    <ScrollView style={styles.scrollView} onLayout={onContentViewLayout}>
                         {children}
+                        <View style={{ height: 55 }} />
                     </ScrollView>
                 </KeyboardAvoidingView>
             </View>
@@ -58,7 +67,7 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     centered: {
         flex: 1,
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "center"
     },
     scrollView: {
         display: "flex",
