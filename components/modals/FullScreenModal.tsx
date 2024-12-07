@@ -6,7 +6,11 @@ import { ModalProps } from "./Modal";
 
 
 type FullScreenModalProps = ModalProps & {
-    preScrollViewChildren?: React.ReactNode
+    preScrollViewChildren?: React.ReactNode,
+    customCloseButton?: {
+        title: string,
+        onPress: () => void
+    }
 };
 
 export default function FullScreenModal({
@@ -14,6 +18,7 @@ export default function FullScreenModal({
     isVisible,
     onContentViewLayout,
     preScrollViewChildren,
+    customCloseButton,
     ...header
 }: FullScreenModalProps) {
     const styles = useThemedStyleSheet(createStyles);
@@ -28,12 +33,12 @@ export default function FullScreenModal({
             <View style={styles.centered}>
                 <KeyboardAvoidingView
                     style={styles.modal}
-                    keyboardVerticalOffset={Platform.select({ ios: 30, android: 40 })}
-                    behavior="padding"
+                    keyboardVerticalOffset={Platform.select({ ios: 11, android: 11 })}
+                    behavior="height"
                 >
-                    <ModalHeader {...header} />
+                    <ModalHeader leftButton={customCloseButton} {...header} />
                     {preScrollViewChildren}
-                    <ScrollView style={styles.scrollView} onLayout={onContentViewLayout}>
+                    <ScrollView style={styles.scrollView} onLayout={onContentViewLayout} keyboardShouldPersistTaps="handled">
                         {children}
                         <View style={{ height: 55 }} />
                     </ScrollView>
@@ -53,8 +58,8 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     modal: {
         borderWidth: theme.modal.borderWidth,
         width: "96%",
-        height: "100%",
-        marginTop: 75,
+        flex: 1,
+        marginTop: 55,
         borderRadius: 20,
         alignItems: "center",
         shadowRadius: 20,
@@ -66,7 +71,6 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     },
     centered: {
         flex: 1,
-        justifyContent: "center",
         alignItems: "center"
     },
     scrollView: {

@@ -105,7 +105,8 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         overflow: "hidden"
     },
     editButton: {
+        padding: 4,
         marginLeft: "auto",
-        marginRight: 16
+        marginRight: 10
     }
 });

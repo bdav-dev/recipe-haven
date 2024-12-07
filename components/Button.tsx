@@ -4,7 +4,7 @@ import { StyleSheet, Text, TextStyle, TouchableOpacity, TouchableOpacityProps } 
 
 
 type ButtonProps = Omit<TouchableOpacityProps, 'children'> & {
-    title: string,
+    title?: string,
     ionicon?: Ionicon,
     textStyle?: TextStyle
     type?: 'normal' | 'destructive'
@@ -35,14 +35,16 @@ export default function Button({
             {...rest}
         >
             {ioniconName && <Ionicons name={ioniconName} size={26} color={color} />}
-            <Text style={[styles.text, { color }, textStyle]}>{title}</Text>
+            {title && <Text style={[styles.text, { color }, textStyle]}>{title}</Text>}
         </TouchableOpacity>
     );
 }
 
 const styles = StyleSheet.create({
     touchableOpacity: {
-        marginHorizontal: 8,
+        marginHorizontal: 4,
+        paddingHorizontal: 4,
+        paddingVertical: 3,
         display: "flex",
         flexDirection: "row",
         alignItems: "center",

@@ -154,7 +154,7 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
                 </CardView>
 
                 <CardView title="Brennwert" style={styles.caloriesCard}>
-                    <CalorificValueInput initialValue={initialCalorificValue} onValueChanged={setCalorificValue} unit={unit} />
+                    <CalorificValueInput initialValue={initialCalorificValue} onValueChanged={setCalorificValue} unit={unit} style={styles.calorificValue} />
                 </CardView>
 
                 <Button style={{ marginTop: 4 }} title="Zutat löschen" ionicon="trash-outline" type="destructive" onPress={showConfirmDeleteAlert} />

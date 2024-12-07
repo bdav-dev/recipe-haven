@@ -1,4 +1,4 @@
-import { LayoutChangeEvent, StyleSheet, View } from "react-native";
+import { LayoutChangeEvent, StyleSheet, TouchableWithoutFeedback, View, ViewStyle } from "react-native";
 import { ThemedText } from "./themed/ThemedText";
 import { useState } from "react";
 import { AppTheme } from "@/types/ThemeTypes";
@@ -6,8 +6,16 @@ import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { useAppTheme } from "@/hooks/useAppTheme";
 
 type StageInfoProps = {
-    stages: string[],
-    onBackgroundColor?: string
+    stages: Stage[],
+    onBackgroundColor?: string,
+    style?: ViewStyle,
+}
+
+type Stage = {
+    title: string,
+    onPress?: () => void,
+    isFilled?: boolean,
+    isActive?: boolean
 }
 
 export default function StageInfo(props: StageInfoProps) {
@@ -29,7 +37,7 @@ export default function StageInfo(props: StageInfoProps) {
     };
 
     return (
-        <View style={stageInfoStyles.stageInfo} onLayout={onStageInfoLayout}>
+        <View style={[stageInfoStyles.stageInfo, props.style]} onLayout={onStageInfoLayout}>
             <Line width={stageInfoWidth / 2} right={lastStageX + 1} />
             <Line width={stageInfoWidth / 2} left={firstStageX} />
             {
@@ -37,8 +45,7 @@ export default function StageInfo(props: StageInfoProps) {
                     <Stage
                         key={index}
                         onBackgroundColor={props.onBackgroundColor}
-                        name={item}
-                        active={index == 0}
+                        stage={item}
                         onLayout={getLayout(index)}
                     />
                 )
@@ -64,28 +71,36 @@ function Line({ left, right, width }: { left?: number, right?: number, width: nu
     );
 }
 
-function Stage(props: { name: string, active: boolean, onBackgroundColor?: string, onLayout?: (event: LayoutChangeEvent) => void }) {
+function Stage(props: { stage: Stage, onBackgroundColor?: string, onLayout?: (event: LayoutChangeEvent) => void }) {
     const theme = useAppTheme();
     const styles = useThemedStyleSheet(createStageStyles);
     const borderColor = props.onBackgroundColor ?? theme.background;
-
-    const backgroundColor = props.active ? theme.accent : borderColor;
+    const backgroundColor =
+        props.stage.isActive
+            ? theme.button.default
+            : (
+                props.stage.isFilled
+                    ? theme.border
+                    : borderColor
+            );
 
     return (
-        <View style={styles.stageView} >
-            <View style={[styles.stageDot, { borderColor }]} onLayout={props.onLayout}>
-                <View style={[styles.stageInnerDot, { borderColor, backgroundColor }]} />
+        <TouchableWithoutFeedback onPress={props.stage.onPress}>
+            <View style={styles.stageView} >
+                <View style={[styles.stageDot, { borderColor }]} onLayout={props.onLayout}>
+                    <View style={[styles.stageInnerDot, { borderColor, backgroundColor }]} />
+                </View>
+                <ThemedText>{props.stage.title}</ThemedText>
             </View>
-            <ThemedText>{props.name}</ThemedText>
-        </View>
+        </TouchableWithoutFeedback>
     );
 
 }
 
 const LINE_WIDTH = 2;
-const OUTER_DOT_SIZE = 35;
-const DOT_MARGIN = 3;
-const INNER_DOT_MARGIN_OFFSET = 1.5;
+const OUTER_DOT_SIZE = 30;
+const DOT_MARGIN = 2.5;
+const INNER_DOT_MARGIN_OFFSET = 2;
 const INNER_DOT_OFFSET = DOT_MARGIN * 4;
 const createStageStyles = (theme: AppTheme) => StyleSheet.create({
     stageView: {
