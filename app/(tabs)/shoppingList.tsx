@@ -8,13 +8,18 @@ import SelectShoppingListItemTypeModal from '@/components/shoppingList/SelectSho
 import CreateCustomItemModal from '@/components/shoppingList/CreateCustomItemModal';
 import { ShoppingListContext } from '@/context/ShoppingListContextProvider';
 import CustomShoppingListItem from '@/components/shoppingList/CustomShoppingListItem';
-import { ShoppingListCustomItem } from '@/types/ShoppingListTypes';
+import { ShoppingListCustomItem, ShoppingListIngredientItem } from '@/types/ShoppingListTypes';
 import { updateCustomItem, deleteCheckedCustomItems } from '@/data/dao/ShoppingListDao';
 import ShoppingListViewToggle from '@/components/shoppingList/ShoppingListViewToggle';
 import ShoppingListViewDeleteButton from '@/components/shoppingList/ShoppingListViewDeleteButton';
 import EditCustomItemModal from '@/components/shoppingList/EditCustomItemModal';
+import SelectShoppingListIngredientEntries from '@/components/shoppingList/SelectShoppingListIngredientEntries';
+import CreateIngredientItemModal from '@/components/shoppingList/CreateIngredientItemModal';
+import { Ingredient } from '@/types/IngredientTypes';
+import IngredientShoppingListItem from '@/components/shoppingList/IngredientShoppingListItem';
+import { updateIngredientItem } from '@/data/dao/ShoppingListDao';
 
-type ModalType = 'none' | 'selection' | 'custom' | 'ingredient' | 'recipe';
+type ModalType = 'none' | 'selection' | 'custom' | 'ingredient' | 'recipe' | 'ingredient-create';
 
 export default function ShoppingListScreen() {
     const theme = useAppTheme();
@@ -23,20 +28,41 @@ export default function ShoppingListScreen() {
     const [activeModal, setActiveModal] = useState<ModalType>('none');
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [editItem, setEditItem] = useState<ShoppingListCustomItem>();
+    const [selectedIngredient, setSelectedIngredient] = useState<Ingredient>();
 
-    const visibleItems = useMemo(() =>
-        shoppingList.customItems.filter(item => item.isChecked === showCheckedItems),
-        [shoppingList.customItems, showCheckedItems]
-    );
+    const visibleItems = useMemo(() => {
+        const customItems = shoppingList.customItems.filter(item => item.isChecked === showCheckedItems);
+        let ingredientItems = shoppingList.ingredientItems.filter(item => item.isChecked === showCheckedItems);
+
+        // Combine same ingredients when checked
+        if (showCheckedItems) {
+            const combinedIngredients = new Map();
+            ingredientItems.forEach(item => {
+                const key = item.ingredient.ingredient.ingredientId;
+                if (combinedIngredients.has(key)) {
+                    const existing = combinedIngredients.get(key);
+                    existing.ingredient.amount += item.ingredient.amount;
+                } else {
+                    combinedIngredients.set(key, { ...item, isAggregated: true });
+                }
+            });
+            ingredientItems = Array.from(combinedIngredients.values());
+        }
+
+        return [...customItems, ...ingredientItems].sort((a, b) => 
+            b.creationTimestamp.getTime() - a.creationTimestamp.getTime()
+        );
+    }, [shoppingList.customItems, shoppingList.ingredientItems, showCheckedItems]);
 
     const hasAnyItems = useMemo(() =>
-        shoppingList.customItems.length > 0,
-        [shoppingList.customItems]
+        shoppingList.customItems.length > 0 || shoppingList.ingredientItems.length > 0,
+        [shoppingList]
     );
 
     const hasCheckedItems = useMemo(() =>
-        shoppingList.customItems.some(item => item.isChecked),
-        [shoppingList.customItems]
+        shoppingList.customItems.some(item => item.isChecked) ||
+        shoppingList.ingredientItems.some(item => item.isChecked),
+        [shoppingList]
     );
 
     const shouldShowToggle = useMemo(() =>
@@ -84,6 +110,31 @@ export default function ShoppingListScreen() {
         }
     };
 
+    const updateIngredientCheckStatus = async (item: ShoppingListIngredientItem) => {
+        try {
+            const updatedItem = {
+                ...item,
+                isChecked: !item.isChecked
+            };
+
+            await updateIngredientItem({
+                originalItem: item,
+                updatedValues: updatedItem
+            });
+
+            setShoppingList(current => ({
+                ...current,
+                ingredientItems: current.ingredientItems.map(existingItem =>
+                    existingItem.shoppingListIngredientItemId === item.shoppingListIngredientItemId
+                        ? updatedItem
+                        : existingItem
+                )
+            }));
+        } catch (error) {
+            console.error('Failed to update ingredient item:', error);
+        }
+    };
+
     const handleDeleteCheckedItems = async () => {
         try {
             await deleteCheckedCustomItems();
@@ -98,20 +149,42 @@ export default function ShoppingListScreen() {
         }
     };
 
+    const handleIngredientSelected = (ingredient: Ingredient) => {
+        setSelectedIngredient(ingredient);
+        replaceActiveModal('ingredient-create');
+    };
+
     return (
         <Page>
             <FlatList
                 data={visibleItems}
                 style={styles.list}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                renderItem={listItemInfo => (
-                    <CustomShoppingListItem
-                        key={listItemInfo.index}
-                        item={listItemInfo.item}
-                        onToggleCheck={updateItemCheckStatus}
-                        editButton={{ onPress: () => launchEditItemModal(listItemInfo.item) }}
-                    />
-                )}
+                renderItem={listItemInfo => {
+                    const item = listItemInfo.item;
+                    
+                    if ('text' in item) {
+                        return (
+                            <CustomShoppingListItem
+                                key={listItemInfo.index}
+                                item={item}
+                                onToggleCheck={updateItemCheckStatus}
+                                editButton={{ onPress: () => launchEditItemModal(item) }}
+                            />
+                        );
+                    } else {
+                        const ingredientItem = item as ShoppingListIngredientItem;
+                        return (
+                            <IngredientShoppingListItem
+                                key={listItemInfo.index}
+                                item={ingredientItem}
+                                onToggleCheck={updateIngredientCheckStatus}
+                                editButton={{ onPress: () => {/* TODO: Implement edit */} }}
+                                isAggregated={ingredientItem.isAggregated}
+                            />
+                        );
+                    }
+                }}
             />
 
             <View style={styles.buttonContainer}>
@@ -160,16 +233,21 @@ export default function ShoppingListScreen() {
                 editItem={editItem}
             />
 
-            {/* Add future modals here:
-            <SelectIngredientModal 
-                isVisible={activeModal === 'ingredient'}
-                onRequestClose={closeModals}
-            />
+            {activeModal === 'ingredient' && // absolute bullshit, but needs to be there to work on iOS
+                <SelectShoppingListIngredientEntries
+                    isVisible={activeModal === 'ingredient'}
+                    onRequestClose={closeAllModals}
+                    onIngredientSelected={handleIngredientSelected}
+                />
+            }
 
-            <SelectRecipeModal
-                isVisible={activeModal === 'recipe'}
-                onRequestClose={closeModals}
-            /> */}
+            { activeModal === 'ingredient-create' && // absolute bullshit, but needs to be there to work on iOS
+                <CreateIngredientItemModal
+                    isVisible={activeModal === 'ingredient-create'}
+                    onRequestClose={closeAllModals}
+                    selectedIngredient={selectedIngredient}
+                />
+            }
         </Page>
     );
 }
