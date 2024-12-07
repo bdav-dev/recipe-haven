@@ -26,8 +26,8 @@ export default function CreateIngredientItemModal(props: CreateIngredientItemMod
         if (!isValidInput || !props.selectedIngredient) return;
 
         const quantizedIngredient: QuantizedIngredient = {
-            ...props.selectedIngredient,
-            quantity: Number(amount)
+            amount: Number(amount),
+            ingredient: props.selectedIngredient
         };
 
         try {

@@ -12,6 +12,7 @@ import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 type IngredientListItemProps = {
     ingredient: Ingredient,
     editButton?: { onPress: () => void }
+    selectable?: { onPress?: () => void }
 }
 
 export default function IngredientListItem(props: IngredientListItemProps) {

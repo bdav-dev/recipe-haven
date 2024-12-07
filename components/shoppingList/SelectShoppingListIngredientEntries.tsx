@@ -1,13 +1,14 @@
 import { StyleSheet, FlatList, View } from "react-native";
 import { useContext, useState, useMemo } from "react";
 import { IngredientContext } from "@/context/IngredientContextProvider";
-import Modal from "../modals/Modal";
+import FullScreenModal from "../modals/FullScreenModal";
 import { Ingredient } from "@/types/IngredientTypes";
 import IngredientListItem from "../ingredient/IngredientListItem";
 import SearchBar from "../SearchBar";
 import NoSearchResultsBadge from "@/components/NoSearchResultsBadge";
 import NoItemsInfo from "@/components/NoItemsInfo";
-import { isBlank } from "@/utils/StringUtils";
+import { includesIgnoreCase, isBlank } from "@/utils/StringUtils";
+import { unitToString } from "@/utils/UnitUtils";
 
 type SelectShoppingListIngredientEntriesProps = {
     isVisible: boolean;
@@ -15,14 +16,6 @@ type SelectShoppingListIngredientEntriesProps = {
     onIngredientSelected: (ingredient: Ingredient) => void;
 }
 
-function filterIngredients(ingredients: Ingredient[], searchText: string) {
-    if (isBlank(searchText)) {
-        return ingredients;
-    }
-    return ingredients.filter(ing => 
-        ing.name.toLowerCase().includes(searchText.toLowerCase().trim())
-    );
-}
 
 export default function SelectShoppingListIngredientEntries(props: SelectShoppingListIngredientEntriesProps) {
     const { ingredients } = useContext(IngredientContext);
@@ -36,8 +29,9 @@ export default function SelectShoppingListIngredientEntries(props: SelectShoppin
     const areIngredientsEmpty = ingredients.length === 0;
     const areFilteredIngredientsEmpty = filteredIngredients.length === 0;
 
+
     return (
-        <Modal
+        <FullScreenModal
             isVisible={props.isVisible}
             onRequestClose={props.onRequestClose}
             title="Zutat auswählen"
@@ -59,29 +53,49 @@ export default function SelectShoppingListIngredientEntries(props: SelectShoppin
                         data={filteredIngredients}
                         style={styles.list}
                         ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                        renderItem={listItemInfo => (
+                        renderItem={({item}) => (
                             <IngredientListItem
-                                key={listItemInfo.index}
-                                ingredient={listItemInfo.item}
-                                onPress={() => {
-                                    props.onIngredientSelected(listItemInfo.item);
-                                    props.onRequestClose();
+                                ingredient={item}
+                                selectable={{
+                                    onPress: () => {
+                                        props.onIngredientSelected(item);
+                                        props.onRequestClose();
+                                    }
                                 }}
                             />
                         )}
                     />
                 )}
             </View>
-        </Modal>
+        </FullScreenModal>
     );
 }
+
+function filterIngredients(ingredients: Ingredient[], searchText: string) {
+    if (isBlank(searchText)) {
+      return ingredients;
+    }
+  
+    const trimmedSearchText = searchText.trim();
+  
+    return ingredients.filter(
+      item => (
+        includesIgnoreCase(item.name, trimmedSearchText) ||
+        includesIgnoreCase(item.pluralName ?? '', trimmedSearchText) ||
+        includesIgnoreCase((item.calorificValue?.kcal.toString() ?? '') + " kcal", trimmedSearchText) ||
+        includesIgnoreCase(item.calorificValue?.nUnits.toString() ?? '', trimmedSearchText) ||
+        includesIgnoreCase(unitToString(item.unit) ?? '', trimmedSearchText)
+      )
+    );
+}
+
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        width: "100%"
+        padding: 8
     },
     list: {
-        padding: 8
+        flex: 1
     }
 });

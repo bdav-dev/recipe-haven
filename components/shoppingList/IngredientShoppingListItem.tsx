@@ -5,51 +5,85 @@ import { ShoppingListIngredientItem } from "@/types/ShoppingListTypes";
 import { unitToString } from "@/utils/UnitUtils";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppTheme } from "@/hooks/useAppTheme";
+import { AppTheme } from "@/types/ThemeTypes";
+import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 
 type IngredientShoppingListItemProps = {
     item: ShoppingListIngredientItem;
-    onToggleCheck?: (item: ShoppingListIngredientItem) => void;
-    editButton?: {
-        onPress: () => void;
-    };
+    onToggleCheck: (item: ShoppingListIngredientItem) => void;
+    editButton?: { onPress: () => void };
+    isAggregated?: boolean;
 }
 
 export default function IngredientShoppingListItem(props: IngredientShoppingListItemProps) {
+    const { item, onToggleCheck, editButton, isAggregated } = props;
     const theme = useAppTheme();
+    const styles = useThemedStyleSheet(createStyles);
 
     return (
-        <CardView>
-            <View style={styles.container}>
-                <TouchableOpacity onPress={() => props.onToggleCheck?.(props.item)}>
-                    <Ionicons 
-                        name={props.item.isChecked ? "checkbox" : "square-outline"} 
-                        size={24} 
-                        color={theme.button.default}
-                    />
-                </TouchableOpacity>
-                <View style={styles.textContainer}>
-                    <ThemedText type="largeSemiBold">
-                        {props.item.quantity} {unitToString(props.item.ingredient.measurementUnit)} {props.item.ingredient.name}
+        <CardView style={styles.card} noPadding>
+            <TouchableOpacity 
+                style={styles.actionButton} 
+                onPress={() => onToggleCheck(item)}
+            >
+                <Ionicons 
+                    name={item.isChecked ? "checkbox" : "square-outline"} 
+                    size={24} 
+                    color={theme.primary} 
+                />
+            </TouchableOpacity>
+
+            <View style={styles.contentContainer}>
+                <ThemedText 
+                    type="largeSemiBold" 
+                    style={item.isChecked ? styles.checkedText : undefined}
+                >
+                    {`${item.ingredient.amount} ${unitToString(item.ingredient.ingredient.unit)} ${item.ingredient.ingredient.name}`}
+                </ThemedText>
+                {isAggregated && (
+                    <ThemedText style={styles.aggregatedText}>
+                        (Zusammengefasst)
                     </ThemedText>
-                </View>
-                {props.editButton && (
-                    <TouchableOpacity onPress={props.editButton.onPress}>
-                        <Ionicons name="pencil-outline" size={24} color={theme.button.default} />
-                    </TouchableOpacity>
                 )}
             </View>
+
+            {!isAggregated && editButton && (
+                <TouchableOpacity 
+                    style={styles.actionButton} 
+                    onPress={editButton.onPress}
+                >
+                    <Ionicons name="pencil-outline" size={24} color={theme.primary} />
+                </TouchableOpacity>
+            )}
         </CardView>
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
+const createStyles = (theme: AppTheme) => StyleSheet.create({
+    card: {
+        height: 60,
         flexDirection: "row",
         alignItems: "center",
-        padding: 8,
-        gap: 12
+        shadowColor: "black",
+        shadowOffset: { height: 0, width: 0 },
+        shadowRadius: 5,
+        shadowOpacity: 0.1,
+        borderWidth: theme.ingredientListItem.borderWidth,
+        borderColor: theme.border
     },
-    textContainer: {
-        flex: 1
+    actionButton: {
+        padding: 16,
+    },
+    contentContainer: {
+        flex: 1,
+        marginRight: 16,
+    },
+    checkedText: {
+        textDecorationLine: 'line-through',
+        opacity: 0.5
+    },
+    aggregatedText: {
+        fontSize: 12,
+        opacity: 0.7
     }
 });
