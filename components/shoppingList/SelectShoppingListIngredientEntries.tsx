@@ -38,20 +38,27 @@ export default function SelectShoppingListIngredientEntries(props: SelectShoppin
         >
             <View style={styles.container}>
                 {!areIngredientsEmpty && (
-                    <SearchBar 
-                        searchText={searchText}
-                        onSearchTextChange={setSearchText}
-                    />
+                    <View style={styles.searchContainer}>
+                        <SearchBar 
+                            searchText={searchText}
+                            onSearchTextChange={setSearchText}
+                        />
+                    </View>
                 )}
                 
                 {areIngredientsEmpty ? (
-                    <NoItemsInfo type="ingredients" />
+                    <View style={styles.centeredContent}>
+                        <NoItemsInfo type="ingredients" />
+                    </View>
                 ) : areFilteredIngredientsEmpty ? (
-                    <NoSearchResultsBadge />
+                    <View style={styles.centeredContent}>
+                        <NoSearchResultsBadge />
+                    </View>
                 ) : (
                     <FlatList
                         data={filteredIngredients}
-                        style={styles.list}
+                        keyExtractor={(item) => item.ingredientId.toString()}
+                        contentContainerStyle={styles.listContent}
                         ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
                         renderItem={({item}) => (
                             <IngredientListItem
@@ -92,10 +99,18 @@ function filterIngredients(ingredients: Ingredient[], searchText: string) {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 1
+    },
+    searchContainer: {
+        padding: 8,
+        paddingBottom: 0
+    },
+    listContent: {
         padding: 8
     },
-    list: {
-        flex: 1
+    centeredContent: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 });
