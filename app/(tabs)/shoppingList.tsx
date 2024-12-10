@@ -13,7 +13,8 @@ import { updateCustomItem, deleteCheckedCustomItems, updateIngredientItem, delet
 import ShoppingListViewToggle from '@/components/shoppingList/ShoppingListViewToggle';
 import ShoppingListViewDeleteButton from '@/components/shoppingList/ShoppingListViewDeleteButton';
 import EditCustomItemModal from '@/components/shoppingList/EditCustomItemModal';
-
+import CreateIngredientItemModal from '@/components/shoppingList/CreateIngredientItemModal';
+import IngredientShoppingListItem from '@/components/shoppingList/IngredientShoppingListItem';
 
 type ModalType = 'none' | 'selection' | 'custom' | 'ingredient' | 'recipe';
 
@@ -30,6 +31,10 @@ export default function ShoppingListScreen() {
         [shoppingList.customItems, showCheckedItems]
     );
     
+    const visibleIngredientItems = useMemo(() =>
+        shoppingList.ingredientItems.filter(item => item.isChecked === showCheckedItems),
+        [shoppingList.ingredientItems, showCheckedItems]
+    );
 
     const hasAnyItems = useMemo(() =>
         shoppingList.customItems.length > 0 || shoppingList.ingredientItems.length > 0,
@@ -141,6 +146,18 @@ export default function ShoppingListScreen() {
                     />
                 )}
             />
+            <FlatList
+                data={visibleIngredientItems}
+                style={styles.list}
+                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                renderItem={listItemInfo => (
+                    <IngredientShoppingListItem
+                        key={listItemInfo.index}
+                        item={listItemInfo.item}
+                        onToggleCheck={updateIngredientCheckStatus}
+                    />
+                )}
+            />
     
             <View style={styles.buttonContainer}>
                 <ShoppingListViewToggle
@@ -178,6 +195,13 @@ export default function ShoppingListScreen() {
                 activeModal == 'custom' && // absolute bullshit, but needs to be there to work on iOS
                 <CreateCustomItemModal
                     isVisible={activeModal == 'custom'}
+                    onRequestClose={closeAllModals}
+                />
+            }
+            {
+                activeModal == 'ingredient' && // absolute bullshit, but needs to be there to work on iOS
+                <CreateIngredientItemModal
+                    isVisible={activeModal == 'ingredient'}
                     onRequestClose={closeAllModals}
                 />
             }
