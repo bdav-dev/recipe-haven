@@ -122,7 +122,7 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
                 </CardView>
 
                 <CardView title="Brennwert" style={styles.caloriesCard}>
-                    <CalorificValueInput onValueChanged={setCalorificValue} unit={unit} />
+                    <CalorificValueInput onValueChanged={setCalorificValue} unit={unit} style={styles.calorificValue} />
                 </CardView>
             </View>
 
@@ -177,6 +177,9 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         width: "100%",
         height: "100%",
         borderRadius: 9
+    },
+    calorificValue: {
+        marginTop: 7
     }
 });
 

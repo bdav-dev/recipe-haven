@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, Platform, Modal as ReactNativeModal, StyleSheet, View } from "react-native";
+import { KeyboardAvoidingView, LayoutChangeEvent, Platform, Modal as ReactNativeModal, StyleSheet, View } from "react-native";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { AppTheme } from "@/types/ThemeTypes";
 import ModalHeader from "./ModalHeader";
@@ -6,7 +6,8 @@ import ModalHeader from "./ModalHeader";
 export type ModalProps = {
     children?: React.ReactNode,
     isVisible: boolean,
-    title?: string
+    title?: string,
+    onContentViewLayout?: (event: LayoutChangeEvent) => void,
     primaryActionButton?: {
         title: string
         onPress: () => void,
@@ -18,6 +19,7 @@ export type ModalProps = {
 export default function Modal({
     children,
     isVisible,
+    onContentViewLayout,
     ...header
 }: ModalProps) {
     const styles = useThemedStyleSheet(theme => createStyles(theme));
@@ -36,7 +38,7 @@ export default function Modal({
                     behavior="padding"
                 >
                     <ModalHeader {...header} />
-                    <View style={styles.contentView}>
+                    <View style={styles.contentView} onLayout={onContentViewLayout}>
                         {children}
                     </View>
                 </KeyboardAvoidingView>

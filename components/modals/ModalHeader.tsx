@@ -7,6 +7,10 @@ import { AppTheme } from "@/types/ThemeTypes";
 
 type ModalHeaderProps = {
     title?: string,
+    leftButton?: {
+        title: string
+        onPress: () => void,
+    },
     primaryActionButton?: {
         title: string
         onPress: () => void,
@@ -20,7 +24,12 @@ export default function ModalHeader(props: ModalHeaderProps) {
 
     return (
         <View style={styles.header}>
-            <Button title="Schließen" onPress={props.onRequestClose} style={styles.button} />
+            {
+                props.leftButton
+                    ? <Button title={props.leftButton.title} onPress={props.leftButton.onPress} style={styles.button} />
+                    : <Button title="Schließen" onPress={props.onRequestClose} style={styles.button} />
+            }
+
             {
                 props.title &&
                 <ThemedText type="subtitle" numberOfLines={1} style={styles.title}>{props.title}</ThemedText>

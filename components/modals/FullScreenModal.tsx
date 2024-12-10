@@ -4,11 +4,23 @@ import { AppTheme } from "@/types/ThemeTypes";
 import ModalHeader from "./ModalHeader";
 import { ModalProps } from "./Modal";
 
+
+type FullScreenModalProps = ModalProps & {
+    preScrollViewChildren?: React.ReactNode,
+    customCloseButton?: {
+        title: string,
+        onPress: () => void
+    }
+};
+
 export default function FullScreenModal({
     children,
     isVisible,
+    onContentViewLayout,
+    preScrollViewChildren,
+    customCloseButton,
     ...header
-}: ModalProps) {
+}: FullScreenModalProps) {
     const styles = useThemedStyleSheet(createStyles);
 
     return (
@@ -21,12 +33,14 @@ export default function FullScreenModal({
             <View style={styles.centered}>
                 <KeyboardAvoidingView
                     style={styles.modal}
-                    keyboardVerticalOffset={Platform.select({ ios: 30, android: 40 })}
-                    behavior="padding"
+                    keyboardVerticalOffset={Platform.select({ ios: 11, android: 11 })}
+                    behavior="height"
                 >
-                    <ModalHeader {...header} />
-                    <ScrollView style={styles.scrollView}>
+                    <ModalHeader leftButton={customCloseButton} {...header} />
+                    {preScrollViewChildren}
+                    <ScrollView style={styles.scrollView} onLayout={onContentViewLayout} keyboardShouldPersistTaps="handled">
                         {children}
+                        <View style={{ height: 55 }} />
                     </ScrollView>
                 </KeyboardAvoidingView>
             </View>
@@ -44,8 +58,8 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     modal: {
         borderWidth: theme.modal.borderWidth,
         width: "96%",
-        height: "100%",
-        marginTop: 75,
+        flex: 1,
+        marginTop: 55,
         borderRadius: 20,
         alignItems: "center",
         shadowRadius: 20,
@@ -57,8 +71,7 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     },
     centered: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+        alignItems: "center"
     },
     scrollView: {
         display: "flex",

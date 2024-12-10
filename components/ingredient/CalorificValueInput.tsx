@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, ViewStyle } from "react-native";
 import TextField from "../TextField";
 import { ThemedText } from "../themed/ThemedText";
 import { useEffect, useState } from "react";
@@ -9,7 +9,8 @@ import { CalorificValue, Unit } from "@/types/IngredientTypes";
 type CalorificValueInputProps = {
     initialValue?: CalorificValue,
     onValueChanged?: (calorificValue: CalorificValue | undefined) => void,
-    unit: Unit
+    unit: Unit,
+    style?: ViewStyle
 }
 
 export default function CalorificValueInput(props: CalorificValueInputProps) {
@@ -59,7 +60,7 @@ export default function CalorificValueInput(props: CalorificValueInputProps) {
     }
 
     return (
-        <View style={styles.calorieInput}>
+        <View style={[styles.calorieInput, props.style]}>
             <TextField
                 keyboardType="numeric"
                 placeholder='kcal'
