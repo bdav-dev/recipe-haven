@@ -28,8 +28,7 @@ export default function CreateIngredientItemModal(props: CreateIngredientItemMod
         };
 
         const newItem = await createIngredientItem({
-            ingredient: quantizedIngredient,
-            quantity: parseFloat(quantity)
+            ingredient: quantizedIngredient
         });
 
         setShoppingList(current => ({
@@ -63,7 +62,6 @@ export default function CreateIngredientItemModal(props: CreateIngredientItemMod
                     <UnitPicker
                         selectedUnit={ingredient?.unit || Unit.GRAMM}
                         onUnitChange={() => {}}
-                        disabled
                     />
                 </View>
             </View>

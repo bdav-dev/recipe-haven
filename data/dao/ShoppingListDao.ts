@@ -148,10 +148,6 @@ function prepareIngredientItemForDatabase(item: Omit<ShoppingListIngredientItem,
     };
 }
 
-
-
-
-
 async function getAllCustomItemsFromDatabase(): Promise<ShoppingListCustomItem[]> {
     const result = await database.getAllAsync<DatabaseShoppingListCustomItem>(
         'SELECT * FROM ShoppingListCustomItem;'
