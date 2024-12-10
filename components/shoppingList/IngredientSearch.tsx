@@ -1,4 +1,3 @@
-
 import { useState, useContext, useEffect } from "react";
 import { StyleSheet, View, FlatList, TouchableOpacity } from "react-native";
 import TextField from "../TextField";
@@ -13,11 +12,12 @@ type IngredientSearchProps = {
 export default function IngredientSearch(props: IngredientSearchProps) {
     const { ingredients } = useContext(IngredientContext);
     const [searchText, setSearchText] = useState('');
+    const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null);
     const [filteredIngredients, setFilteredIngredients] = useState<Ingredient[]>([]);
     const [isFocused, setIsFocused] = useState(false);
 
     useEffect(() => {
-        if (searchText) {
+        if (searchText && !selectedIngredient) {
             setFilteredIngredients(
                 ingredients.filter(ingredient =>
                     ingredient.name.toLowerCase().includes(searchText.toLowerCase())
@@ -26,16 +26,25 @@ export default function IngredientSearch(props: IngredientSearchProps) {
         } else {
             setFilteredIngredients([]);
         }
-    }, [searchText, ingredients]);
+    }, [searchText, ingredients, selectedIngredient]);
+
+    const handleSelectIngredient = (ingredient: Ingredient) => {
+        setSelectedIngredient(ingredient);
+        setSearchText(ingredient.name);
+        setIsFocused(false);
+        props.onSelectIngredient(ingredient);
+    };
 
     return (
         <View style={styles.container}>
             <TextField
-                placeholder="Zutat"
+                placeholder="Zutat suchen..."
                 value={searchText}
-                onChangeText={setSearchText}
+                onChangeText={(text) => {
+                    setSearchText(text);
+                    setSelectedIngredient(null);
+                }}
                 onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
                 style={styles.textField}
             />
             {isFocused && filteredIngredients.length > 0 && (
@@ -45,15 +54,10 @@ export default function IngredientSearch(props: IngredientSearchProps) {
                         keyExtractor={item => item.ingredientId.toString()}
                         renderItem={({ item }) => (
                             <TouchableOpacity
-                                onPress={() => {
-                                    props.onSelectIngredient(item);
-                                    setSearchText(item.name);
-                                    setIsFocused(false);
-                                }}
+                                onPress={() => handleSelectIngredient(item)}
+                                style={styles.dropdownItem}
                             >
-                                <View style={styles.dropdownItem}>
-                                    <ThemedText>{item.name}</ThemedText>
-                                </View>
+                                <ThemedText>{item.name}</ThemedText>
                             </TouchableOpacity>
                         )}
                     />

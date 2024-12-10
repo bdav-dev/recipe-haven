@@ -1,13 +1,13 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import Modal from "../modals/Modal";
 import TextField from "../TextField";
 import UnitPicker from "../ingredient/UnitPicker";
-import { IngredientContext } from "@/context/IngredientContextProvider";
 import { createIngredientItem } from "@/data/dao/ShoppingListDao";
 import { ShoppingListContext } from "@/context/ShoppingListContextProvider";
 import IngredientSearch from "./IngredientSearch";
 import { Ingredient, QuantizedIngredient, Unit } from "@/types/IngredientTypes";
+import { ThemedText } from "../themed/ThemedText";
 
 type CreateIngredientItemModalProps = {
     isVisible: boolean,
@@ -17,7 +17,15 @@ type CreateIngredientItemModalProps = {
 export default function CreateIngredientItemModal(props: CreateIngredientItemModalProps) {
     const [ingredient, setIngredient] = useState<Ingredient | null>(null);
     const [quantity, setQuantity] = useState('');
+    const [selectedUnit, setSelectedUnit] = useState<Unit>(Unit.GRAMM);
     const { setShoppingList } = useContext(ShoppingListContext);
+
+    // Update unit when ingredient changes
+    useEffect(() => {
+        if (ingredient) {
+            setSelectedUnit(ingredient.unit);
+        }
+    }, [ingredient]);
 
     const handleCreate = async () => {
         if (!ingredient || !quantity) return;
@@ -51,18 +59,25 @@ export default function CreateIngredientItemModal(props: CreateIngredientItemMod
             }}
         >
             <View style={styles.contentContainer}>
-                <IngredientSearch onSelectIngredient={setIngredient} />
+                <View style={styles.searchContainer}>
+                    <ThemedText type="defaultSemiBold">Zutat</ThemedText>
+                    <IngredientSearch onSelectIngredient={setIngredient} />
+                </View>
                 <View style={styles.quantityContainer}>
-                    <TextField
-                        placeholder="Menge"
-                        value={quantity}
-                        onChangeText={setQuantity}
-                        style={styles.quantityField}
-                    />
-                    <UnitPicker
-                        selectedUnit={ingredient?.unit || Unit.GRAMM}
-                        onUnitChange={() => {}}
-                    />
+                    <ThemedText type="defaultSemiBold">Menge</ThemedText>
+                    <View style={styles.quantityInputContainer}>
+                        <TextField
+                            placeholder="Menge"
+                            value={quantity}
+                            onChangeText={setQuantity}
+                            style={styles.quantityField}
+                            keyboardType="numeric"
+                        />
+                        <UnitPicker
+                            selectedUnit={selectedUnit}
+                            onUnitChange={setSelectedUnit}
+                        />
+                    </View>
                 </View>
             </View>
         </Modal>
@@ -72,16 +87,32 @@ export default function CreateIngredientItemModal(props: CreateIngredientItemMod
 const styles = StyleSheet.create({
     contentContainer: {
         padding: 20,
-        gap: 12,
+        gap: 16,
         width: "100%",
     },
+    searchContainer: {
+        gap: 8
+    },
     quantityContainer: {
+        gap: 8
+    },
+    quantityInputContainer: {
         flexDirection: "row",
         alignItems: "center",
-        gap: 12
+        gap: 12,
+        height: 40
     },
     quantityField: {
-        flex: 1,
-        fontSize: 24
+        flex: 0.4,
+        height: "100%",
+        fontSize: 16,
+        paddingHorizontal: 12,
+        borderWidth: 1,
+        borderColor: "#ccc",
+        borderRadius: 4
+    },
+    unitPicker: {
+        flex: 0.6,
+        height: "100%"
     }
 });
