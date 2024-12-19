@@ -34,7 +34,7 @@ export default function CustomShoppingListItem(props: CustomShoppingListItemProp
             <View style={styles.contentContainer}>
                 <ThemedText 
                     type="largeSemiBold" 
-                    style={item.isChecked ? styles.checkedText : undefined}
+                    style={[item.isChecked && styles.checkedText]}
                 >
                     {item.text}
                 </ThemedText>

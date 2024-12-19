@@ -18,6 +18,17 @@ export default function IngredientShoppingListItem(props: IngredientShoppingList
     const theme = useAppTheme();
     const styles = useThemedStyleSheet(createStyles);
 
+    const getDisplayName = () => {
+        const amount = item.ingredient.amount;
+        const ingredient = item.ingredient.ingredient;
+        
+        // Get name based on amount
+        const name = amount === 1 ? ingredient.name : (ingredient.pluralName || ingredient.name);
+        
+        // Format the amount and name with proper spacing
+        return `${amount} ${name}`;
+    };
+
     return (
         <CardView style={styles.card} noPadding>
             <TouchableOpacity 
@@ -39,9 +50,9 @@ export default function IngredientShoppingListItem(props: IngredientShoppingList
             <View style={styles.contentContainer}>
                 <ThemedText 
                     type="largeSemiBold" 
-                    style={item.isChecked ? styles.checkedText : undefined}
+                    style={[item.isChecked && styles.checkedText]}
                 >
-                    {item.ingredient.amount}{item.ingredient.ingredient.name}
+                    {getDisplayName()}
                 </ThemedText>
             </View>
 
@@ -81,6 +92,7 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     contentContainer: {
         flex: 1,
         marginRight: 16,
+        justifyContent: 'center'
     },
     amount: {
         fontSize: 12,

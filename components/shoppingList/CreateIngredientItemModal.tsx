@@ -92,12 +92,11 @@ const styles = StyleSheet.create({
         height: 40
     },
     quantityField: {
-        flex: 0.4,
+        flex: 0.3,
         height: "100%",
         fontSize: 16,
         paddingHorizontal: 12,
         borderWidth: 1,
-        borderColor: "#ccc",
         borderRadius: 4
     },
     unitPicker: {
