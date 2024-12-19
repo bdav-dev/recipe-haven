@@ -41,12 +41,7 @@ export default function IngredientShoppingListItem(props: IngredientShoppingList
                     type="largeSemiBold" 
                     style={item.isChecked ? styles.checkedText : undefined}
                 >
-                    {item.ingredient.ingredient.name}
-                </ThemedText>
-                <ThemedText 
-                    style={[styles.amount, item.isChecked && styles.checkedText]}
-                >
-                    {item.ingredient.amount} {item.ingredient.ingredient.unit}
+                    {item.ingredient.amount}{item.ingredient.ingredient.name}
                 </ThemedText>
             </View>
 

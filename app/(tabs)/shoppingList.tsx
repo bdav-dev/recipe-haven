@@ -16,6 +16,8 @@ import EditCustomItemModal from '@/components/shoppingList/EditCustomItemModal';
 import CreateIngredientItemModal from '@/components/shoppingList/CreateIngredientItemModal';
 import IngredientShoppingListItem from '@/components/shoppingList/IngredientShoppingListItem';
 
+const INSERT_NEW_ITEMS_AT_TOP = false; // Set to false to add new items at the bottom
+
 type ShoppingListItem = 
     | { type: 'custom'; data: ShoppingListCustomItem }
     | { type: 'ingredient'; data: ShoppingListIngredientItem };
@@ -47,7 +49,10 @@ export default function ShoppingListScreen() {
         return [...customItems, ...processedIngredientItems].sort((a, b) => {
             const dateA = a.data.creationTimestamp;
             const dateB = b.data.creationTimestamp;
-            return dateB.getTime() - dateA.getTime();
+            // Reverse the sort order based on the flag
+            return INSERT_NEW_ITEMS_AT_TOP 
+                ? dateB.getTime() - dateA.getTime()  // Newer items at top
+                : dateA.getTime() - dateB.getTime(); // Newer items at bottom
         });
     }, [shoppingList.customItems, shoppingList.ingredientItems, showCheckedItems]);
 

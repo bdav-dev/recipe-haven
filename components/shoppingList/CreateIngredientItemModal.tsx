@@ -17,15 +17,8 @@ type CreateIngredientItemModalProps = {
 export default function CreateIngredientItemModal(props: CreateIngredientItemModalProps) {
     const [ingredient, setIngredient] = useState<Ingredient | null>(null);
     const [quantity, setQuantity] = useState('');
-    const [selectedUnit, setSelectedUnit] = useState<Unit>(Unit.GRAMM);
     const { setShoppingList } = useContext(ShoppingListContext);
 
-    // Update unit when ingredient changes
-    useEffect(() => {
-        if (ingredient) {
-            setSelectedUnit(ingredient.unit);
-        }
-    }, [ingredient]);
 
     const handleCreate = async () => {
         if (!ingredient || !quantity) return;
@@ -72,10 +65,6 @@ export default function CreateIngredientItemModal(props: CreateIngredientItemMod
                             onChangeText={setQuantity}
                             style={styles.quantityField}
                             keyboardType="numeric"
-                        />
-                        <UnitPicker
-                            selectedUnit={selectedUnit}
-                            onUnitChange={setSelectedUnit}
                         />
                     </View>
                 </View>
