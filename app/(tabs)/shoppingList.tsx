@@ -16,6 +16,10 @@ import EditCustomItemModal from '@/components/shoppingList/EditCustomItemModal';
 import CreateIngredientItemModal from '@/components/shoppingList/CreateIngredientItemModal';
 import IngredientShoppingListItem from '@/components/shoppingList/IngredientShoppingListItem';
 
+type ShoppingListItem = 
+    | { type: 'custom'; data: ShoppingListCustomItem }
+    | { type: 'ingredient'; data: ShoppingListIngredientItem };
+
 type ModalType = 'none' | 'selection' | 'custom' | 'ingredient' | 'recipe';
 
 export default function ShoppingListScreen() {
@@ -26,15 +30,43 @@ export default function ShoppingListScreen() {
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [editItem, setEditItem] = useState<ShoppingListCustomItem>();
 
-    const visibleItems = useMemo(() =>
-        shoppingList.customItems.filter(item => item.isChecked === showCheckedItems),
-        [shoppingList.customItems, showCheckedItems]
-    );
-    
-    const visibleIngredientItems = useMemo(() =>
-        shoppingList.ingredientItems.filter(item => item.isChecked === showCheckedItems),
-        [shoppingList.ingredientItems, showCheckedItems]
-    );
+    const combinedVisibleItems = useMemo(() => {
+        const customItems = shoppingList.customItems
+            .filter(item => item.isChecked === showCheckedItems)
+            .map(item => ({ type: 'custom' as const, data: item }));
+            
+        const ingredientItems = shoppingList.ingredientItems
+            .filter(item => item.isChecked === showCheckedItems)
+            .map(item => ({ type: 'ingredient' as const, data: item }));
+
+        // Group and merge checked ingredient items if needed
+        const processedIngredientItems = showCheckedItems 
+            ? mergeCheckedIngredients(ingredientItems)
+            : ingredientItems;
+
+        return [...customItems, ...processedIngredientItems].sort((a, b) => {
+            const dateA = a.data.creationTimestamp;
+            const dateB = b.data.creationTimestamp;
+            return dateB.getTime() - dateA.getTime();
+        });
+    }, [shoppingList.customItems, shoppingList.ingredientItems, showCheckedItems]);
+
+    // Add this helper function above
+    function mergeCheckedIngredients(items: Array<{ type: 'ingredient', data: ShoppingListIngredientItem }>) {
+        return items.reduce((acc, curr) => {
+            const existingItemIndex = acc.findIndex(item => 
+                item.data.ingredient.ingredient.ingredientId === curr.data.ingredient.ingredient.ingredientId
+            );
+
+            if (existingItemIndex >= 0) {
+                acc[existingItemIndex].data.ingredient.amount += curr.data.ingredient.amount;
+                acc[existingItemIndex].data.isAggregated = true;
+                return acc;
+            }
+
+            return [...acc, curr];
+        }, [] as typeof items);
+    }
 
     const hasAnyItems = useMemo(() =>
         shoppingList.customItems.length > 0 || shoppingList.ingredientItems.length > 0,
@@ -94,6 +126,34 @@ export default function ShoppingListScreen() {
 
     const updateIngredientCheckStatus = async (item: ShoppingListIngredientItem) => {
         try {
+            // If this is an aggregated item being unchecked, we need to uncheck all related items
+            if (item.isAggregated && item.isChecked) {
+                const relatedItems = shoppingList.ingredientItems.filter(i => 
+                    i.isChecked && 
+                    i.ingredient.ingredient.ingredientId === item.ingredient.ingredient.ingredientId
+                );
+
+                await Promise.all(
+                    relatedItems.map(relatedItem => 
+                        updateIngredientItem({
+                            originalItem: relatedItem,
+                            updatedValues: { ...relatedItem, isChecked: false }
+                        })
+                    )
+                );
+
+                setShoppingList(current => ({
+                    ...current,
+                    ingredientItems: current.ingredientItems.map(existingItem => 
+                        relatedItems.some(ri => ri.shoppingListIngredientItemId === existingItem.shoppingListIngredientItemId)
+                            ? { ...existingItem, isChecked: false }
+                            : existingItem
+                    )
+                }));
+                return;
+            }
+
+            // Normal single item toggle
             const updatedItem = {
                 ...item,
                 isChecked: !item.isChecked
@@ -104,7 +164,6 @@ export default function ShoppingListScreen() {
                 updatedValues: updatedItem
             });
 
-            // Fix: Update state while preserving all items
             setShoppingList(current => ({
                 ...current,
                 ingredientItems: current.ingredientItems.map(existingItem =>
@@ -120,12 +179,19 @@ export default function ShoppingListScreen() {
 
     const handleDeleteCheckedItems = async () => {
         try {
-            await deleteCheckedCustomItems();
+            // Delete both custom and ingredient items
+            await Promise.all([
+                deleteCheckedCustomItems(),
+                ...shoppingList.ingredientItems
+                    .filter(item => item.isChecked)
+                    .map(item => deleteIngredientItem(item))
+            ]);
+
             setShoppingList(current => ({
                 ...current,
-                customItems: current.customItems.filter(item => !item.isChecked)
+                customItems: current.customItems.filter(item => !item.isChecked),
+                ingredientItems: current.ingredientItems.filter(item => !item.isChecked)
             }));
-            // Automatically switch back to unchecked view when all checked items are deleted
             setShowCheckedItems(false);
         } catch (error) {
             console.error('Failed to delete checked items:', error);
@@ -134,36 +200,33 @@ export default function ShoppingListScreen() {
 
     return (
         <Page>
-            <View style={styles.listContainer}>
-                <FlatList
-                    data={visibleItems}
-                    style={styles.list}
-                    ListHeaderComponent={() => (
-                        <FlatList
-                            data={visibleIngredientItems}
-                            scrollEnabled={false}
-                            ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                            renderItem={({ item }) => (
-                                <IngredientShoppingListItem
-                                    key={`ingredient-${item.shoppingListIngredientItemId}`}
-                                    item={item}
-                                    onToggleCheck={updateIngredientCheckStatus}
-                                />
-                            )}
-                        />
-                    )}
-                    ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                    renderItem={({ item }) => (
+            <FlatList
+                data={combinedVisibleItems}
+                style={styles.list}
+                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                renderItem={({ item }) => 
+                    item.type === 'custom' ? (
                         <CustomShoppingListItem
-                            key={`custom-${item.shoppingListCustomItemId}`}
-                            item={item}
+                            key={`custom-${item.data.shoppingListCustomItemId}`}
+                            item={item.data}
                             onToggleCheck={updateItemCheckStatus}
-                            editButton={{ onPress: () => launchEditItemModal(item) }}
+                            editButton={{ onPress: () => launchEditItemModal(item.data) }}
                         />
-                    )}
-                />
-            </View>
-    
+                    ) : (
+                        <IngredientShoppingListItem
+                            key={`ingredient-${item.data.shoppingListIngredientItemId}`}
+                            item={item.data}
+                            onToggleCheck={updateIngredientCheckStatus}
+                        />
+                    )
+                }
+                keyExtractor={item => 
+                    item.type === 'custom' 
+                        ? `custom-${item.data.shoppingListCustomItemId}` 
+                        : `ingredient-${item.data.shoppingListIngredientItemId}`
+                }
+            />
+
             <View style={styles.buttonContainer}>
                 <ShoppingListViewToggle
                     showChecked={showCheckedItems}
@@ -226,6 +289,7 @@ export default function ShoppingListScreen() {
                 isVisible={activeModal === 'recipe'}
                 onRequestClose={closeModals}
             />
+        bottom: 25,
             */}
         </Page>
     );
