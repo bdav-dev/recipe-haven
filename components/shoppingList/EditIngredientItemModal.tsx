@@ -19,7 +19,7 @@ type EditIngredientItemModalProps = {
 export default function EditIngredientItemModal(props: EditIngredientItemModalProps) {
     const { setShoppingList } = useContext(ShoppingListContext);
     const [quantity, setQuantity] = useState('');
-    const [ingredient, setIngredient] = useState<Ingredient | null>(null);
+    const [ingredient, setIngredient] = useState<Ingredient>();
 
     useEffect(() => {
         reset();

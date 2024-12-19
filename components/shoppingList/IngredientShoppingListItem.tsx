@@ -56,14 +56,14 @@ export default function IngredientShoppingListItem(props: IngredientShoppingList
                 </ThemedText>
             </View>
 
-            {editButton && (
+            {
+                editButton &&
                 <TouchableOpacity 
                     style={styles.actionButton} 
-                    onPress={editButton.onPress}
-                >
+                    onPress={editButton.onPress}>
                     <Ionicons name="pencil-outline" size={24} color={theme.primary} />
                 </TouchableOpacity>
-            )}
+            }
         </CardView>
     );
 }

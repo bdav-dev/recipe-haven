@@ -7,6 +7,7 @@ import { ThemedText } from "../themed/ThemedText";
 
 type IngredientSearchProps = {
     onSelectIngredient: (ingredient: Ingredient) => void
+    initalSelectedIngredient?: Ingredient
 }
 
 export default function IngredientSearch(props: IngredientSearchProps) {

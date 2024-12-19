@@ -15,6 +15,7 @@ import ShoppingListViewDeleteButton from '@/components/shoppingList/ShoppingList
 import EditCustomItemModal from '@/components/shoppingList/EditCustomItemModal';
 import CreateIngredientItemModal from '@/components/shoppingList/CreateIngredientItemModal';
 import IngredientShoppingListItem from '@/components/shoppingList/IngredientShoppingListItem';
+import EditIngredientItemModal from '@/components/shoppingList/EditIngredientItemModal';
 
 const INSERT_NEW_ITEMS_AT_TOP = false; // Set to false to add new items at the bottom
 
@@ -31,6 +32,8 @@ export default function ShoppingListScreen() {
     const [activeModal, setActiveModal] = useState<ModalType>('none');
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [editItem, setEditItem] = useState<ShoppingListCustomItem>();
+    const [editIngredientItem, setEditIngredientItem] = useState<ShoppingListIngredientItem>();
+    const [isEditIngredientModalVisible, setIsEditIngredientModalVisible] = useState(false);
 
     const combinedVisibleItems = useMemo(() => {
         const customItems = shoppingList.customItems
@@ -56,7 +59,7 @@ export default function ShoppingListScreen() {
         });
     }, [shoppingList.customItems, shoppingList.ingredientItems, showCheckedItems]);
 
-    // Add this helper function above
+    // Helper function to merge checked ingredient items
     function mergeCheckedIngredients(items: Array<{ type: 'ingredient', data: ShoppingListIngredientItem }>) {
         return items.reduce((acc, curr) => {
             const existingItemIndex = acc.findIndex(item => 
@@ -95,6 +98,11 @@ export default function ShoppingListScreen() {
         setEditItem(item);
         setIsEditModalVisible(true);
     }
+
+    const launchEditIngredientModal = (item: ShoppingListIngredientItem) => {
+        setEditIngredientItem(item);
+        setIsEditIngredientModalVisible(true);
+    };
 
     const replaceActiveModal = (newValue: ModalType) => { // absolute bullshit, but needs to be there to work on iOS
         setActiveModal("none");
@@ -222,6 +230,7 @@ export default function ShoppingListScreen() {
                             key={`ingredient-${item.data.shoppingListIngredientItemId}`}
                             item={item.data}
                             onToggleCheck={updateIngredientCheckStatus}
+                            editButton={{ onPress: () => launchEditIngredientModal(item.data) }}
                         />
                     )
                 }
@@ -283,6 +292,13 @@ export default function ShoppingListScreen() {
                 isVisible={isEditModalVisible}
                 onRequestClose={() => setIsEditModalVisible(false)}
                 editItem={editItem}
+            />
+
+            {/* Edit ingredient item modal */}
+            <EditIngredientItemModal
+                isVisible={isEditIngredientModalVisible}
+                onRequestClose={() => setIsEditIngredientModalVisible(false)}
+                editItem={editIngredientItem}
             />
 
             {/* Add future modals here:
