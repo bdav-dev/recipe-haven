@@ -18,7 +18,7 @@ export interface ShoppingListIngredientItem {
     ingredient: QuantizedIngredient;
     isChecked: boolean;
     creationTimestamp: Date;
-    isAggregated?: boolean;
+    isAggregated?: boolean;  // Added this flag to track merged items
 }
 
 export type ShoppingListCustomItem = ShoppingListItemBase & {

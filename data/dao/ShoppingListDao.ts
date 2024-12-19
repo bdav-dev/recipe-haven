@@ -1,4 +1,4 @@
-import { ShoppingListCustomItem, ShoppingListIngredientItem } from "@/types/ShoppingListTypes";
+import { ShoppingList, ShoppingListCustomItem, ShoppingListIngredientItem } from "@/types/ShoppingListTypes";
 import database from "../database/Database";
 import { DatabaseIngredient, DatabaseShoppingListCustomItem, DatabaseShoppingListIngredientItem } from "@/types/DatabaseTypes";
 import { CreateShoppingListCustomItemBlueprint, CreateShoppingListIngredientItemBlueprint, UpdateShoppingListCustomItemBlueprint, UpdateShoppingListIngredientItemBlueprint } from "@/types/dao/ShoppingListDaoTypes";
@@ -49,6 +49,22 @@ export async function getAllCustomItems() {
 
 export async function getAllIngredientItems() {
     return await getAllIngredientItemsFromDatabase();
+}
+
+export async function getAllShoppingListItems(): Promise<ShoppingList> {
+    try {
+        const [customItems, ingredientItems] = await Promise.all([
+            getAllCustomItemsFromDatabase(),
+            getAllIngredientItemsFromDatabase()
+        ]);
+        return {
+            customItems,
+            ingredientItems
+        };
+    } catch (error) {
+        console.error('Failed to load shopping list items:', error);
+        return { customItems: [], ingredientItems: [] };
+    }
 }
 
 // Update Operations
@@ -157,9 +173,17 @@ async function getAllCustomItemsFromDatabase(): Promise<ShoppingListCustomItem[]
 
 async function getAllIngredientItemsFromDatabase(): Promise<ShoppingListIngredientItem[]> {
     const result = await database.getAllAsync<DatabaseShoppingListIngredientItem & DatabaseIngredient>(`
-        SELECT sli.*, 
-               i.name, i.pluralName, i.unit, i.imageSrc,
-               i.calorificValueKcal, i.calorificValueNUnits
+        SELECT sli.shoppingListIngredientItemId, 
+               sli.quantity as amount,  /* Change this line to alias quantity as amount */
+               sli.isChecked,
+               sli.creationTimestamp,
+               i.ingredientId,
+               i.name, 
+               i.pluralName, 
+               i.unit, 
+               i.imageSrc,
+               i.calorificValueKcal, 
+               i.calorificValueNUnits
         FROM ShoppingListIngredientItem sli
         JOIN Ingredient i ON sli.ingredientId = i.ingredientId;
     `);
@@ -234,11 +258,10 @@ function mapCustomItemFromDatabaseModel(dbItem: DatabaseShoppingListCustomItem):
 }
 
 function mapIngredientItemFromDatabaseModel(dbItem: DatabaseShoppingListIngredientItem & DatabaseIngredient): ShoppingListIngredientItem {
-   
     const baseIngredient = mapIngredientFromDatabaseModel(dbItem);
 
     const quantizedIngredient: QuantizedIngredient = {
-        amount: dbItem.amount || 0,
+        amount: dbItem.amount || 0, // Now this should work correctly
         ingredient: baseIngredient
     };
 
