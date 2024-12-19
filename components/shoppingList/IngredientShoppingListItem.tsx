@@ -1,67 +1,98 @@
-import { View, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { ThemedText } from "../themed/ThemedText";
+import { StyleSheet, TouchableOpacity, View, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppTheme } from "@/hooks/useAppTheme";
+import { AppTheme } from "@/types/ThemeTypes";
+import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { ShoppingListIngredientItem } from "@/types/ShoppingListTypes";
+import CardView from "../themed/CardView";
+import { ThemedText } from "../themed/ThemedText";
 
 type IngredientShoppingListItemProps = {
-    item: ShoppingListIngredientItem,
-    onToggleCheck: (item: ShoppingListIngredientItem) => void,
-    editButton?: { onPress: () => void }
+    item: ShoppingListIngredientItem;
+    onToggleCheck: (item: ShoppingListIngredientItem) => void;
+    editButton?: { onPress: () => void };
 }
 
 export default function IngredientShoppingListItem(props: IngredientShoppingListItemProps) {
     const { item, onToggleCheck, editButton } = props;
     const theme = useAppTheme();
+    const styles = useThemedStyleSheet(createStyles);
 
     return (
-        <View style={styles.container}>
-            <TouchableOpacity onPress={() => onToggleCheck(item)}>
-                <Ionicons
-                    name={item.isChecked ? "checkbox-outline" : "square-outline"}
-                    size={24}
-                    color={theme.text}
+        <CardView style={styles.card} noPadding>
+            <TouchableOpacity 
+                style={styles.actionButton} 
+                onPress={() => onToggleCheck(item)}
+            >
+                <Ionicons 
+                    name={item.isChecked ? "checkbox" : "square-outline"} 
+                    size={24} 
+                    color={theme.primary} 
                 />
             </TouchableOpacity>
-            <Image source={{ uri: item.ingredient.ingredient.imageSrc }} style={styles.image} />
-            <View style={styles.textContainer}>
-                <ThemedText type="largeSemiBold">{item.ingredient.ingredient.name}</ThemedText>
-                {item.ingredient.ingredient.pluralName && (
-                    <ThemedText>{item.ingredient.ingredient.pluralName}</ThemedText>
-                )}
+
+            <Image 
+                source={{ uri: item.ingredient.ingredient.imageSrc }} 
+                style={styles.image} 
+            />
+
+            <View style={styles.contentContainer}>
+                <ThemedText 
+                    type="largeSemiBold" 
+                    style={item.isChecked ? styles.checkedText : undefined}
+                >
+                    {item.ingredient.ingredient.name}
+                </ThemedText>
+                <ThemedText 
+                    style={[styles.amount, item.isChecked && styles.checkedText]}
+                >
+                    {item.ingredient.amount} {item.ingredient.ingredient.unit}
+                </ThemedText>
             </View>
-            <ThemedText>{item.ingredient.amount} {item.ingredient.ingredient.unit}</ThemedText>
+
             {editButton && (
-                <TouchableOpacity onPress={editButton.onPress}>
-                    <Ionicons name="pencil-outline" size={24} color={theme.button.default} />
+                <TouchableOpacity 
+                    style={styles.actionButton} 
+                    onPress={editButton.onPress}
+                >
+                    <Ionicons name="pencil-outline" size={24} color={theme.primary} />
                 </TouchableOpacity>
             )}
-        </View>
+        </CardView>
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
+const createStyles = (theme: AppTheme) => StyleSheet.create({
+    card: {
+        height: 60,
         flexDirection: "row",
         alignItems: "center",
-        padding: 10,
-        borderRadius: 10,
-        backgroundColor: "#fff",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        shadowColor: "black",
+        shadowOffset: { height: 0, width: 0 },
         shadowRadius: 5,
-        elevation: 2,
-        marginBottom: 10
+        shadowOpacity: 0.1,
+        borderWidth: theme.ingredientListItem.borderWidth,
+        borderColor: theme.border
+    },
+    actionButton: {
+        padding: 16,
     },
     image: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        marginHorizontal: 10
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        marginRight: 8
     },
-    textContainer: {
+    contentContainer: {
         flex: 1,
-        marginRight: 10
+        marginRight: 16,
+    },
+    amount: {
+        fontSize: 12,
+        opacity: 0.7
+    },
+    checkedText: {
+        textDecorationLine: 'line-through',
+        opacity: 0.5
     }
 });

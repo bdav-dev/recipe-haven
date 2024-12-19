@@ -104,6 +104,7 @@ export default function ShoppingListScreen() {
                 updatedValues: updatedItem
             });
 
+            // Fix: Update state while preserving all items
             setShoppingList(current => ({
                 ...current,
                 ingredientItems: current.ingredientItems.map(existingItem =>
@@ -133,31 +134,35 @@ export default function ShoppingListScreen() {
 
     return (
         <Page>
-            <FlatList
-                data={visibleItems}
-                style={styles.list}
-                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                renderItem={listItemInfo => (
-                    <CustomShoppingListItem
-                        key={listItemInfo.index}
-                        item={listItemInfo.item}
-                        onToggleCheck={updateItemCheckStatus}
-                        editButton={{ onPress: () => launchEditItemModal(listItemInfo.item) }}
-                    />
-                )}
-            />
-            <FlatList
-                data={visibleIngredientItems}
-                style={styles.list}
-                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                renderItem={listItemInfo => (
-                    <IngredientShoppingListItem
-                        key={listItemInfo.index}
-                        item={listItemInfo.item}
-                        onToggleCheck={updateIngredientCheckStatus}
-                    />
-                )}
-            />
+            <View style={styles.listContainer}>
+                <FlatList
+                    data={visibleItems}
+                    style={styles.list}
+                    ListHeaderComponent={() => (
+                        <FlatList
+                            data={visibleIngredientItems}
+                            scrollEnabled={false}
+                            ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                            renderItem={({ item }) => (
+                                <IngredientShoppingListItem
+                                    key={`ingredient-${item.shoppingListIngredientItemId}`}
+                                    item={item}
+                                    onToggleCheck={updateIngredientCheckStatus}
+                                />
+                            )}
+                        />
+                    )}
+                    ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                    renderItem={({ item }) => (
+                        <CustomShoppingListItem
+                            key={`custom-${item.shoppingListCustomItemId}`}
+                            item={item}
+                            onToggleCheck={updateItemCheckStatus}
+                            editButton={{ onPress: () => launchEditItemModal(item) }}
+                        />
+                    )}
+                />
+            </View>
     
             <View style={styles.buttonContainer}>
                 <ShoppingListViewToggle
@@ -241,5 +246,9 @@ const styles = StyleSheet.create({
         bottom: 25,
         right: 25,
         zIndex: 1,
+    },
+    listContainer: {
+        flex: 1,
+        width: '100%'
     }
 });
