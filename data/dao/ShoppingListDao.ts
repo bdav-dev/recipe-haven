@@ -174,7 +174,7 @@ async function getAllCustomItemsFromDatabase(): Promise<ShoppingListCustomItem[]
 async function getAllIngredientItemsFromDatabase(): Promise<ShoppingListIngredientItem[]> {
     const result = await database.getAllAsync<DatabaseShoppingListIngredientItem & DatabaseIngredient>(`
         SELECT sli.shoppingListIngredientItemId, 
-               sli.quantity as amount,  /* Change this line to alias quantity as amount */
+               sli.quantity as amount, 
                sli.isChecked,
                sli.creationTimestamp,
                i.ingredientId,
@@ -261,7 +261,7 @@ function mapIngredientItemFromDatabaseModel(dbItem: DatabaseShoppingListIngredie
     const baseIngredient = mapIngredientFromDatabaseModel(dbItem);
 
     const quantizedIngredient: QuantizedIngredient = {
-        amount: dbItem.amount || 0, // Now this should work correctly
+        amount: dbItem.amount || 0,
         ingredient: baseIngredient
     };
 

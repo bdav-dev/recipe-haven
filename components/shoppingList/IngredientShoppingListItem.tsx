@@ -20,12 +20,12 @@ export default function IngredientShoppingListItem(props: IngredientShoppingList
 
     const getDisplayName = () => {
         const amount = item.ingredient.amount;
+        const unit = item.ingredient.ingredient.unit;
         const ingredient = item.ingredient.ingredient;
         
         // Get name based on amount
         const name = amount === 1 ? ingredient.name : (ingredient.pluralName || ingredient.name);
         
-        // Format the amount and name with proper spacing
         return `${amount} ${name}`;
     };
 
