@@ -299,7 +299,7 @@ async function updateRecipeInDatabase(recipe: Recipe) {
             recipe.title,
             recipe.description ?? null,
             recipe.difficulty ?? null,
-            recipe.preparationTime ? recipe.preparationTime.toString() : null, // WIP: conversion needs to be fixed
+            recipe.preparationTime?.minutes ?? null,
             recipe.isFavorite ? 1 : 0,
             recipe.recipeId.toString()
         ]
