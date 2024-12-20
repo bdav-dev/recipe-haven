@@ -1,9 +1,9 @@
 import TextField from "@/components/TextField";
 import CardView from "@/components/themed/CardView";
 import { FrontendRecipeHolderContext } from "@/context/EditRecipeContextProvider";
+import { CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES } from "@/styles/CommonStyles";
 import { useContext } from "react";
 import { StyleSheet, View } from "react-native";
-import { CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES } from "../CreateRecipeModal";
 
 
 export default function ThirdStage() {

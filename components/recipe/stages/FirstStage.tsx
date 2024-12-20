@@ -16,7 +16,7 @@ import { FrontendRecipeHolderContext } from "@/context/EditRecipeContextProvider
 import { isPositiveInteger } from "@/utils/MathUtils"
 import TagPicker from "../picker/TagPicker"
 import PreparationTimePicker from "../picker/PreparationTimePicker"
-import { CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES } from "../CreateRecipeModal"
+import { CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES } from "@/styles/CommonStyles"
 
 export default function FirstStage() {
     const styles = useThemedStyleSheet(createStyles);

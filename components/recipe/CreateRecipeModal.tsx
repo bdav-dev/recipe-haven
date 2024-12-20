@@ -93,8 +93,6 @@ export default function CreateRecipeModal(props: CreateRecipeModalProps) {
     );
 }
 
-export const CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES = StyleSheet.create({ stage: { padding: 20, flexDirection: "column", gap: 12 } });
-
 const styles = StyleSheet.create({
     stageView: {
         flex: 1

@@ -10,8 +10,7 @@ import { QuantizedIngredient } from "@/types/IngredientTypes";
 import { moveArrayItem } from "@/utils/ArrayUtils";
 import RecipeIngredientList from "../RecipeIngredientList";
 import RecipeIngredientPicker from "../picker/RecipeIngredientPicker";
-import { CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES } from "../CreateRecipeModal";
-
+import { CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES } from "@/styles/CommonStyles";
 
 export default function SecondStage() {
     const { states } = useContext(FrontendRecipeHolderContext);
