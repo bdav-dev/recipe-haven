@@ -62,6 +62,7 @@ export default function SecondStage() {
 
             <CardView title="Zutat hinzufügen">
                 <RecipeIngredientPicker
+                    style={styles.recipeIngredientPicker}
                     ingredientSuggestions={ingredientSuggestions}
                     recipeIngredients={states.ingredients.value}
                     onIngredientAdd={addRecipeIngredient}
@@ -91,5 +92,8 @@ const styles = StyleSheet.create({
     amountOfPortionsTextField: {
         minWidth: 50,
         textAlign: "center"
+    },
+    recipeIngredientPicker: {
+        marginTop: 4
     }
 });

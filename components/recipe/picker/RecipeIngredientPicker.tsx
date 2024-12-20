@@ -2,7 +2,7 @@ import TextField from "@/components/TextField";
 import { Ingredient, QuantizedIngredient } from "@/types/IngredientTypes";
 import { equalsIgnoreCase, includesIgnoreCase, isBlank } from "@/utils/StringUtils";
 import { useEffect, useState } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View, ViewStyle } from "react-native";
 import IngredientSuggestion from "../IngredientSuggestion";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { isValidAmount, unitToString } from "@/utils/UnitUtils";
@@ -13,7 +13,8 @@ type RecipeIngredientPickerProps = {
     ingredientSuggestions: Ingredient[],
     recipeIngredients: QuantizedIngredient[],
     onIngredientAdd: (recipeIngredient: QuantizedIngredient) => void
-    onIngredientAmountAdd: (recipeIngredient: QuantizedIngredient, amount: number) => void
+    onIngredientAmountAdd: (recipeIngredient: QuantizedIngredient, amount: number) => void,
+    style?: ViewStyle
 }
 
 export default function RecipeIngredientPicker(props: RecipeIngredientPickerProps) {
@@ -47,7 +48,7 @@ export default function RecipeIngredientPicker(props: RecipeIngredientPickerProp
     }
 
     return (
-        <View style={styles.recipeIngredientPicker}>
+        <View style={[styles.recipeIngredientPicker, props.style]}>
 
             <View style={{ flex: 1 }}>
                 <TextField
