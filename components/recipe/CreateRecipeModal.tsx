@@ -4,6 +4,7 @@ import { ThemedText } from "../themed/ThemedText";
 import { useEffect, useRef, useState } from "react";
 import FirstStage from "./stages/FirstStage";
 import StageInfo from "../StageInfo";
+import EditRecipeContextProvider from "@/context/EditRecipeContextProvider";
 
 
 type CreateRecipeModalProps = {
@@ -24,20 +25,21 @@ const Stages: { [key: string]: Stage } = {
 const previousStage = (stage: Stage) => Object.values(Stages).find(otherStage => otherStage.index == stage.index - 1);
 const nextStage = (stage: Stage) => Object.values(Stages).find(otherStage => otherStage.index == stage.index + 1);
 
+
 export default function CreateRecipeModal(props: CreateRecipeModalProps) {
     const scrollViewRef = useRef<ScrollView>(null);
 
-    const [stageView, setStageWidth] = useState(0);
-    const scrollToStage = (view: Stage) => scrollViewRef.current?.scrollTo({ x: stageView * view.index, animated: true });
-
+    const [stageWidth, setStageWidth] = useState(0);
     const [stage, setStage] = useState(Stages.ONE);
+
+    const scrollToStage = (stage: Stage) => scrollViewRef.current?.scrollTo({ x: stageWidth * stage.index, animated: true });
 
     useEffect(() => {
         Keyboard.dismiss();
         scrollToStage(stage);
     }, [stage]);
 
-    const mapStages = () => (
+    const mapStagesForStageInfo = () => (
         Object.values(Stages)
             .map(otherStage => ({
                 title: otherStage.title,
@@ -53,15 +55,13 @@ export default function CreateRecipeModal(props: CreateRecipeModalProps) {
             onRequestClose={props.onRequestClose}
             title="Neues Rezept"
             onContentViewLayout={event => setStageWidth(event.nativeEvent.layout.width)}
-            preScrollViewChildren={
-                <StageInfo style={{ margin: 5 }} stages={mapStages()} />
-            }
-            customCloseButton={
+            preScrollViewChildren={<StageInfo style={styles.stageInfo} stages={mapStagesForStageInfo()} />}
+            customLeftButton={
                 stage != Stages.ONE
                     ? { title: 'Zurück', onPress: () => setStage(previousStage(stage)!) }
                     : undefined
             }
-            primaryActionButton={
+            rightButton={
                 stage == Stages.THREE
                     ? { title: 'Hinzufügen', onPress: () => { } }
                     : { title: 'Weiter', onPress: () => setStage(nextStage(stage)!) }
@@ -69,36 +69,42 @@ export default function CreateRecipeModal(props: CreateRecipeModalProps) {
         >
             <ScrollView
                 ref={scrollViewRef}
-                horizontal
-                pagingEnabled
+                horizontal pagingEnabled
                 showsHorizontalScrollIndicator={false}
                 scrollEnabled={false}
-                contentContainerStyle={styles.scrollViewContent}
-                style={{ flex: 1 }}
+                contentContainerStyle={styles.stageViewContent}
+                style={styles.stageView}
                 keyboardShouldPersistTaps="handled"
             >
-                <View style={{ width: stageView }}>
-                    <FirstStage />
-                </View>
+                <EditRecipeContextProvider>
+                    <View style={{ width: stageWidth }}>
+                        <FirstStage />
+                    </View>
 
-                <View style={{ width: stageView, backgroundColor: "blue" }}>
-                    <ThemedText>2</ThemedText>
-                </View>
-                <View style={{ width: stageView, backgroundColor: "green" }}>
-                    <ThemedText>3</ThemedText>
-                </View>
-
+                    <View style={{ width: stageWidth }}>
+                        <ThemedText>2</ThemedText>
+                    </View>
+                    <View style={{ width: stageWidth }}>
+                        <ThemedText>3</ThemedText>
+                    </View>
+                </EditRecipeContextProvider>
             </ScrollView>
         </FullScreenModal>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    stageView: {
         flex: 1
     },
-    scrollViewContent: {
+    stageViewContent: {
         flexDirection: "row"
+    },
+    stageInfo: {
+        margin: 5
+    },
+    container: {
+        flex: 1
     },
     viewItem: {
         justifyContent: "center",

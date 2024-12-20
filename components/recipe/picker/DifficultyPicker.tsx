@@ -11,13 +11,8 @@ type DifficultyPickerProps = {
 }
 
 export default function DifficultyPicker(props: DifficultyPickerProps) {
-
-
-
-
     return (
         <View style={styles.view}>
-
             {
                 Object.values(RecipeDifficulty)
                     .filter(item => typeof item !== 'string')
@@ -31,11 +26,8 @@ export default function DifficultyPicker(props: DifficultyPickerProps) {
                         )
                     )
             }
-
-
         </View>
     );
-
 }
 
 const styles = StyleSheet.create({

@@ -1,12 +1,18 @@
 import { RecipeDifficulty } from "@/types/RecipeTypes"
 
 
-export function difficultyToString(difficulty: RecipeDifficulty) {
+export function difficultyToString(difficulty?: RecipeDifficulty) {
+    const defaultCase = "";
+
+    if(difficulty == undefined) {
+        return defaultCase;
+    }
+
     switch (+difficulty) {
         case RecipeDifficulty.DIFFICULT: return "Schwer"
         case RecipeDifficulty.MEDIUM: return "Mittelschwer"
         case RecipeDifficulty.EASY: return "Leicht"
-        default: return ""
+        default: return defaultCase
     }
 }
 

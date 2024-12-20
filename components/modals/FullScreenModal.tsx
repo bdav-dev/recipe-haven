@@ -7,7 +7,7 @@ import { ModalProps } from "./Modal";
 
 type FullScreenModalProps = ModalProps & {
     preScrollViewChildren?: React.ReactNode,
-    customCloseButton?: {
+    customLeftButton?: {
         title: string,
         onPress: () => void
     }
@@ -18,7 +18,7 @@ export default function FullScreenModal({
     isVisible,
     onContentViewLayout,
     preScrollViewChildren,
-    customCloseButton,
+    customLeftButton,
     ...header
 }: FullScreenModalProps) {
     const styles = useThemedStyleSheet(createStyles);
@@ -36,7 +36,7 @@ export default function FullScreenModal({
                     keyboardVerticalOffset={Platform.select({ ios: 11, android: 11 })}
                     behavior="height"
                 >
-                    <ModalHeader leftButton={customCloseButton} {...header} />
+                    <ModalHeader customLeftButton={customLeftButton} {...header} />
                     {preScrollViewChildren}
                     <ScrollView style={styles.scrollView} onLayout={onContentViewLayout} keyboardShouldPersistTaps="handled">
                         {children}

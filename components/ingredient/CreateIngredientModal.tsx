@@ -83,7 +83,7 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
             isVisible={props.isVisible}
             onRequestClose={close}
             title={"Neue Zutat"}
-            primaryActionButton={{
+            rightButton={{
                 title: "Hinzufügen",
                 onPress: () => create(),
                 disabled: !isReadyForSubmit()

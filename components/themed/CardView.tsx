@@ -33,7 +33,7 @@ export default function CardView({
             ]}
             {...rest}
         >
-            {title && <ThemedText type="defaultSemiBold" style={styles.title}>{title}</ThemedText>}
+            {title && <ThemedText type="defaultSemiBold" numberOfLines={1} style={styles.title}>{title}</ThemedText>}
             {children}
         </View>
     );
