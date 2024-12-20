@@ -30,6 +30,7 @@ export type AppTheme = {
         background: string,
         placeholder: string,
         borderErroneous: string,
+        readOnlyBackground: string
     },
     autoColorBadge: {
         backgroundColor: {

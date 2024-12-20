@@ -12,20 +12,21 @@ import { difficultyToString } from "@/utils/DifficultyUtils"
 import React from "react"
 import { isBlank } from "@/utils/StringUtils"
 import { RecipeContext } from "@/context/RecipeContextProvider"
-import { EditRecipeContext } from "@/context/EditRecipeContextProvider"
-import { isInteger } from "@/utils/MathUtils"
+import { FrontendRecipeHolderContext } from "@/context/EditRecipeContextProvider"
+import { isPositiveInteger } from "@/utils/MathUtils"
 import TagPicker from "../picker/TagPicker"
 import PreparationTimePicker from "../picker/PreparationTimePicker"
+import { CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES } from "../CreateRecipeModal"
 
 export default function FirstStage() {
     const styles = useThemedStyleSheet(createStyles);
 
-    const { states } = useContext(EditRecipeContext);
+    const { states } = useContext(FrontendRecipeHolderContext);
     const { recipes } = useContext(RecipeContext);
 
     const addTag = (tag: string) => states.tags.set(tags => [...tags, tag]);
     const removeTag = (tag: string) => states.tags.set(tags => tags.filter(t => t != tag));
-    
+
     async function pickImage() {
         const imagePickerResult = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: 'images',
@@ -40,7 +41,7 @@ export default function FirstStage() {
     }
 
     return (
-        <View style={styles.contentContainer}>
+        <View style={CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES.stage}>
 
             <View style={styles.imagePlaceholder}>
                 <TouchableWithoutFeedback onPress={pickImage} onLongPress={states.imageSrc.clear}>
@@ -54,12 +55,12 @@ export default function FirstStage() {
 
             <TextField
                 placeholder='Rezeptname'
-                value={states.recipeName.value}
-                onChangeText={states.recipeName.set}
+                value={states.title.value}
+                onChangeText={states.title.set}
                 style={[styles.nameTextField, styles.textField]}
             />
 
-            <View style={{ flexDirection: "row", gap: 7 }}>
+            <View style={styles.difficultyAndPreptimeView}>
 
                 <CardView title="Schwierigkeit" style={styles.difficultyPickerView}>
                     <DifficultyPicker value={states.difficulty.value} onValueChange={states.difficulty.set} />
@@ -71,12 +72,12 @@ export default function FirstStage() {
                         hours={{
                             onChangeText: states.preparationTime.hours.set,
                             value: states.preparationTime.hours.value,
-                            isErroneous: !isBlank(states.preparationTime.hours.value) && !isInteger(states.preparationTime.hours.value)
+                            isErroneous: !isBlank(states.preparationTime.hours.value) && !isPositiveInteger(+states.preparationTime.hours.value)
                         }}
                         minutes={{
                             onChangeText: states.preparationTime.minutes.set,
                             value: states.preparationTime.minutes.value,
-                            isErroneous: !isBlank(states.preparationTime.minutes.value) && !isInteger(states.preparationTime.minutes.value)
+                            isErroneous: !isBlank(states.preparationTime.minutes.value) && !isPositiveInteger(+states.preparationTime.minutes.value)
                         }}
                     />
                 </CardView>
@@ -88,38 +89,22 @@ export default function FirstStage() {
                     tagSuggestions={recipes.flatMap(recipe => recipe.tags)}
                     onTagAdd={addTag}
                     onTagRemove={removeTag}
-                    style={{marginTop: 6}}
+                    style={{ marginTop: 6 }}
                 />
             </CardView>
 
         </View>
-
     );
 }
 
 const createStyles = (theme: AppTheme) => StyleSheet.create({
     preparationTimePickerView: {
-        flex: 1, justifyContent: "center"
+        flex: 1,
+        justifyContent: "center"
     },
     difficultyPickerView: {
         flex: 1,
         alignItems: "center"
-    },
-    contentContainer: {
-        padding: 20,
-        display: "flex",
-        flexDirection: "column",
-        gap: 12
-    },
-    imageAndNamesContainer: {
-        flexDirection: "row",
-    },
-    namesContainer: {
-        flexDirection: "column",
-        flex: 1,
-        paddingLeft: 12,
-        justifyContent: "center",
-        gap: 12
     },
     nameTextField: {
         fontSize: 28
@@ -150,5 +135,9 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         width: "100%",
         height: "100%",
         borderRadius: 9
+    },
+    difficultyAndPreptimeView: {
+        flexDirection: "row",
+        gap: CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES.stage.gap
     }
 });

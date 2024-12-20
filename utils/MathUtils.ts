@@ -1,18 +1,16 @@
+import { isBlank } from "./StringUtils";
 
-export function toNumber(string: string): number | undefined {
-    const number = +(string.replace(',', '.'));
-    return isNaN(number) ? undefined : number;
-}
-
-export function isNumeric(string: string) {
-    return toNumber(string) != undefined;
-}
-
-export function isInteger(string: string) {
-    const number = toNumber(string);
-    if (number == undefined) {
-        return false;
+export function toNumber(string: string): number {
+    if (isBlank(string)) {
+        return Number.NaN;
     }
-    return Number.isInteger(number);
+
+    return +(string.replace(',', '.'));
+}
+
+export function isPositiveInteger(value: number) {
+    return Number.isInteger(value)
+        ? value > 0
+        : false;
 }
 

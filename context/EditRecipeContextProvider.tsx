@@ -1,16 +1,18 @@
+import { Duration } from "@/data/misc/Duration";
 import { QuantizedIngredient } from "@/types/IngredientTypes";
 import { ContextProviderProps } from "@/types/MiscellaneousTypes";
 import { Recipe, RecipeDifficulty } from "@/types/RecipeTypes";
+import { isBlank } from "@/utils/StringUtils";
 import { createContext, Dispatch, useState } from "react";
 
-type EditRecipeContext = {
+type FrontendRecipeHolderContext = {
     states: {
         imageSrc: {
             value: string | undefined,
             set: Dispatch<React.SetStateAction<string | undefined>>,
             clear: () => void
         },
-        recipeName: {
+        title: {
             value: string,
             set: Dispatch<React.SetStateAction<string>>
         },
@@ -32,7 +34,7 @@ type EditRecipeContext = {
             value: string[],
             set: Dispatch<React.SetStateAction<string[]>>
         },
-        quantizedIngredients: {
+        ingredients: {
             value: QuantizedIngredient[],
             set: Dispatch<React.SetStateAction<QuantizedIngredient[]>>
         },
@@ -42,18 +44,18 @@ type EditRecipeContext = {
         }
     },
     mount: (recipe: Recipe) => void,
-    toRecipe: () => Recipe | undefined,
+    toRecipe: () => (Omit<Recipe, 'recipeId' | 'imageSrc'> & { cachedImageSrc?: string }) | undefined,
     reset: () => void
 }
 
-const empty: EditRecipeContext = {
+const empty: FrontendRecipeHolderContext = {
     states: {
         imageSrc: {
             value: undefined,
             set: () => { },
             clear: () => { }
         },
-        recipeName: {
+        title: {
             value: '',
             set: () => { }
         },
@@ -75,7 +77,7 @@ const empty: EditRecipeContext = {
             value: [],
             set: () => { }
         },
-        quantizedIngredients: {
+        ingredients: {
             value: [],
             set: () => { }
         },
@@ -89,21 +91,52 @@ const empty: EditRecipeContext = {
     reset: () => { }
 };
 
-export const EditRecipeContext = createContext<EditRecipeContext>(empty);
+export const FrontendRecipeHolderContext = createContext<FrontendRecipeHolderContext>(empty);
 
-export default function EditRecipeContextProvider(props: ContextProviderProps) {
+export default function FrontendRecipeHolderContextProvider(props: ContextProviderProps) {
     const [imageSrc, setImageSrc] = useState<string>();
-    const [recipeName, setRecipeName] = useState('');
+    const [title, setTitle] = useState('');
     const [difficulty, setDifficulty] = useState<RecipeDifficulty>();
     const [preparationTimeHours, setPreparationTimeHours] = useState<string>('');
     const [preparationTimeMinutes, setPreparationTimeMinutes] = useState<string>('');
     const [tags, setTags] = useState<string[]>([]);
-    const [quantizedIngredients, setQuantizedIngredients] = useState<QuantizedIngredient[]>([]);
+    const [ingredients, setIngredients] = useState<QuantizedIngredient[]>([]);
     const [description, setDescription] = useState('');
 
-    function toRecipe(): Recipe | undefined {
-        // TODO
-        return undefined;
+    function toRecipe(): (Omit<Recipe, 'recipeId' | 'imageSrc'> & { cachedImageSrc?: string }) | undefined {
+
+        if (isBlank(title)) {
+            return undefined;
+        }
+
+        const preparationTime = calculatePreparationTime();
+
+        return {
+            title: title,
+            cachedImageSrc: imageSrc,
+            description: description,
+            ingredientsForOnePortion: ingredients,
+            isFavorite: false,
+            tags: tags,
+            difficulty: difficulty,
+            preparationTime
+        }
+    }
+
+    function calculatePreparationTime() {
+        if (isBlank(preparationTimeHours) && isBlank(preparationTimeMinutes)) {
+            return undefined;
+
+        } else {
+            const hours = +preparationTimeHours;
+            const minutes = +preparationTimeMinutes;
+
+            if (isNaN(hours) || isNaN(minutes)) {
+                return undefined;
+            }
+
+            return Duration.ofHoursAndMinutes(hours, minutes);
+        }
     }
 
     function reset() {
@@ -112,11 +145,11 @@ export default function EditRecipeContextProvider(props: ContextProviderProps) {
 
     function mount(recipe: Recipe) {
         // TODO
-        setRecipeName(recipe.title);
+        setTitle(recipe.title);
     }
 
     return (
-        <EditRecipeContext.Provider
+        <FrontendRecipeHolderContext.Provider
             value={{
                 states: {
                     imageSrc: {
@@ -124,9 +157,9 @@ export default function EditRecipeContextProvider(props: ContextProviderProps) {
                         set: setImageSrc,
                         clear: () => setImageSrc(undefined)
                     },
-                    recipeName: {
-                        value: recipeName,
-                        set: setRecipeName
+                    title: {
+                        value: title,
+                        set: setTitle
                     },
                     difficulty: {
                         value: difficulty,
@@ -146,9 +179,9 @@ export default function EditRecipeContextProvider(props: ContextProviderProps) {
                         value: tags,
                         set: setTags
                     },
-                    quantizedIngredients: {
-                        value: quantizedIngredients,
-                        set: setQuantizedIngredients
+                    ingredients: {
+                        value: ingredients,
+                        set: setIngredients
                     },
                     description: {
                         value: description,
@@ -161,6 +194,6 @@ export default function EditRecipeContextProvider(props: ContextProviderProps) {
             }}
         >
             {props.children}
-        </EditRecipeContext.Provider>
+        </FrontendRecipeHolderContext.Provider>
     );
 }

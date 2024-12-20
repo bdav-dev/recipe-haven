@@ -1,4 +1,4 @@
-import { Image, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
+import { Alert, Image, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
 import { useContext, useState } from "react";
 import { IngredientContext } from "@/context/IngredientContextProvider";
 import TextField from "../TextField";
@@ -24,7 +24,7 @@ const INITIAL_UNIT = Unit.GRAMM;
 export default function CreateIngredientModal(props: CreateIngredientModalProps) {
     const styles = useThemedStyleSheet(createStyles);
 
-    const { setIngredients } = useContext(IngredientContext);
+    const { ingredients, setIngredients } = useContext(IngredientContext);
 
     const [temporaryImageUri, setTemporaryImageUri] = useState<string>();
     const [name, setName] = useState('');
@@ -63,6 +63,11 @@ export default function CreateIngredientModal(props: CreateIngredientModalProps)
     }
 
     function create() {
+        if (ingredients.find(ingredient => ingredient.name == name.trim())) {
+            Alert.alert("Eine Zutat mit diesem Namen existiert bereits");
+            return;
+        }
+
         createIngredient({
             name: name,
             pluralName: pluralName || undefined,

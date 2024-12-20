@@ -64,6 +64,24 @@ async function insertRecipeTagInDatabase(tagName: string) {
 }
 
 
+async function insert(recipe: (Omit<Recipe, 'recipeId' | 'imageSrc'> & { cachedImageSrc?: string })) {
+
+    
+
+
+
+    await insertRecipeInDatabase({
+        description: recipe.description,
+        isFavorite: 0,
+        title: "",
+        difficulty: 1,
+        imageSrc: undefined,
+        preparationTimeInMinutes: 100
+    })
+
+}
+
+
 function mapFromFullRecipeQueryResult(item: FullRecipeQueryResult, allIngredients: Ingredient[]): Recipe {
     const tagnames: string[] = JSON.parse(item.tagnamesJson);
     const recipeIngredientMaps: RecipeIngredientMap[] = JSON.parse(item.ingredientsMapJson);

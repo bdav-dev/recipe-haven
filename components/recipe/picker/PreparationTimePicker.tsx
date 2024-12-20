@@ -37,17 +37,16 @@ export default function PreparationTimePicker(props: PreparationTimePickerProps)
 const styles = StyleSheet.create({
     view: {
         flexDirection: "row",
-        alignItems: "flex-end",
+        alignItems: "center",
         gap: 3,
         justifyContent: "center"
     },
     textField: {
         flex: 1,
-        maxWidth: 85,
+        maxWidth: 80,
         textAlign: "center"
     },
     label: {
-        fontSize: 19,
-        marginBottom: 3
+        fontSize: 19
     }
 });

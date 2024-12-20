@@ -1,10 +1,11 @@
 import { Keyboard, ScrollView, StyleSheet, View } from "react-native";
 import FullScreenModal from "../modals/FullScreenModal";
-import { ThemedText } from "../themed/ThemedText";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import FirstStage from "./stages/FirstStage";
 import StageInfo from "../StageInfo";
-import EditRecipeContextProvider from "@/context/EditRecipeContextProvider";
+import { FrontendRecipeHolderContext } from "@/context/EditRecipeContextProvider";
+import SecondStage from "./stages/SecondStage";
+import ThirdStage from "./stages/ThirdStage";
 
 
 type CreateRecipeModalProps = {
@@ -27,6 +28,7 @@ const nextStage = (stage: Stage) => Object.values(Stages).find(otherStage => oth
 
 
 export default function CreateRecipeModal(props: CreateRecipeModalProps) {
+    const { toRecipe } = useContext(FrontendRecipeHolderContext);
     const scrollViewRef = useRef<ScrollView>(null);
 
     const [stageWidth, setStageWidth] = useState(0);
@@ -76,22 +78,22 @@ export default function CreateRecipeModal(props: CreateRecipeModalProps) {
                 style={styles.stageView}
                 keyboardShouldPersistTaps="handled"
             >
-                <EditRecipeContextProvider>
-                    <View style={{ width: stageWidth }}>
-                        <FirstStage />
-                    </View>
+                <View style={{ width: stageWidth }}>
+                    <FirstStage />
+                </View>
 
-                    <View style={{ width: stageWidth }}>
-                        <ThemedText>2</ThemedText>
-                    </View>
-                    <View style={{ width: stageWidth }}>
-                        <ThemedText>3</ThemedText>
-                    </View>
-                </EditRecipeContextProvider>
+                <View style={{ width: stageWidth }}>
+                    <SecondStage />
+                </View>
+                <View style={{ width: stageWidth }}>
+                    <ThirdStage />
+                </View>
             </ScrollView>
         </FullScreenModal>
     );
 }
+
+export const CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES = StyleSheet.create({ stage: { padding: 20, flexDirection: "column", gap: 12 } });
 
 const styles = StyleSheet.create({
     stageView: {

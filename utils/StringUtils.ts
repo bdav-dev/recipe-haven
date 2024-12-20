@@ -10,3 +10,7 @@ export function isNumeric(string: string) {
 export function includesIgnoreCase(string: string, keyword: string) {
     return string.toLowerCase().includes(keyword.toLowerCase());
 }
+
+export function equalsIgnoreCase(a: string, b: string) {
+    return a.toLowerCase() == b.toLowerCase();
+}

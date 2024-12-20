@@ -18,10 +18,16 @@ export default function DifficultyPicker(props: DifficultyPickerProps) {
                     .filter(item => typeof item !== 'string')
                     .map(
                         (difficulty, index) => (
-                            <TouchableOpacity key={index} style={styles.touchableOpacity} onPress={() => props.onValueChange?.(difficulty == props.value ? undefined : difficulty)}>
-                    
-                                <Ionicons name={props.value == difficulty ? "ellipse" : "ellipse-outline"} size={27}  color={difficultyToColor(difficulty)}/>
-
+                            <TouchableOpacity
+                                key={index}
+                                style={styles.touchableOpacity}
+                                onPress={() => props.onValueChange?.(difficulty == props.value ? undefined : difficulty)}
+                            >
+                                <Ionicons
+                                    name={props.value == difficulty ? "ellipse" : "ellipse-outline"}
+                                    size={27}
+                                    color={difficultyToColor(difficulty)}
+                                />
                             </TouchableOpacity>
                         )
                     )

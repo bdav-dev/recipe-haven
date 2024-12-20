@@ -29,6 +29,7 @@ export const AppThemes: { [key: string]: AppTheme } = {
             background: DefaultTheme.colors.border,
             placeholder: "#a9a9ab",
             borderErroneous: "#EB4E3E",
+            readOnlyBackground: "#f7f7f7"
         },
         autoColorBadge: {
             backgroundColor: {
@@ -76,7 +77,8 @@ export const AppThemes: { [key: string]: AppTheme } = {
         textField: {
             background: DarkTheme.colors.border,
             placeholder: "#616166",
-            borderErroneous: "#E75444"
+            borderErroneous: "#E75444",
+            readOnlyBackground: "black"
         },
         autoColorBadge: {
             backgroundColor: {

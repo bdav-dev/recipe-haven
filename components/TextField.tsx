@@ -12,6 +12,7 @@ export default function TextField({
     isErroneous,
     style,
     placeholder,
+    readOnly,
     onChangeText,
     ...rest
 }: TextFieldProps) {
@@ -24,10 +25,17 @@ export default function TextField({
             placeholderTextColor={theme.textField.placeholder}
             onChangeText={onChangeText}
             style={[
-                { borderColor: isErroneous ? theme.textField.borderErroneous : theme.border },
+                {
+                    borderColor:
+                        isErroneous
+                            ? theme.textField.borderErroneous
+                            : readOnly ? theme.textField.readOnlyBackground : theme.border
+                },
                 styles.textInput,
+                { backgroundColor: readOnly ? theme.textField.readOnlyBackground : theme.textField.background },
                 style
             ]}
+            readOnly={readOnly}
             {...rest}
         />
     );
@@ -36,7 +44,6 @@ export default function TextField({
 const createStyles = (theme: AppTheme) => StyleSheet.create({
     textInput: {
         borderWidth: 1,
-        backgroundColor: theme.textField.background,
         paddingHorizontal: 7,
         paddingVertical: 5,
         borderRadius: 10,
