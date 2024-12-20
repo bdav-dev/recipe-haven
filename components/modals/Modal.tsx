@@ -8,7 +8,7 @@ export type ModalProps = {
     isVisible: boolean,
     title?: string,
     onContentViewLayout?: (event: LayoutChangeEvent) => void,
-    primaryActionButton?: {
+    rightButton?: {
         title: string
         onPress: () => void,
         disabled?: boolean

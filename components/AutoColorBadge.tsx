@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, ViewStyle } from "react-native";
 import { ThemedText } from "./themed/ThemedText";
 import { djb2Normalized } from "@/utils/HashUtils";
 import { hsvToColor } from "@/utils/ColorUtils";
@@ -8,8 +8,10 @@ import { useMemo } from "react";
 
 type AutoColorBadgeProps = {
     text: string,
+    content?: (color: string) => React.ReactNode,
     saturationMultiplier?: number,
-    valueMultiplier?: number
+    valueMultiplier?: number,
+    style?: ViewStyle
 }
 
 export default function AutoColorBadge(props: AutoColorBadgeProps) {
@@ -27,8 +29,10 @@ export default function AutoColorBadge(props: AutoColorBadgeProps) {
     );
 
     return (
-        <View style={styles.badge}>
-            <ThemedText style={styles.text}>{props.text}</ThemedText>
+        <View style={[styles.badge, props.style]}>
+            {
+                props.content?.(styles.text.color) || <ThemedText style={styles.text}>{props.text}</ThemedText>
+            }
         </View>
     );
 }
@@ -59,7 +63,9 @@ const createStyles = (theme: AppTheme, hue: number, saturationMultiplier?: numbe
             paddingHorizontal: 7,
             borderWidth: 1,
             borderColor,
-            backgroundColor
+            backgroundColor,
+            flexDirection: "row",
+            alignItems: "center"
         },
         text: {
             color: textColor

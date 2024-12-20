@@ -7,11 +7,11 @@ import { AppTheme } from "@/types/ThemeTypes";
 
 type ModalHeaderProps = {
     title?: string,
-    leftButton?: {
+    customLeftButton?: {
         title: string
         onPress: () => void,
     },
-    primaryActionButton?: {
+    rightButton?: {
         title: string
         onPress: () => void,
         disabled?: boolean
@@ -25,8 +25,8 @@ export default function ModalHeader(props: ModalHeaderProps) {
     return (
         <View style={styles.header}>
             {
-                props.leftButton
-                    ? <Button title={props.leftButton.title} onPress={props.leftButton.onPress} style={styles.button} />
+                props.customLeftButton
+                    ? <Button title={props.customLeftButton.title} onPress={props.customLeftButton.onPress} style={styles.button} />
                     : <Button title="Schließen" onPress={props.onRequestClose} style={styles.button} />
             }
 
@@ -35,13 +35,13 @@ export default function ModalHeader(props: ModalHeaderProps) {
                 <ThemedText type="subtitle" numberOfLines={1} style={styles.title}>{props.title}</ThemedText>
             }
             {
-                props.primaryActionButton
+                props.rightButton
                     ? <Button
                         textStyle={{ fontWeight: "600" }}
                         style={styles.button}
-                        title={props.primaryActionButton.title}
-                        onPress={props.primaryActionButton.onPress}
-                        disabled={props.primaryActionButton.disabled}
+                        title={props.rightButton.title}
+                        onPress={props.rightButton.onPress}
+                        disabled={props.rightButton.disabled}
                     />
                     : <View style={styles.placeholder} />
             }

@@ -64,9 +64,7 @@ export default function CalorificValueInput(props: CalorificValueInputProps) {
             <TextField
                 keyboardType="numeric"
                 placeholder='kcal'
-                style={[
-                    styles.smallTextField
-                ]}
+                style={styles.smallTextField}
                 isErroneous={!(parseKcalText() != null || isBlank(kcalText))}
                 onChangeText={setKcalText}
                 defaultValue={props.initialValue?.kcal.toString()}

@@ -24,16 +24,16 @@ export default function CardView({
             style={[
                 styles.cardView,
                 {
-                    padding: noPadding ? 0 : padding,
+                    padding: noPadding ? undefined : padding,
                     paddingTop: noPadding
-                        ? 0
+                        ? undefined
                         : title ? 33 : padding
                 },
                 style
             ]}
             {...rest}
         >
-            {title && <ThemedText type="defaultSemiBold" style={styles.title}>{title}</ThemedText>}
+            {title && <ThemedText type="defaultSemiBold" numberOfLines={1} style={styles.title}>{title}</ThemedText>}
             {children}
         </View>
     );

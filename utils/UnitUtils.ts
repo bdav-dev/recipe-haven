@@ -28,3 +28,11 @@ export function unitToConvertedString(amount: number, unit: Unit) {
             return amount + "";
     }
 }
+
+export function isValidAmount(amount: number) {
+    if (isNaN(amount)) {
+        return false;
+    }
+
+    return amount > 0;
+}

@@ -1,38 +1,31 @@
-import CalorificValueInput from "@/components/ingredient/CalorificValueInput"
-import UnitPicker from "@/components/ingredient/UnitPicker"
 import TextField from "@/components/TextField"
 import CardView from "@/components/themed/CardView"
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet"
-import { useEffect, useState } from "react"
+import { useContext } from "react"
 import { Image, StyleSheet, TouchableWithoutFeedback, View } from "react-native"
 import * as ImagePicker from 'expo-image-picker';
 import Button from "@/components/Button"
 import { AppTheme } from "@/types/ThemeTypes"
 import DifficultyPicker from "../picker/DifficultyPicker"
-import { RecipeDifficulty } from "@/types/RecipeTypes"
 import { ThemedText } from "@/components/themed/ThemedText"
 import { difficultyToString } from "@/utils/DifficultyUtils"
-import AutoColorBadge from "@/components/AutoColorBadge"
+import React from "react"
+import { isBlank } from "@/utils/StringUtils"
+import { RecipeContext } from "@/context/RecipeContextProvider"
+import { FrontendRecipeHolderContext } from "@/context/EditRecipeContextProvider"
+import { isPositiveInteger } from "@/utils/MathUtils"
+import TagPicker from "../picker/TagPicker"
+import PreparationTimePicker from "../picker/PreparationTimePicker"
+import { CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES } from "@/styles/CommonStyles"
 
-type FirstStageProps = {
-
-}
-
-export default function FirstStage(props: FirstStageProps) {
-
+export default function FirstStage() {
     const styles = useThemedStyleSheet(createStyles);
 
-    const [temporaryImageUri, setTemporaryImageUri] = useState<string>();
-    const [name, setName] = useState('');
+    const { states } = useContext(FrontendRecipeHolderContext);
+    const { recipes } = useContext(RecipeContext);
 
-    const [difficulty, setDifficulty] = useState<RecipeDifficulty>();
-    const [tags, setTags] = useState<string[]>([]);
-
-    const [specialThingVisible, setSpecialThingVisible] = useState(false);
-
-    const [tagInput, setTagInput] = useState("");
-
-    useEffect(() => console.log(specialThingVisible), [specialThingVisible]);
+    const addTag = (tag: string) => states.tags.set(tags => [...tags, tag]);
+    const removeTag = (tag: string) => states.tags.set(tags => tags.filter(t => t != tag));
 
     async function pickImage() {
         const imagePickerResult = await ImagePicker.launchImageLibraryAsync({
@@ -43,18 +36,18 @@ export default function FirstStage(props: FirstStageProps) {
         });
 
         if (!imagePickerResult.canceled) {
-            setTemporaryImageUri(imagePickerResult.assets[0].uri);
+            states.imageSrc.set(imagePickerResult.assets[0].uri);
         }
     }
 
     return (
-        <View style={styles.contentContainer}>
+        <View style={CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES.stage}>
 
             <View style={styles.imagePlaceholder}>
-                <TouchableWithoutFeedback onPress={pickImage} onLongPress={() => setTemporaryImageUri(undefined)}>
+                <TouchableWithoutFeedback onPress={pickImage} onLongPress={states.imageSrc.clear}>
                     {
-                        temporaryImageUri
-                            ? <Image source={{ uri: temporaryImageUri }} style={styles.image} />
+                        states.imageSrc.value
+                            ? <Image source={{ uri: states.imageSrc.value }} style={styles.image} />
                             : <Button title="Bild auswählen" onPress={pickImage} />
                     }
                 </TouchableWithoutFeedback>
@@ -62,78 +55,56 @@ export default function FirstStage(props: FirstStageProps) {
 
             <TextField
                 placeholder='Rezeptname'
-                onChangeText={setName}
+                value={states.title.value}
+                onChangeText={states.title.set}
                 style={[styles.nameTextField, styles.textField]}
             />
 
+            <View style={styles.difficultyAndPreptimeView}>
 
-            <View style={{ flexDirection: "row", gap: 7 }}>
-                <CardView title="Schwierigkeit" style={{ flex: 1, alignItems: "center" }}>
-                    <DifficultyPicker value={difficulty} onValueChange={setDifficulty} />
-                    <ThemedText>{difficultyToString(difficulty!)}</ThemedText>
+                <CardView title="Schwierigkeit" style={styles.difficultyPickerView}>
+                    <DifficultyPicker value={states.difficulty.value} onValueChange={states.difficulty.set} />
+                    <ThemedText>{difficultyToString(states.difficulty.value)}</ThemedText>
                 </CardView>
-                <CardView title="Zubereitungsdauer" style={{ flex: 1, justifyContent: "center" }}>
-                    
-                    <View style={{ flexDirection: "row", alignItems:"flex-end", gap: 3 }}>
-                        <TextField style={{flex: 1, maxWidth: 120, textAlign: "center"}}/>
-                        <ThemedText style={{fontSize: 19, marginBottom: 3}}>h </ThemedText>
-                        <TextField style={{flex: 1, maxWidth: 120, textAlign: "center"}}/>
-                        <ThemedText style={{fontSize: 19,  marginBottom: 3}}>min</ThemedText>
-                    </View>
 
-
+                <CardView title="Zubereitungsdauer" style={styles.preparationTimePickerView}>
+                    <PreparationTimePicker
+                        hours={{
+                            onChangeText: states.preparationTime.hours.set,
+                            value: states.preparationTime.hours.value,
+                            isErroneous: !isBlank(states.preparationTime.hours.value) && !isPositiveInteger(+states.preparationTime.hours.value)
+                        }}
+                        minutes={{
+                            onChangeText: states.preparationTime.minutes.set,
+                            value: states.preparationTime.minutes.value,
+                            isErroneous: !isBlank(states.preparationTime.minutes.value) && !isPositiveInteger(+states.preparationTime.minutes.value)
+                        }}
+                    />
                 </CardView>
             </View>
 
-
-            <CardView title="Tags" style={{ gap: 8 }}>
-                <View style={{ flexDirection: "row", gap: 4, flexWrap: "wrap" }}>
-                    {
-                        tags.map((tag, index) => <AutoColorBadge key={index} text={tag} />)
-                    }
-                </View>
-
-                <View style={{ flexDirection: "row" }}>
-
-                    <View style={{ backgroundColor: "red", position: "absolute", height: 150, bottom: 45, width: "100%", display: specialThingVisible ? "flex" : "none" }}>
-                        <Button title="tello"/>
-                        <ThemedText>Hello there!</ThemedText>
-                        <ThemedText>Hello there!</ThemedText>
-                        <ThemedText>Hello there!</ThemedText>
-                    </View>
-
-                    <TextField enablesReturnKeyAutomatically onFocus={() => setSpecialThingVisible(true)} onBlur={() => setSpecialThingVisible(false)} style={{ flex: 1 }} placeholder="Tagname" value={tagInput} onChangeText={setTagInput} onSubmitEditing={() => {
-                        tags.push(tagInput);
-                        setTagInput("");
-                    }} />
-                    <Button ionicon="add" title="" onPress={() => {
-                        tags.push(tagInput);
-                        setTagInput("");
-                    }} />
-                </View>
+            <CardView title="Tags">
+                <TagPicker
+                    tags={states.tags.value}
+                    tagSuggestions={recipes.flatMap(recipe => recipe.tags)}
+                    onTagAdd={addTag}
+                    onTagRemove={removeTag}
+                    style={{ marginTop: 6 }}
+                />
             </CardView>
 
         </View>
-
     );
 }
 
 const createStyles = (theme: AppTheme) => StyleSheet.create({
-    contentContainer: {
-        padding: 20,
-        display: "flex",
-        flexDirection: "column",
-        gap: 12
-    },
-    imageAndNamesContainer: {
-        flexDirection: "row",
-    },
-    namesContainer: {
-        flexDirection: "column",
+    preparationTimePickerView: {
         flex: 1,
-        paddingLeft: 12,
-        justifyContent: "center",
-        gap: 12
+        justifyContent: "center"
+    },
+    difficultyPickerView: {
+        flex: 1,
+        alignItems: "center"
     },
     nameTextField: {
         fontSize: 28
@@ -164,5 +135,9 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         width: "100%",
         height: "100%",
         borderRadius: 9
+    },
+    difficultyAndPreptimeView: {
+        flexDirection: "row",
+        gap: CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES.stage.gap
     }
 });

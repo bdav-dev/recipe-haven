@@ -5,6 +5,7 @@ import Page from '@/components/Page';
 import CreateRecipeModal from '@/components/recipe/CreateRecipeModal';
 import RecipeListItem from '@/components/recipe/RecipeListItem';
 import SearchBar from '@/components/SearchBar';
+import FrontendRecipeHolderContextProvider from '@/context/EditRecipeContextProvider';
 import { RecipeContext } from '@/context/RecipeContextProvider';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { Recipe } from '@/types/RecipeTypes';
@@ -26,7 +27,6 @@ export default function RecipesScreen() {
 
   const areRecipesEmpty = () => recipes.length === 0;
   const areFilteredRecipesEmpty = () => filteredRecipes.length === 0;
-
 
   return (
     <Page>
@@ -55,8 +55,10 @@ export default function RecipesScreen() {
           )
       }
 
-      <CreateRecipeModal isVisible={isCreateRecipeModalVisible} onRequestClose={() => setCreateRecipeModalVisible(false)} />
-
+      <FrontendRecipeHolderContextProvider>
+        <CreateRecipeModal isVisible={isCreateRecipeModalVisible} onRequestClose={() => setCreateRecipeModalVisible(false)} />
+      </FrontendRecipeHolderContextProvider>
+      
       <FloatingActionButton onPress={() => setCreateRecipeModalVisible(true)}>
         <Ionicons name='add-outline' color={theme.card} size={35} />
       </FloatingActionButton>

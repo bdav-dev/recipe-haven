@@ -23,7 +23,7 @@ type EditIngredientModalProps = {
 export default function EditIngredientModal(props: EditIngredientModalProps) {
     const styles = useThemedStyleSheet(createIngredientModalStyles);
 
-    const { setIngredients } = useContext(IngredientContext);
+    const { ingredients, setIngredients } = useContext(IngredientContext);
 
     const [imageUri, setImageUri] = useState<string>();
     const [name, setName] = useState('');
@@ -69,6 +69,11 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
     }
 
     function update() {
+        if (ingredients.find(ingredient => (ingredient.name == name.trim()) && ingredient != props.editIngredient)) {
+            Alert.alert("Eine Zutat mit diesem Namen existiert bereits");
+            return;
+        }
+
         updateIngredient({
             originalIngredient: props.editIngredient!,
             updatedValues: {
@@ -111,7 +116,7 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
             isVisible={props.isVisible}
             onRequestClose={close}
             title={"Zutat bearbeiten"}
-            primaryActionButton={{
+            rightButton={{
                 title: "Speichern",
                 onPress: () => update(),
                 disabled: !isReadyForSubmit()
