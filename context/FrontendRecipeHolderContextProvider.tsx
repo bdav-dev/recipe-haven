@@ -195,7 +195,7 @@ export default function FrontendRecipeHolderContextProvider(props: ContextProvid
         setPreparationTimeHours(recipe.preparationTime ? recipe.preparationTime.asHoursAndMinutes().hours.toString() : '');
         setPreparationTimeMinutes(recipe.preparationTime ? recipe.preparationTime.asHoursAndMinutes().minutes.toString() : '');
         setTags([...recipe.tags]);
-        setIngredients([...recipe.ingredientsForOnePortion]);
+        setIngredients(recipe.ingredientsForOnePortion.map(recipeIngredient => ({ ...recipeIngredient })));
         setDescription(recipe.description);
         setAmountOfPortions('1');
     }
