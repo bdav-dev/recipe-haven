@@ -3,6 +3,7 @@ import NoItemsInfo from '@/components/NoItemsInfo';
 import NoSearchResultsBadge from '@/components/NoSearchResultsBadge';
 import Page from '@/components/Page';
 import CreateRecipeModal from '@/components/recipe/CreateRecipeModal';
+import RecipeDetailModal from '@/components/recipe/RecipeDetailModal';
 import RecipeListItem from '@/components/recipe/RecipeListItem';
 import SearchBar from '@/components/SearchBar';
 import FrontendRecipeHolderContextProvider from '@/context/EditRecipeContextProvider';
@@ -21,6 +22,7 @@ export default function RecipesScreen() {
   const { recipes } = useContext(RecipeContext);
 
   const [isCreateRecipeModalVisible, setCreateRecipeModalVisible] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
   const [searchText, setSearchText] = useState('');
   const filteredRecipes = useMemo(() => filterRecipes(recipes, searchText), [recipes, searchText]);
@@ -49,11 +51,18 @@ export default function RecipesScreen() {
                   <RecipeListItem
                     key={listItemInfo.index}
                     recipe={listItemInfo.item}
+                    onPress={setSelectedRecipe}
                   />
                 )}
               />
           )
       }
+
+      <RecipeDetailModal
+        recipe={selectedRecipe}
+        isVisible={selectedRecipe !== null}
+        onRequestClose={() => setSelectedRecipe(null)}
+      />
 
       <FrontendRecipeHolderContextProvider>
         <CreateRecipeModal isVisible={isCreateRecipeModalVisible} onRequestClose={() => setCreateRecipeModalVisible(false)} />
