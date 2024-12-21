@@ -6,6 +6,7 @@ import { isBlank } from "@/utils/StringUtils";
 import { createContext, Dispatch, useContext, useState } from "react";
 import { RecipeContext } from "./RecipeContextProvider";
 import { isPositiveInteger } from "@/utils/MathUtils";
+import { UpdateRecipeBlueprint } from "@/types/dao/RecipeDaoTypes";
 
 
 type FrontendRecipeHolderContext = {
@@ -52,6 +53,7 @@ type FrontendRecipeHolderContext = {
     },
     mount: (recipe: Recipe) => void,
     toRecipe: () => CreateRecipeBlueprint,
+    toRecipeUpdate: (originalRecipe: Recipe) => UpdateRecipeBlueprint
     reset: () => void
 }
 
@@ -99,7 +101,8 @@ const empty: FrontendRecipeHolderContext = {
     },
     mount: () => { },
     toRecipe: () => { throw Error() },
-    reset: () => { }
+    reset: () => { },
+    toRecipeUpdate: (originalRecipe: Recipe) => { throw Error() }
 };
 
 export const FrontendRecipeHolderContext = createContext<FrontendRecipeHolderContext>(empty);
@@ -141,6 +144,36 @@ export default function FrontendRecipeHolderContextProvider(props: ContextProvid
             tags,
             difficulty,
             preparationTime: calculatePreparationTime(preparationTimeHours, preparationTimeMinutes)
+        }
+    }
+
+    function toRecipeUpdate(originalRecipe: Recipe): UpdateRecipeBlueprint {
+        if (isBlank(title)) {
+            throw Error("Du hast vergessen dem Rezept einen Namen zu geben.");
+        }
+        if (recipes.find(recipe => recipe.title == title.trim() && recipe.recipeId != originalRecipe.recipeId)) {
+            throw Error(`Du hast bereits ein Rezept mit dem Namen '${title.trim()}' im Rezeptbuch.`);
+        }
+        if (ingredients.length == 0) {
+            throw Error('Du hast vergessen dem Rezept Zutaten hinzuzufügen.');
+        }
+        const amountOfPortionsAsInteger = +amountOfPortions;
+        if (!isPositiveInteger(amountOfPortionsAsInteger)) {
+            throw Error(`Die Anzahl der Portionen muss eine positive Ganzzahl sein.`);
+        }
+
+        return {
+            originalRecipe,
+            updatedValues: {
+                description,
+                ingredientsForOnePortion: normalizeIngredients(amountOfPortionsAsInteger, ingredients),
+                isFavorite: originalRecipe.isFavorite,
+                tags,
+                title,
+                difficulty,
+                imageSrc,
+                preparationTime: calculatePreparationTime(preparationTimeHours, preparationTimeMinutes)
+            }
         }
     }
 
@@ -246,7 +279,8 @@ export default function FrontendRecipeHolderContextProvider(props: ContextProvid
                 },
                 mount,
                 toRecipe,
-                reset
+                reset,
+                toRecipeUpdate
             }}
         >
             {props.children}

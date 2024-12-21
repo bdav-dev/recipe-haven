@@ -9,6 +9,8 @@ import StageInfo from "../StageInfo";
 import FirstStage from "./stages/FirstStage";
 import SecondStage from "./stages/SecondStage";
 import ThirdStage from "./stages/ThirdStage";
+import { updateRecipe } from "@/data/dao/RecipeDao";
+import { UpdateRecipeBlueprint } from "@/types/dao/RecipeDaoTypes";
 
 
 type EditRecipeModalProps = {
@@ -19,7 +21,7 @@ type EditRecipeModalProps = {
 
 export default function EditRecipeModal(props: EditRecipeModalProps) {
     const { setRecipes } = useContext(RecipeContext);
-    const { toRecipe, reset: resetRecipeHolderContext, mount } = useContext(FrontendRecipeHolderContext);
+    const { toRecipeUpdate, reset: resetRecipeHolderContext, mount } = useContext(FrontendRecipeHolderContext);
     const scrollViewRef = useRef<ScrollView>(null);
 
     const [stageWidth, setStageWidth] = useState(0);
@@ -58,14 +60,22 @@ export default function EditRecipeModal(props: EditRecipeModalProps) {
     }
 
     function update() {
-        let blueprint: CreateRecipeBlueprint;
+        if (!props.editRecipe) return;
+
+        let blueprint: UpdateRecipeBlueprint;
         try {
-            blueprint = toRecipe();
+            blueprint = toRecipeUpdate(props.editRecipe);
         } catch (error) {
             if (error instanceof Error) Alert.alert("Nicht so schnell!", error.message);
             return;
         }
-        // TODO
+
+        updateRecipe(blueprint)
+            .then(updatedRecipe => {
+                setRecipes(recipes => replaceRecipe(recipes, updatedRecipe));
+                close();
+            })
+            .catch(console.log);
     }
 
     return (
@@ -109,5 +119,16 @@ export default function EditRecipeModal(props: EditRecipeModalProps) {
         </FullScreenModal>
     );
 }
+
+function replaceRecipe(recipes: Recipe[], replacement: Recipe) {
+    return recipes.map(
+        recipe => (
+            recipe.recipeId === replacement.recipeId
+                ? replacement
+                : recipe
+        )
+    );
+}
+
 
 const styles = createRecipeModalStyles;

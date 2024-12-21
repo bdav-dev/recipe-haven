@@ -16,11 +16,12 @@ import { includesIgnoreCase, isBlank } from '@/utils/StringUtils';
 import { Ionicons } from '@expo/vector-icons';
 import { useContext, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { deleteRecipe } from '@/data/dao/RecipeDao';
 
 
 export default function RecipesScreen() {
     const theme = useAppTheme();
-    const { recipes } = useContext(RecipeContext);
+    const { recipes, setRecipes } = useContext(RecipeContext);
 
     const [isCreateRecipeModalVisible, setCreateRecipeModalVisible] = useState(false);
     const [isEditRecipeModalVisible, setEditRecipeModalVisible] = useState(false);
@@ -36,7 +37,15 @@ export default function RecipesScreen() {
 
     function launchEditRecipeModal(recipe: Recipe) {
         setEditRecipe(recipe);
-        setEditRecipeModalVisible(true);
+        setTimeout(
+            () => setEditRecipeModalVisible(true),
+            500
+        );
+    }
+
+    function removeRecipe(recipeToDelete: Recipe) {
+        setRecipes(r => r.filter(recipe => recipe.recipeId != recipeToDelete.recipeId));
+        deleteRecipe(recipeToDelete);
     }
 
     return (
@@ -69,15 +78,28 @@ export default function RecipesScreen() {
                     )
             }
 
-            <RecipeDetailModal
-                recipe={selectedRecipe}
-                isVisible={selectedRecipe !== null}
-                onRequestClose={() => setSelectedRecipe(null)}
-            />
+            {
+                selectedRecipe != undefined &&
+                <RecipeDetailModal
+                    onDelete={() => removeRecipe(selectedRecipe)}
+                    onEdit={() => {
+                        const sel = selectedRecipe;
+                        setSelectedRecipe(null);
+                        if (sel) launchEditRecipeModal(sel);
+                    }}
+                    recipe={selectedRecipe}
+                    isVisible={selectedRecipe !== null}
+                    onRequestClose={() => setSelectedRecipe(null)}
+                />
+            }
+
 
             <FrontendRecipeHolderContextProvider>
                 <CreateRecipeModal isVisible={isCreateRecipeModalVisible} onRequestClose={() => setCreateRecipeModalVisible(false)} />
-                <EditRecipeModal isVisible={isEditRecipeModalVisible} onRequestClose={() => { setEditRecipeModalVisible(false); setEditRecipe(undefined); }} editRecipe={editRecipe} />
+                {
+                    isEditRecipeModalVisible &&
+                    <EditRecipeModal isVisible={isEditRecipeModalVisible} onRequestClose={() => { setEditRecipeModalVisible(false); setEditRecipe(undefined); }} editRecipe={editRecipe} />
+                }
             </FrontendRecipeHolderContextProvider>
 
             <FloatingActionButton onPress={() => setCreateRecipeModalVisible(true)}>

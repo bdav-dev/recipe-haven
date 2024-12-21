@@ -292,10 +292,24 @@ export async function updateRecipe(blueprint: UpdateRecipeBlueprint) {
 }
 
 async function deleteRecipeFromDatabase(recipeId: number) {
-    await database.runAsync(
-        `DELETE FROM RecipeTagLink WHERE recipeId = ?;`,
+    const tagIdsToDelete = (await database.getAllAsync<{ recipeTagId: number }>(
+        `
+        SELECT recipeTagId
+        FROM RecipeTagLink
+        WHERE recipeId = ?
+        `,
         recipeId
-    );
+    )).map(row => row.recipeTagId);
+    await database.runAsync('DELETE FROM RecipeTagLink WHERE recipeId = ?', recipeId);
+    if (tagIdsToDelete.length != 0) {
+        await database.runAsync(
+            `
+            DELETE FROM RecipeTag
+            WHERE recipeTagId IN (${'?, '.repeat(tagIdsToDelete.length).slice(0, -2)})
+            `,
+            tagIdsToDelete
+        );
+    }
     await database.runAsync(
         `DELETE FROM RecipeIngredientLink WHERE recipeId = ?;`,
         recipeId
@@ -308,14 +322,16 @@ async function deleteRecipeFromDatabase(recipeId: number) {
 
 async function updateRecipeInDatabase(recipe: Recipe) {
     await database.runAsync(
-        `UPDATE Recipe 
-         SET imageSrc = ?,
-             title = ?,
-             description = ?,
-             difficulty = ?,
-             preparationTimeInMinutes = ?,
-             isFavorite = ?
-         WHERE recipeId = ?`,
+        `
+        UPDATE Recipe 
+            SET imageSrc = ?,
+                title = ?,
+                description = ?,
+                difficulty = ?,
+                preparationTimeInMinutes = ?,
+                isFavorite = ?
+            WHERE recipeId = ?
+        `,
         [
             recipe.imageSrc ?? null,
             recipe.title,
@@ -328,8 +344,24 @@ async function updateRecipeInDatabase(recipe: Recipe) {
     );
 
     // Update tags
+    const tagIdsToDelete = (await database.getAllAsync<{ recipeTagId: number }>(
+        `
+        SELECT recipeTagId
+        FROM RecipeTagLink
+        WHERE recipeId = ?
+        `,
+        recipe.recipeId
+    )).map(row => row.recipeTagId);
     await database.runAsync('DELETE FROM RecipeTagLink WHERE recipeId = ?', recipe.recipeId);
-    await database.runAsync('DELETE FROM RecipeTag WHERE recipeId = ?', recipe.recipeId);
+    if (tagIdsToDelete.length != 0) {
+        await database.runAsync(
+            `
+            DELETE FROM RecipeTag
+            WHERE recipeTagId IN (${'?, '.repeat(tagIdsToDelete.length).slice(0, -2)})
+            `,
+            tagIdsToDelete
+        );
+    }
     await insertRecipeTagsInDatabase(recipe.recipeId, recipe.tags);
 
     // Update ingredients

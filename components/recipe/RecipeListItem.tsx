@@ -57,12 +57,12 @@ export default function RecipeListItem(props: RecipeListItemProps) {
                             <DurationLabel duration={recipe.preparationTime} />
                         }
                         {
-                            recipe.difficulty != undefined &&
-                            <DifficultyLabel difficulty={recipe.difficulty} />
-                        }
-                        {
                             kcalPerPortion != undefined &&
                             <CalorieLabel kiloCalories={kcalPerPortion} />
+                        }
+                        {
+                            recipe.difficulty != undefined &&
+                            <DifficultyLabel difficulty={recipe.difficulty} />
                         }
                     </View>
                 }
