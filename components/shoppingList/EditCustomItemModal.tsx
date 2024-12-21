@@ -92,7 +92,7 @@ export default function EditCustomItemModal(props: EditCustomItemModalProps) {
             isVisible={props.isVisible}
             onRequestClose={close}
             title="Eintrag bearbeiten"
-            primaryActionButton={{
+            rightButton={{
                 title: "Speichern",
                 onPress: update,
                 disabled: !isReadyForSubmit()

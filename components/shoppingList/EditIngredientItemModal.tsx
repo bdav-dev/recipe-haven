@@ -102,7 +102,7 @@ export default function EditIngredientItemModal(props: EditIngredientItemModalPr
             isVisible={props.isVisible}
             onRequestClose={close}
             title="Zutat bearbeiten"
-            primaryActionButton={{
+            rightButton={{
                 title: "Speichern",
                 onPress: update,
                 disabled: !isReadyForSubmit()

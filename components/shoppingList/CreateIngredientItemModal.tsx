@@ -45,7 +45,7 @@ export default function CreateIngredientItemModal(props: CreateIngredientItemMod
             isVisible={props.isVisible}
             onRequestClose={props.onRequestClose}
             title="Neue Zutat"
-            primaryActionButton={{
+            rightButton={{
                 title: "Hinzufügen",
                 onPress: handleCreate,
                 disabled: !ingredient || !quantity

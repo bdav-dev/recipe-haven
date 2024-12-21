@@ -88,8 +88,8 @@ export default function ShoppingListScreen() {
     );
 
     const shouldShowToggle = useMemo(() =>
-        hasCheckedItems || shoppingList.customItems.some(item => !item.isChecked),
-        [hasCheckedItems, shoppingList.customItems]
+        hasAnyItems, // Changed: Show toggle whenever there are any items
+        [hasAnyItems]
     );
 
     const closeAllModals = () => setActiveModal('none');
@@ -139,29 +139,44 @@ export default function ShoppingListScreen() {
 
     const updateIngredientCheckStatus = async (item: ShoppingListIngredientItem) => {
         try {
-            // If this is an aggregated item being unchecked, we need to uncheck all related items
+            // If this is an aggregated item being unchecked
             if (item.isAggregated && item.isChecked) {
+                // Find all related checked items
                 const relatedItems = shoppingList.ingredientItems.filter(i => 
                     i.isChecked && 
                     i.ingredient.ingredient.ingredientId === item.ingredient.ingredient.ingredientId
                 );
 
+                // Calculate original quantities by timestamps
+                const timestamps = new Set(relatedItems.map(i => i.creationTimestamp.getTime()));
+                const separateItems = Array.from(timestamps).map(timestamp => {
+                    const items = relatedItems.filter(i => i.creationTimestamp.getTime() === timestamp);
+                    return {
+                        ...items[0],
+                        ingredient: {
+                            ...items[0].ingredient,
+                            amount: items.reduce((sum, i) => sum + i.ingredient.amount, 0)
+                        },
+                        isChecked: false,
+                        isAggregated: false
+                    };
+                });
+
+                // Update all items
                 await Promise.all(
-                    relatedItems.map(relatedItem => 
+                    separateItems.map(item => 
                         updateIngredientItem({
-                            originalItem: relatedItem,
-                            updatedValues: { ...relatedItem, isChecked: false }
+                            originalItem: item,
+                            updatedValues: item
                         })
                     )
                 );
 
                 setShoppingList(current => ({
                     ...current,
-                    ingredientItems: current.ingredientItems.map(existingItem => 
-                        relatedItems.some(ri => ri.shoppingListIngredientItemId === existingItem.shoppingListIngredientItemId)
-                            ? { ...existingItem, isChecked: false }
-                            : existingItem
-                    )
+                    ingredientItems: current.ingredientItems
+                        .filter(i => !relatedItems.some(ri => ri.shoppingListIngredientItemId === i.shoppingListIngredientItemId))
+                        .concat(separateItems)
                 }));
                 return;
             }
@@ -169,7 +184,8 @@ export default function ShoppingListScreen() {
             // Normal single item toggle
             const updatedItem = {
                 ...item,
-                isChecked: !item.isChecked
+                isChecked: !item.isChecked,
+                isAggregated: false
             };
 
             await updateIngredientItem({
@@ -217,6 +233,7 @@ export default function ShoppingListScreen() {
                 data={combinedVisibleItems}
                 style={styles.list}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                contentContainerStyle={styles.listContainer}
                 renderItem={({ item }) => 
                     item.type === 'custom' ? (
                         <CustomShoppingListItem
