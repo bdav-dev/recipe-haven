@@ -15,8 +15,7 @@ export class Duration {
     }
 
     public toString() {
-        const hours = Math.floor(this.durationInMinutes / 60);
-        const minutes = this.durationInMinutes % 60;
+        const { hours, minutes } = this.asHoursAndMinutes();
 
         if (hours == 0 && minutes == 0) {
             return "0min";
@@ -24,4 +23,16 @@ export class Duration {
 
         return [(hours != 0 ? `${hours}h` : ''), (minutes != 0 ? `${minutes}min` : '')].join(" ");
     }
+
+    public asMinutes() {
+        return this.durationInMinutes;
+    }
+
+    public asHoursAndMinutes() {
+        return {
+            hours: Math.floor(this.durationInMinutes / 60),
+            minutes: this.durationInMinutes % 60
+        }
+    }
+
 }

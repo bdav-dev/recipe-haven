@@ -1,7 +1,7 @@
 import TextField from "@/components/TextField";
 import CardView from "@/components/themed/CardView";
 import { ThemedText } from "@/components/themed/ThemedText";
-import { FrontendRecipeHolderContext } from "@/context/EditRecipeContextProvider";
+import { FrontendRecipeHolderContext } from "@/context/FrontendRecipeHolderContextProvider";
 import { IngredientContext } from "@/context/IngredientContextProvider";
 import { isPositiveInteger } from "@/utils/MathUtils";
 import { useContext, useState } from "react";
@@ -15,8 +15,6 @@ import { CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES } from "@/styles/CommonStyles";
 export default function SecondStage() {
     const { states } = useContext(FrontendRecipeHolderContext);
     const { ingredients: ingredientSuggestions } = useContext(IngredientContext);
-
-    const [amountOfPortionsText, setAmountOfPortionsText] = useState('1');
 
     function moveRecipeIngredientUp(index: number) {
         states.ingredients.set(recipeIngredient => {
@@ -53,9 +51,9 @@ export default function SecondStage() {
                 <TextField
                     style={styles.amountOfPortionsTextField}
                     keyboardType="numeric"
-                    value={amountOfPortionsText}
-                    onChangeText={setAmountOfPortionsText}
-                    isErroneous={!isPositiveInteger(+amountOfPortionsText)}
+                    value={states.amountOfPortions.value}
+                    onChangeText={states.amountOfPortions.set}
+                    isErroneous={!isPositiveInteger(+states.amountOfPortions.value)}
                 />
                 <ThemedText> Portion(en)</ThemedText>
             </CardView>

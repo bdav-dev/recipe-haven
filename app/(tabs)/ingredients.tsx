@@ -60,6 +60,7 @@ export default function IngredientsScreen() {
                     editButton={{ onPress: () => launchEditIngredientModal(listItemInfo.item) }}
                   />
                 )}
+                ListFooterComponent={<View style={{ height: 100 }} />}
               />
           )
       }

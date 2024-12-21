@@ -107,7 +107,7 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     },
     container: {
         width: "100%",
-        gap: 6
+        gap: 4
     },
     header: {
         flex: 1,

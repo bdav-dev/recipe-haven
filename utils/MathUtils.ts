@@ -14,3 +14,8 @@ export function isPositiveInteger(value: number) {
         : false;
 }
 
+export function isPositiveIntegerOrZero(value: number) {
+    return Number.isInteger(value)
+        ? value >= 0
+        : false;
+}

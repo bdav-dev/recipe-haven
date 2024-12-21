@@ -18,3 +18,5 @@ export enum RecipeDifficulty {
     MEDIUM,
     DIFFICULT
 }
+
+export type CreateRecipeBlueprint = Omit<Recipe, 'recipeId' | 'imageSrc'> & { cachedImageSrc?: string };

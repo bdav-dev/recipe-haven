@@ -12,8 +12,8 @@ import { difficultyToString } from "@/utils/DifficultyUtils"
 import React from "react"
 import { isBlank } from "@/utils/StringUtils"
 import { RecipeContext } from "@/context/RecipeContextProvider"
-import { FrontendRecipeHolderContext } from "@/context/EditRecipeContextProvider"
-import { isPositiveInteger } from "@/utils/MathUtils"
+import { FrontendRecipeHolderContext } from "@/context/FrontendRecipeHolderContextProvider"
+import { isPositiveInteger, isPositiveIntegerOrZero } from "@/utils/MathUtils"
 import TagPicker from "../picker/TagPicker"
 import PreparationTimePicker from "../picker/PreparationTimePicker"
 import { CREATE_EDIT_RECIPE_MODAL_COMMON_STYLES } from "@/styles/CommonStyles"
@@ -72,12 +72,12 @@ export default function FirstStage() {
                         hours={{
                             onChangeText: states.preparationTime.hours.set,
                             value: states.preparationTime.hours.value,
-                            isErroneous: !isBlank(states.preparationTime.hours.value) && !isPositiveInteger(+states.preparationTime.hours.value)
+                            isErroneous: !isBlank(states.preparationTime.hours.value) && !isPositiveIntegerOrZero(+states.preparationTime.hours.value)
                         }}
                         minutes={{
                             onChangeText: states.preparationTime.minutes.set,
                             value: states.preparationTime.minutes.value,
-                            isErroneous: !isBlank(states.preparationTime.minutes.value) && !isPositiveInteger(+states.preparationTime.minutes.value)
+                            isErroneous: !isBlank(states.preparationTime.minutes.value) && !isPositiveIntegerOrZero(+states.preparationTime.minutes.value)
                         }}
                     />
                 </CardView>

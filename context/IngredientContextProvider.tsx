@@ -33,7 +33,8 @@ export default function IngredientContextProvider(props: ContextProviderProps) {
   useEffect(() => {
     getAllRecipes(ingredients)
       .then(setRecipes)
-      .catch(_e => setRecipes([]));
+      //.catch(_e => setRecipes([]));
+      .catch(_e => { console.log(_e); setRecipes([]); })
 
     getAllCustomItems()
       .then(customItems => setShoppingList({ ingredientItems: [], customItems }))

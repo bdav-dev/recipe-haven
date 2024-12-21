@@ -25,7 +25,7 @@ export default function RecipeIngredientListItem(props: RecipeIngredientListItem
                 style={styles.amountTextField}
                 keyboardType="numeric"
                 readOnly
-                value={props.recipeIngredient.amount.toString()}
+                value={Number.isInteger(props.recipeIngredient.amount) ? props.recipeIngredient.amount.toString() : props.recipeIngredient.amount.toFixed(1).toString()}
             />
             <ThemedText style={styles.unitText}>{unitToString(props.recipeIngredient.ingredient.unit)}</ThemedText>
             {

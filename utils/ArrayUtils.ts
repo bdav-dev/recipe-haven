@@ -14,3 +14,10 @@ export function isLastIndex(index: number, array: unknown[]) {
 export function isLastElement<T>(element: T, array: T[]) {
     return isLastIndex(array.indexOf(element), array);
 }
+
+export function lastElement<T>(array: T[]): T | undefined {
+    if (array.length == 0) {
+        return undefined;
+    }
+    return array[array.length - 1];
+}

@@ -77,7 +77,7 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
         updateIngredient({
             originalIngredient: props.editIngredient!,
             updatedValues: {
-                imageSrc: imageUri || undefined,
+                imageSrc: imageUri,
                 name: name,
                 pluralName: pluralName || undefined,
                 unit: unit,

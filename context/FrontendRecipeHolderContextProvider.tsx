@@ -1,9 +1,12 @@
 import { Duration } from "@/data/misc/Duration";
 import { QuantizedIngredient } from "@/types/IngredientTypes";
 import { ContextProviderProps } from "@/types/MiscellaneousTypes";
-import { Recipe, RecipeDifficulty } from "@/types/RecipeTypes";
+import { Recipe, CreateRecipeBlueprint as CreateRecipeBlueprint, RecipeDifficulty } from "@/types/RecipeTypes";
 import { isBlank } from "@/utils/StringUtils";
-import { createContext, Dispatch, useState } from "react";
+import { createContext, Dispatch, useContext, useState } from "react";
+import { RecipeContext } from "./RecipeContextProvider";
+import { isPositiveInteger } from "@/utils/MathUtils";
+
 
 type FrontendRecipeHolderContext = {
     states: {
@@ -41,10 +44,14 @@ type FrontendRecipeHolderContext = {
         description: {
             value: string,
             set: Dispatch<React.SetStateAction<string>>
+        },
+        amountOfPortions: {
+            value: string,
+            set: Dispatch<React.SetStateAction<string>>
         }
     },
     mount: (recipe: Recipe) => void,
-    toRecipe: () => (Omit<Recipe, 'recipeId' | 'imageSrc'> & { cachedImageSrc?: string }) | undefined,
+    toRecipe: () => CreateRecipeBlueprint,
     reset: () => void
 }
 
@@ -84,16 +91,22 @@ const empty: FrontendRecipeHolderContext = {
         description: {
             value: '',
             set: () => { }
+        },
+        amountOfPortions: {
+            value: '',
+            set: () => { }
         }
     },
     mount: () => { },
-    toRecipe: () => undefined,
+    toRecipe: () => { throw Error() },
     reset: () => { }
 };
 
 export const FrontendRecipeHolderContext = createContext<FrontendRecipeHolderContext>(empty);
 
 export default function FrontendRecipeHolderContextProvider(props: ContextProviderProps) {
+    const { recipes } = useContext(RecipeContext);
+
     const [imageSrc, setImageSrc] = useState<string>();
     const [title, setTitle] = useState('');
     const [difficulty, setDifficulty] = useState<RecipeDifficulty>();
@@ -102,28 +115,44 @@ export default function FrontendRecipeHolderContextProvider(props: ContextProvid
     const [tags, setTags] = useState<string[]>([]);
     const [ingredients, setIngredients] = useState<QuantizedIngredient[]>([]);
     const [description, setDescription] = useState('');
+    const [amountOfPortions, setAmountOfPortions] = useState('1');
 
-    function toRecipe(): (Omit<Recipe, 'recipeId' | 'imageSrc'> & { cachedImageSrc?: string }) | undefined {
-
+    function toRecipe(): CreateRecipeBlueprint {
         if (isBlank(title)) {
-            return undefined;
+            throw Error("Du hast vergessen dem Rezept einen Namen zu geben.");
+        }
+        if (recipes.find(recipe => recipe.title == title.trim())) {
+            throw Error(`Du hast bereits ein Rezept mit dem Namen '${title.trim()}' im Rezeptbuch.`);
+        }
+        if (ingredients.length == 0) {
+            throw Error('Du hast vergessen dem Rezept Zutaten hinzuzufügen.');
+        }
+        const amountOfPortionsAsInteger = +amountOfPortions;
+        if (!isPositiveInteger(amountOfPortionsAsInteger)) {
+            throw Error(`Die Anzahl der Portionen muss eine positive Ganzzahl sein.`);
         }
 
-        const preparationTime = calculatePreparationTime();
-
         return {
-            title: title,
+            title,
             cachedImageSrc: imageSrc,
-            description: description,
-            ingredientsForOnePortion: ingredients,
+            description,
+            ingredientsForOnePortion: normalizeIngredients(amountOfPortionsAsInteger, ingredients),
             isFavorite: false,
-            tags: tags,
-            difficulty: difficulty,
-            preparationTime
+            tags,
+            difficulty,
+            preparationTime: calculatePreparationTime(preparationTimeHours, preparationTimeMinutes)
         }
     }
 
-    function calculatePreparationTime() {
+    function normalizeIngredients(amountOfPortions: number, quantizedIngredients: QuantizedIngredient[]): QuantizedIngredient[] {
+        return quantizedIngredients
+            .map(qIng => ({
+                amount: qIng.amount / amountOfPortions,
+                ingredient: qIng.ingredient
+            }));
+    }
+
+    function calculatePreparationTime(preparationTimeHours: string, preparationTimeMinutes: string): Duration | undefined {
         if (isBlank(preparationTimeHours) && isBlank(preparationTimeMinutes)) {
             return undefined;
 
@@ -135,17 +164,40 @@ export default function FrontendRecipeHolderContextProvider(props: ContextProvid
                 return undefined;
             }
 
+            if (hours < 0 || minutes < 0) {
+                return undefined
+            }
+
+            if (hours == 0 && minutes == 0) {
+                return undefined;
+            }
+
             return Duration.ofHoursAndMinutes(hours, minutes);
         }
     }
 
     function reset() {
-        // TODO
+        setImageSrc(undefined);
+        setTitle('');
+        setDifficulty(undefined);
+        setPreparationTimeHours('');
+        setPreparationTimeMinutes('');
+        setTags([]);
+        setIngredients([]);
+        setDescription('');
+        setAmountOfPortions('1');
     }
 
     function mount(recipe: Recipe) {
-        // TODO
+        setImageSrc(recipe.imageSrc);
         setTitle(recipe.title);
+        setDifficulty(recipe.difficulty);
+        setPreparationTimeHours(recipe.preparationTime ? recipe.preparationTime.asHoursAndMinutes().hours.toString() : '');
+        setPreparationTimeMinutes(recipe.preparationTime ? recipe.preparationTime.asHoursAndMinutes().minutes.toString() : '');
+        setTags([...recipe.tags]);
+        setIngredients([...recipe.ingredientsForOnePortion]);
+        setDescription(recipe.description);
+        setAmountOfPortions('1');
     }
 
     return (
@@ -186,6 +238,10 @@ export default function FrontendRecipeHolderContextProvider(props: ContextProvid
                     description: {
                         value: description,
                         set: setDescription
+                    },
+                    amountOfPortions: {
+                        value: amountOfPortions,
+                        set: setAmountOfPortions
                     }
                 },
                 mount,

@@ -1,10 +1,11 @@
-import { Ingredient, QuantizedIngredient, Unit } from "@/types/IngredientTypes";
+import { Ingredient, QuantizedIngredient } from "@/types/IngredientTypes";
 import database from "../database/Database";
-import { DatabaseRecipe, FullRecipeQueryResult, RecipeIngredientMap } from "@/types/DatabaseTypes";
-import { Recipe } from "@/types/RecipeTypes";
+import { FullRecipeQueryResult, RecipeIngredientMap } from "@/types/DatabaseTypes";
+import { CreateRecipeBlueprint, Recipe } from "@/types/RecipeTypes";
 import { Duration } from "../misc/Duration";
-import { insertIngredientInDatabase } from "./IngredientDao";
-
+import * as FileSystem from 'expo-file-system';
+import { djb2 } from "@/utils/HashUtils";
+import { createDirectoryIfNotExists, getFileExtension } from "@/utils/FileSystemUtils";
 
 export async function getAllRecipes(allIngredients: Ingredient[]) {
     return await getAllRecipesFromDatabase(allIngredients);
@@ -13,74 +14,150 @@ export async function getAllRecipes(allIngredients: Ingredient[]) {
 async function getAllRecipesFromDatabase(allIngredients: Ingredient[]) {
     return (
         await database.getAllAsync<FullRecipeQueryResult>(`
+            WITH data AS (
+                SELECT
+                    r.recipeId,
+                    json_group_array(DISTINCT rt.tagname) AS tagnamesJson,
+                    json_group_array(DISTINCT json_object('amount', ril.amount, 'ingredientId', i.ingredientId)) AS ingredientsMapJson
+                FROM Recipe AS r
+                LEFT JOIN RecipeTagLink AS rtl
+                    ON r.recipeId = rtl.recipeId
+                LEFT JOIN RecipeTag AS rt
+                    ON rtl.recipeTagId = rt.recipeTagId
+                LEFT JOIN RecipeIngredientLink AS ril
+                    ON r.recipeId = ril.recipeId
+                LEFT JOIN Ingredient AS i
+                    ON ril.ingredientId = i.ingredientId
+                GROUP BY r.recipeId
+            )
             SELECT
                 r.*,
-                json_group_array(DISTINCT rt.tagname) AS tagnamesJson,
-                json_group_array(DISTINCT json_object('amount', ril.amount, 'ingredientId', i.ingredientId)) AS ingredientsMapJson
-            FROM Recipe AS r
-            INNER JOIN RecipeTagLink AS rtl
-                ON r.recipeId = rtl.recipeId
-            INNER JOIN RecipeTag AS rt
-                ON rtl.recipeTagId = rt.recipeTagId
-            INNER JOIN RecipeIngredientLink AS ril
-                ON r.recipeId = ril.recipeId
-            INNER JOIN Ingredient AS i
-                ON ril.ingredientId = i.ingredientId;
+                CASE
+                    WHEN tagnamesJson IS NULL THEN '[]'
+                    ELSE tagnamesJson
+                END AS tagnamesJson,
+                CASE
+                    WHEN ingredientsMapJson IS NULL THEN '[]'
+                    ELSE ingredientsMapJson
+                END AS ingredientsMapJson
+                FROM data
+                RIGHT JOIN Recipe AS r
+                    ON r.recipeId = data.recipeId
         `)
     )
         .filter(item => item.recipeId != undefined) // If no items are in the database the query above selects a record where everything is null or and empty array. This fixes some bugs that would occur if this "ghost" record would be displayed.
         .map(item => mapFromFullRecipeQueryResult(item, allIngredients));
 }
 
-async function insertRecipeInDatabase(dbRecipe: Omit<DatabaseRecipe, 'recipeId'>) {
-    const insertResult = await database.runAsync(
+async function insertRecipeInDatabase(blueprint: CreateRecipeBlueprint) {
+    const recipeId = (await database.runAsync(
         `
         INSERT INTO
-            Recipe (imageSrc, title, description, difficulty, preparationTimeInMinutes, isFavorite)
-            VALUES (?, ?, ?, ?, ?, ?);
+            Recipe (title, description, difficulty, preparationTimeInMinutes, isFavorite)
+            VALUES (?, ?, ?, ?, ?);
         `,
-        dbRecipe.imageSrc ?? null,
-        dbRecipe.title,
-        dbRecipe.description ?? null,
-        dbRecipe.difficulty ?? null,
-        dbRecipe.preparationTimeInMinutes ?? null,
-        dbRecipe.isFavorite
-    );
+        blueprint.title,
+        blueprint.description,
+        blueprint.difficulty ? +blueprint.difficulty : null,
+        blueprint.preparationTime ? blueprint.preparationTime.asMinutes() : null,
+        blueprint.isFavorite ? 1 : 0
+    )).lastInsertRowId;
 
-    return insertResult.lastInsertRowId;
+    await insertRecipeTagsInDatabase(recipeId, blueprint.tags);
+    await insertRecipeIngredients(recipeId, blueprint.ingredientsForOnePortion);
+
+    return recipeId;
 }
 
-async function insertRecipeTagInDatabase(tagName: string) {
-    const insertResult = await database.runAsync(
+async function insertRecipeTagsInDatabase(recipeId: number, tags: string[]) {
+    if (tags.length == 0) {
+        return;
+    }
+
+    const tagIds: number[] = [];
+
+    for (const tag of tags) {
+        tagIds.push(
+            (await database.runAsync(
+                `
+                INSERT INTO
+                    RecipeTag (tagname)
+                    VALUES (?);
+                `,
+                tag
+            )).lastInsertRowId
+        );
+    }
+
+    await database.runAsync(
         `
         INSERT INTO
-            RecipeTag (tagname)
-            VALUES (?);
+            RecipeTagLink (recipeId, recipeTagId)
+            VALUES ${'(?, ?), '.repeat(tagIds.length).slice(0, -2)};
         `,
-        tagName
+        tagIds.flatMap(tagId => [recipeId, tagId])
     );
-
-    return insertResult.lastInsertRowId;
 }
 
+async function insertRecipeIngredients(recipeId: number, recipeIngredients: QuantizedIngredient[]) {
+    if (recipeIngredients.length == 0) {
+        return;
+    }
 
-async function insert(recipe: (Omit<Recipe, 'recipeId' | 'imageSrc'> & { cachedImageSrc?: string })) {
-
-    
-
-
-
-    await insertRecipeInDatabase({
-        description: recipe.description,
-        isFavorite: 0,
-        title: "",
-        difficulty: 1,
-        imageSrc: undefined,
-        preparationTimeInMinutes: 100
-    })
-
+    await database.runAsync(
+        `
+        INSERT INTO
+            RecipeIngredientLink (recipeId, ingredientId, amount)
+            VALUES ${"(?, ?, ?), ".repeat(recipeIngredients.length).slice(0, -2)}
+        `,
+        recipeIngredients.flatMap(ingredient => [recipeId, ingredient.ingredient.ingredientId, ingredient.amount])
+    );
 }
 
+export async function createRecipe(blueprint: CreateRecipeBlueprint): Promise<Recipe> {
+    const recipeId = await insertRecipeInDatabase(blueprint);
+
+    let imageSrc: string | undefined;
+    if (blueprint.cachedImageSrc) {
+        imageSrc = await saveRecipeImage(recipeId, blueprint.cachedImageSrc);
+        await updateImageSrcInDatabase(recipeId, imageSrc);
+    }
+
+    return {
+        recipeId,
+        imageSrc,
+        title: blueprint.title,
+        description: blueprint.description,
+        ingredientsForOnePortion: blueprint.ingredientsForOnePortion,
+        isFavorite: blueprint.isFavorite,
+        tags: blueprint.tags,
+        difficulty: blueprint.difficulty,
+        preparationTime: blueprint.preparationTime
+    }
+}
+
+async function updateImageSrcInDatabase(recipeId: number, imageSrc: string) {
+    await database.runAsync(
+        `
+        UPDATE Recipe
+            SET imageSrc = ?
+            WHERE recipeId = ?
+        `,
+        imageSrc,
+        recipeId
+    );
+}
+
+async function saveRecipeImage(recipeId: number, temporaryImageUri: string) {
+    const directoryUri = `${FileSystem.documentDirectory}recipes/${recipeId}/`
+    const hash = djb2(temporaryImageUri);
+    const imageUri = `${directoryUri}${hash}.${getFileExtension(temporaryImageUri)}`;
+
+    await createDirectoryIfNotExists(directoryUri);
+    await FileSystem.copyAsync({ from: temporaryImageUri, to: imageUri });
+
+    return imageUri;
+}
 
 function mapFromFullRecipeQueryResult(item: FullRecipeQueryResult, allIngredients: Ingredient[]): Recipe {
     const tagnames: string[] = JSON.parse(item.tagnamesJson);
@@ -110,7 +187,6 @@ function mapFromFullRecipeQueryResult(item: FullRecipeQueryResult, allIngredient
         preparationTime: item.preparationTimeInMinutes ? Duration.ofMinutes(item.preparationTimeInMinutes) : undefined
     }
 }
-
 
 export function createRecipeTablesIfNotExist() {
     createRecipeTableIfNotExists();
@@ -165,75 +241,4 @@ function createRecipeTagLinkTableIfNotExists() {
             FOREIGN KEY (recipeTagId) REFERENCES RecipeTag(recipeTagId)
         );
     `);
-}
-
-export async function insertTestRecipeWithIngredients() {
-    const insertedSugar = await insertIngredientInDatabase({
-        name: "Icy Sugar Cube",
-        pluralName: "Icy Sugar Cubes",
-        unit: Unit.PIECE,
-    });
-    const insertedBerry = await insertIngredientInDatabase({
-        name: "Gnome Berry",
-        pluralName: "Gnome Berries",
-        unit: Unit.PIECE,
-    });
-    const insertedDough = await insertIngredientInDatabase({
-        name: "Distillery Dough",
-        unit: Unit.GRAMM,
-    });
-    const insertedLime = await insertIngredientInDatabase({
-        name: "Desert Lime",
-        pluralName: "Desert Limes",
-        unit: Unit.PIECE,
-    });
-    const insertedPineappleMint = await insertIngredientInDatabase({
-        name: "Pineapple Mint",
-        unit: Unit.GRAMM,
-    });
-    const insertedIdOfTagMagicial = await insertRecipeTagInDatabase('Magicial');
-    const insertedIdOfTagTasty = await insertRecipeTagInDatabase('Tasty');
-
-    const insertedRecipeId = await insertRecipeInDatabase({
-        title: "Wondertart",
-        description: "Give it to Chef Saltbaker for preparation.",
-        isFavorite: 1,
-        difficulty: 2,
-        preparationTimeInMinutes: 60
-    });
-
-    await database.runAsync(
-        `
-        INSERT INTO
-            RecipeTagLink (recipeId, recipeTagId)
-            VALUES (?, ?), (?, ?);
-        `,
-        insertedRecipeId,
-        insertedIdOfTagMagicial,
-        insertedRecipeId,
-        insertedIdOfTagTasty
-    );
-    await database.runAsync(
-        `
-        INSERT INTO
-            RecipeIngredientLink (recipeId, ingredientId, amount)
-            VALUES (?, ?, ?), (?, ?, ?), (?, ?, ?), (?, ?, ?), (?, ?, ?);
-        `,
-        insertedRecipeId,
-        insertedSugar.ingredientId,
-        5,
-        insertedRecipeId,
-        insertedBerry.ingredientId,
-        15,
-        insertedRecipeId,
-        insertedDough.ingredientId,
-        1000,
-        insertedRecipeId,
-        insertedLime.ingredientId,
-        2,
-        insertedRecipeId,
-        insertedPineappleMint.ingredientId,
-        2.5
-    );
-
 }

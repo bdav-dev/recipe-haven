@@ -1,43 +1,36 @@
-import { Alert, Keyboard, ScrollView, StyleSheet, View } from "react-native";
-import FullScreenModal from "../modals/FullScreenModal";
-import { useContext, useEffect, useRef, useState } from "react";
-import FirstStage from "./stages/FirstStage";
-import StageInfo from "../StageInfo";
 import { FrontendRecipeHolderContext } from "@/context/FrontendRecipeHolderContextProvider";
+import { RecipeContext } from "@/context/RecipeContextProvider";
+import { useContext, useEffect, useRef, useState } from "react";
+import { Alert, Keyboard, ScrollView, View } from "react-native";
+import { createRecipeModalStyles, nextStage, previousStage, Stage, Stages } from "./CreateRecipeModal";
+import { CreateRecipeBlueprint, Recipe } from "@/types/RecipeTypes";
+import FullScreenModal from "../modals/FullScreenModal";
+import StageInfo from "../StageInfo";
+import FirstStage from "./stages/FirstStage";
 import SecondStage from "./stages/SecondStage";
 import ThirdStage from "./stages/ThirdStage";
-import { Recipe, CreateRecipeBlueprint } from "@/types/RecipeTypes";
-import { createRecipe } from "@/data/dao/RecipeDao";
-import { RecipeContext } from "@/context/RecipeContextProvider";
 
 
-type CreateRecipeModalProps = {
+type EditRecipeModalProps = {
     isVisible: boolean,
-    onRequestClose?: () => void
+    onRequestClose?: () => void,
+    editRecipe?: Recipe
 }
 
-export type Stage = {
-    index: number,
-    title: string
-}
-
-export const Stages: { [key: string]: Stage } = {
-    ONE: { index: 0, title: 'Allgemein' },
-    TWO: { index: 1, title: 'Zutaten' },
-    THREE: { index: 2, title: 'Beschreibung' }
-}
-export const previousStage = (stage: Stage) => Object.values(Stages).find(otherStage => otherStage.index == stage.index - 1);
-export const nextStage = (stage: Stage) => Object.values(Stages).find(otherStage => otherStage.index == stage.index + 1);
-
-export default function CreateRecipeModal(props: CreateRecipeModalProps) {
+export default function EditRecipeModal(props: EditRecipeModalProps) {
     const { setRecipes } = useContext(RecipeContext);
-    const { toRecipe, reset: resetRecipeHolderContext } = useContext(FrontendRecipeHolderContext);
+    const { toRecipe, reset: resetRecipeHolderContext, mount } = useContext(FrontendRecipeHolderContext);
     const scrollViewRef = useRef<ScrollView>(null);
 
     const [stageWidth, setStageWidth] = useState(0);
     const [stage, setStage] = useState(Stages.ONE);
 
     const scrollToStage = (stage: Stage) => scrollViewRef.current?.scrollTo({ x: stageWidth * stage.index, animated: true });
+
+    useEffect(() => {
+        if (props.editRecipe)
+            mount(props.editRecipe);
+    }, [props.editRecipe]);
 
     useEffect(() => {
         Keyboard.dismiss();
@@ -64,7 +57,7 @@ export default function CreateRecipeModal(props: CreateRecipeModalProps) {
         reset();
     }
 
-    function create() {
+    function update() {
         let blueprint: CreateRecipeBlueprint;
         try {
             blueprint = toRecipe();
@@ -72,20 +65,14 @@ export default function CreateRecipeModal(props: CreateRecipeModalProps) {
             if (error instanceof Error) Alert.alert("Nicht so schnell!", error.message);
             return;
         }
-
-        createRecipe(blueprint)
-            .then(recipe => {
-                close();
-                setRecipes(recipes => [...recipes, recipe]);
-            })
-            .catch(console.log);
+        // TODO
     }
 
     return (
         <FullScreenModal
             isVisible={props.isVisible}
-            onRequestClose={props.onRequestClose}
-            title="Neues Rezept"
+            onRequestClose={close}
+            title="Rezept bearbeiten"
             onContentViewLayout={event => setStageWidth(event.nativeEvent.layout.width)}
             preScrollViewChildren={<StageInfo style={styles.stageInfo} stages={mapStagesForStageInfo()} />}
             customLeftButton={
@@ -95,7 +82,7 @@ export default function CreateRecipeModal(props: CreateRecipeModalProps) {
             }
             rightButton={
                 stage == Stages.THREE
-                    ? { title: 'Hinzufügen', onPress: create }
+                    ? { title: 'Speichern', onPress: update }
                     : { title: 'Weiter', onPress: () => setStage(nextStage(stage)!) }
             }
         >
@@ -123,23 +110,4 @@ export default function CreateRecipeModal(props: CreateRecipeModalProps) {
     );
 }
 
-const styles = StyleSheet.create({
-    stageView: {
-        flex: 1
-    },
-    stageViewContent: {
-        flexDirection: "row"
-    },
-    stageInfo: {
-        margin: 5
-    },
-    container: {
-        flex: 1
-    },
-    viewItem: {
-        justifyContent: "center",
-        alignItems: "center",
-        marginHorizontal: 10
-    }
-});
-export const createRecipeModalStyles = styles;
+const styles = createRecipeModalStyles;

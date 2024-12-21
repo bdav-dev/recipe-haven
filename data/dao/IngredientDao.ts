@@ -3,7 +3,8 @@ import database from "../database/Database";
 import { DatabaseIngredient } from "@/types/DatabaseTypes";
 import * as FileSystem from 'expo-file-system';
 import { CreateIngredientBlueprint, UpdateIngredientBlueprint } from "@/types/dao/IngredientDaoTypes";
-import { createDirectoryIfNotExists, getFileExtension } from "@/utils/FileSystemUtils";
+import { createDirectoryIfNotExists, getFileExtension, getFileName } from "@/utils/FileSystemUtils";
+import { djb2 } from "@/utils/HashUtils";
 
 
 export async function createIngredient(blueprint: CreateIngredientBlueprint) {
@@ -34,11 +35,11 @@ export async function updateIngredient(blueprint: UpdateIngredientBlueprint) {
 
     if (originalImageUri !== newImageUri) {
         if (originalImageUri) {
-            await FileSystem.deleteAsync(originalImageUri)
+            await FileSystem.deleteAsync(originalImageUri);
         }
 
         if (newImageUri) {
-            newImageUri = await saveIngredientImage(blueprint.originalIngredient.ingredientId, newImageUri)
+            newImageUri = await saveIngredientImage(blueprint.originalIngredient.ingredientId, newImageUri);
         }
     }
 
@@ -49,7 +50,7 @@ export async function updateIngredient(blueprint: UpdateIngredientBlueprint) {
         pluralName: blueprint.updatedValues.pluralName?.trim(),
         unit: blueprint.updatedValues.unit,
         calorificValue: blueprint.updatedValues.calorificValue
-    }
+    };
 
     await updateIngredientInDatabase(updatedIngredient);
 
@@ -67,7 +68,8 @@ export async function deleteIngredient(ingredient: Ingredient) {
 
 async function saveIngredientImage(ingredientId: number, temporaryImageUri: string) {
     const directoryUri = `${FileSystem.documentDirectory}ingredients/${ingredientId}/`
-    const imageUri = `${directoryUri}img.${getFileExtension(temporaryImageUri)}`;
+    const hash = djb2(temporaryImageUri);
+    const imageUri = `${directoryUri}${hash}.${getFileExtension(temporaryImageUri)}`;
 
     await createDirectoryIfNotExists(directoryUri);
     await FileSystem.copyAsync({ from: temporaryImageUri, to: imageUri });
