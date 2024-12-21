@@ -10,7 +10,6 @@ import { Recipe, CreateRecipeBlueprint } from "@/types/RecipeTypes";
 import { createRecipe } from "@/data/dao/RecipeDao";
 import { RecipeContext } from "@/context/RecipeContextProvider";
 
-
 type CreateRecipeModalProps = {
     isVisible: boolean,
     onRequestClose?: () => void

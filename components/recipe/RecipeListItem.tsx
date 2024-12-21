@@ -1,5 +1,5 @@
 import { Recipe } from "@/types/RecipeTypes";
-import { Image, StyleSheet, View } from "react-native";
+import { Image, StyleSheet, View, TouchableOpacity } from "react-native";
 import { ThemedText } from "../themed/ThemedText";
 import { AppTheme } from "@/types/ThemeTypes";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
@@ -14,7 +14,8 @@ import IngredientsPreview from "./IngredientsPreview";
 import { getTotalKcalPerPortion } from "@/utils/RecipeUtils";
 
 type RecipeListItemProps = {
-    recipe: Recipe
+    recipe: Recipe,
+    onPress?: (recipe: Recipe) => void
 }
 
 const TAG_LIMIT = 3;
@@ -35,7 +36,13 @@ export default function RecipeListItem(props: RecipeListItemProps) {
     );
 
     return (
-        <View style={styles.container}>
+
+        <TouchableOpacity 
+            style={styles.container} 
+            onPress={() => props.onPress?.(recipe)}
+            activeOpacity={0.7}
+        >
+
             {
                 recipe.imageSrc &&
                 <Image source={{ uri: recipe.imageSrc }} style={styles.image} />
@@ -94,7 +101,7 @@ export default function RecipeListItem(props: RecipeListItemProps) {
                     </View>
                 }
             </CardView>
-        </View>
+        </TouchableOpacity>
     );
 
 }

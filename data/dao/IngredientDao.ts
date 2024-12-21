@@ -156,7 +156,7 @@ async function updateImageSrcInDatabase(ingredientId: number, imageSrc: string) 
 }
 
 
-function mapFromDatabaseModel(databaseIngredient: DatabaseIngredient): Ingredient {
+export function mapFromDatabaseModel(databaseIngredient: DatabaseIngredient): Ingredient {
     let calorificValue: CalorificValue | undefined;
 
     if (databaseIngredient.calorificValueKcal != null && databaseIngredient.calorificValueNUnits != null) {

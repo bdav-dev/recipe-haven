@@ -1,4 +1,3 @@
-
 export class Duration {
     private durationInMinutes: number;
 
@@ -12,6 +11,10 @@ export class Duration {
 
     public static ofHoursAndMinutes(hours: number, minutes: number) {
         return new Duration(hours * 60 + minutes);
+    }
+
+    public get minutes(): number {
+        return this.durationInMinutes;
     }
 
     public toString() {

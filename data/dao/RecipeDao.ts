@@ -3,8 +3,10 @@ import database from "../database/Database";
 import { FullRecipeQueryResult, RecipeIngredientMap } from "@/types/DatabaseTypes";
 import { CreateRecipeBlueprint, Recipe } from "@/types/RecipeTypes";
 import { Duration } from "../misc/Duration";
+import { insertIngredientInDatabase } from "./IngredientDao";
 import * as FileSystem from 'expo-file-system';
 import { djb2 } from "@/utils/HashUtils";
+import { UpdateRecipeBlueprint } from "@/types/dao/RecipeDaoTypes";
 import { createDirectoryIfNotExists, getFileExtension } from "@/utils/FileSystemUtils";
 
 export async function getAllRecipes(allIngredients: Ingredient[]) {
@@ -241,4 +243,120 @@ function createRecipeTagLinkTableIfNotExists() {
             FOREIGN KEY (recipeTagId) REFERENCES RecipeTag(recipeTagId)
         );
     `);
+}
+
+
+
+export async function deleteRecipe(recipe: Recipe) {
+    if (recipe.imageSrc) {
+        await FileSystem.deleteAsync(recipe.imageSrc);
+    }
+    await deleteRecipeFromDatabase(recipe.recipeId);
+}
+
+export async function updateRecipe(blueprint: UpdateRecipeBlueprint) {
+    const originalImageUri = blueprint.originalRecipe.imageSrc;
+    let newImageUri = blueprint.updatedValues.imageSrc;
+
+    if (originalImageUri !== newImageUri) {
+        if (originalImageUri) {
+            await FileSystem.deleteAsync(originalImageUri);
+        }
+
+        if (newImageUri) {
+            newImageUri = await saveRecipeImage(blueprint.originalRecipe.recipeId, newImageUri);
+        }
+    }
+
+    const updatedRecipe: Recipe = {
+        recipeId: blueprint.originalRecipe.recipeId,
+        imageSrc: newImageUri,
+        title: blueprint.updatedValues.title,
+        description: blueprint.updatedValues.description,
+        difficulty: blueprint.updatedValues.difficulty,
+        preparationTime: blueprint.updatedValues.preparationTime,
+        isFavorite: blueprint.updatedValues.isFavorite,
+        tags: blueprint.updatedValues.tags,
+        ingredientsForOnePortion: blueprint.updatedValues.ingredientsForOnePortion
+    };
+
+    await updateRecipeInDatabase(updatedRecipe);
+    return updatedRecipe;
+}
+
+async function saveRecipeImage(recipeId: number, temporaryImageUri: string) {
+    const directoryUri = `${FileSystem.documentDirectory}recipes/${recipeId}/`;
+    const imageUri = `${directoryUri}img.${getFileExtension(temporaryImageUri)}`;
+
+    await createDirectoryIfNotExists(directoryUri);
+    await FileSystem.copyAsync({ from: temporaryImageUri, to: imageUri });
+
+    return imageUri;
+}
+
+async function deleteRecipeFromDatabase(recipeId: number) {
+    await database.runAsync(
+        `DELETE FROM RecipeTagLink WHERE recipeId = ?;`,
+        recipeId
+    );
+    await database.runAsync(
+        `DELETE FROM RecipeIngredientLink WHERE recipeId = ?;`,
+        recipeId
+    );
+    await database.runAsync(
+        `DELETE FROM Recipe WHERE recipeId = ?;`,
+        recipeId
+    );
+}
+
+async function updateRecipeInDatabase(recipe: Recipe) {
+    await database.runAsync(
+        `UPDATE Recipe 
+         SET imageSrc = ?,
+             title = ?,
+             description = ?,
+             difficulty = ?,
+             preparationTimeInMinutes = ?,
+             isFavorite = ?
+         WHERE recipeId = ?`,
+        [
+            recipe.imageSrc ?? null,
+            recipe.title,
+            recipe.description ?? null,
+            recipe.difficulty ?? null,
+            recipe.preparationTime?.minutes ?? null,
+            recipe.isFavorite ? 1 : 0,
+            recipe.recipeId.toString()
+        ]
+    );
+
+    // Update tags
+    await database.runAsync(
+        `DELETE FROM RecipeTagLink WHERE recipeId = ?;`,
+        recipe.recipeId
+    );
+
+    for (const tag of recipe.tags) {
+        const tagId = await insertRecipeTagInDatabase(tag);
+        await database.runAsync(
+            `INSERT INTO RecipeTagLink (recipeId, recipeTagId) VALUES (?, ?);`,
+            recipe.recipeId,
+            tagId
+        );
+    }
+
+    // Update ingredients
+    await database.runAsync(
+        `DELETE FROM RecipeIngredientLink WHERE recipeId = ?;`,
+        recipe.recipeId
+    );
+
+    for (const ingredient of recipe.ingredientsForOnePortion) {
+        await database.runAsync(
+            `INSERT INTO RecipeIngredientLink (recipeId, ingredientId, amount) VALUES (?, ?, ?);`,
+            recipe.recipeId,
+            ingredient.ingredient.ingredientId,
+            ingredient.amount
+        );
+    }
 }

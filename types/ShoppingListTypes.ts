@@ -13,9 +13,12 @@ export type ShoppingList = {
     // recipeItems: ShoppingListRecipeItem[]
 }
 
-export type ShoppingListIngredientItem = ShoppingListItemBase & {
-    shoppingListIngredientItemId: number,
-    ingredient: QuantizedIngredient
+export interface ShoppingListIngredientItem {
+    shoppingListIngredientItemId: number;
+    ingredient: QuantizedIngredient;
+    isChecked: boolean;
+    creationTimestamp: Date;
+    isAggregated?: boolean;  // Added this flag to track merged items
 }
 
 export type ShoppingListCustomItem = ShoppingListItemBase & {

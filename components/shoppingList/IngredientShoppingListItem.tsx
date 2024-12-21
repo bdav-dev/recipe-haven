@@ -1,22 +1,33 @@
-import { ShoppingListCustomItem } from "@/types/ShoppingListTypes";
-import CardView from "../themed/CardView";
-import { ThemedText } from "../themed/ThemedText";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { AppTheme } from "@/types/ThemeTypes";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
+import { ShoppingListIngredientItem } from "@/types/ShoppingListTypes";
+import CardView from "../themed/CardView";
+import { ThemedText } from "../themed/ThemedText";
 
-type CustomShoppingListItemProps = {
-    item: ShoppingListCustomItem;
-    onToggleCheck: (item: ShoppingListCustomItem) => void;
+type IngredientShoppingListItemProps = {
+    item: ShoppingListIngredientItem;
+    onToggleCheck: (item: ShoppingListIngredientItem) => void;
     editButton?: { onPress: () => void };
 }
 
-export default function CustomShoppingListItem(props: CustomShoppingListItemProps) {
+export default function IngredientShoppingListItem(props: IngredientShoppingListItemProps) {
     const { item, onToggleCheck, editButton } = props;
     const theme = useAppTheme();
     const styles = useThemedStyleSheet(createStyles);
+
+    const getDisplayName = () => {
+        const amount = item.ingredient.amount;
+        const unit = item.ingredient.ingredient.unit;
+        const ingredient = item.ingredient.ingredient;
+        
+        // Get name based on amount
+        const name = amount === 1 ? ingredient.name : (ingredient.pluralName || ingredient.name);
+        
+        return `${amount} ${name}`;
+    };
 
     return (
         <CardView style={styles.card} noPadding>
@@ -31,12 +42,17 @@ export default function CustomShoppingListItem(props: CustomShoppingListItemProp
                 />
             </TouchableOpacity>
 
+            <Image 
+                source={{ uri: item.ingredient.ingredient.imageSrc }} 
+                style={styles.image} 
+            />
+
             <View style={styles.contentContainer}>
                 <ThemedText 
                     type="largeSemiBold" 
                     style={[item.isChecked && styles.checkedText]}
                 >
-                    {item.text}
+                    {getDisplayName()}
                 </ThemedText>
             </View>
 
@@ -67,9 +83,20 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     actionButton: {
         padding: 16,
     },
+    image: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        marginRight: 8
+    },
     contentContainer: {
         flex: 1,
         marginRight: 16,
+        justifyContent: 'center'
+    },
+    amount: {
+        fontSize: 12,
+        opacity: 0.7
     },
     checkedText: {
         textDecorationLine: 'line-through',
