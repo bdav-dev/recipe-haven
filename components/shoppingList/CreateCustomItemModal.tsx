@@ -30,7 +30,7 @@ export default function CreateCustomItemModal(props: CreateCustomItemModalProps)
             }));
             handleClose();
         } catch (error) {
-            console.error('Failed to create item:', error);
+            console.log('Failed to create item:', error);
         }
     }
 

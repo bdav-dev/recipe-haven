@@ -138,19 +138,15 @@ export async function getAllIngredientItems() {
 }
 
 export async function getAllShoppingListItems(): Promise<ShoppingList> {
-    try {
-        const [customItems, ingredientItems] = await Promise.all([
-            getAllCustomItemsFromDatabase(),
-            getAllIngredientItemsFromDatabase()
-        ]);
-        return {
-            customItems,
-            ingredientItems
-        };
-    } catch (error) {
-        console.error('Failed to load shopping list items:', error);
-        return { customItems: [], ingredientItems: [] };
-    }
+    const [customItems, ingredientItems] = await Promise.all([
+        getAllCustomItemsFromDatabase(),
+        getAllIngredientItemsFromDatabase()
+    ]);
+
+    return {
+        customItems,
+        ingredientItems
+    };
 }
 
 // Update Operations
@@ -182,7 +178,7 @@ export async function deleteIngredientItem(item: ShoppingListIngredientItem) {
     await IngredientItemsDB.delete(item.shoppingListIngredientItemId);
 }
 
-export async function deleteCheckedItems(){
+export async function deleteCheckedItems() {
     await Promise.all([
         CustomItemsDB.deleteChecked(),
         IngredientItemsDB.deleteChecked()

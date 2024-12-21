@@ -106,7 +106,7 @@ export default function ShoppingListScreen() {
                 )
             }));
         } catch (error) {
-            console.error('Failed to update item:', error);
+            console.log('Failed to update item:', error);
         }
     };
 
@@ -175,7 +175,7 @@ export default function ShoppingListScreen() {
                 )
             }));
         } catch (error) {
-            console.error('Failed to update ingredient item:', error);
+            console.log('Failed to update ingredient item:', error);
         }
     };
 
@@ -196,7 +196,7 @@ export default function ShoppingListScreen() {
             }));
             setShowCheckedItems(false);
         } catch (error) {
-            console.error('Failed to delete checked items:', error);
+            console.log('Failed to delete checked items:', error);
         }
     };
 
