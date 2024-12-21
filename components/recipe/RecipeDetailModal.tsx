@@ -46,6 +46,11 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
         ...ing,
         amount: ing.amount * multiplier
     }));
+    const amountOfRecipeInfo = (
+        (recipe.preparationTime ? 1 : 0)
+        + (recipe.difficulty != undefined ? 1 : 0)
+        + (kcalPerPortion != undefined ? 1 : 0)
+    );
 
     return (
         <FullScreenModal
@@ -69,7 +74,7 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
                             <Star filled={recipe.isFavorite} onPress={handleFavoriteToggle} />
                         </View>
 
-                        <View style={styles.detailsContainer}>
+                        <View style={[styles.detailsContainer, { justifyContent: amountOfRecipeInfo == 3 ? 'space-between' : 'flex-start' }]}>
                             {
                                 recipe.difficulty != undefined &&
                                 <DifficultyLabel difficulty={recipe.difficulty} />

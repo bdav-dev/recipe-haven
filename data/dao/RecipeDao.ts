@@ -67,7 +67,7 @@ async function insertRecipeInDatabase(blueprint: CreateRecipeBlueprint) {
         `,
         blueprint.title,
         blueprint.description,
-        blueprint.difficulty ? +blueprint.difficulty : null,
+        blueprint.difficulty != undefined ? +blueprint.difficulty : null,
         blueprint.preparationTime ? blueprint.preparationTime.asMinutes() : null,
         blueprint.isFavorite ? 1 : 0
     )).lastInsertRowId;

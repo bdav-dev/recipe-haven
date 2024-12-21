@@ -31,7 +31,7 @@ export default function RecipeListItem(props: RecipeListItemProps) {
     const doesRecipeHaveIngredientsWithImage = recipe.ingredientsForOnePortion.filter(item => item.ingredient.imageSrc).length != 0;
     const amountOfRecipeInfo = (
         (recipe.preparationTime ? 1 : 0)
-        + (recipe.difficulty ? 1 : 0)
+        + (recipe.difficulty != undefined ? 1 : 0)
         + (kcalPerPortion != undefined ? 1 : 0)
     );
 

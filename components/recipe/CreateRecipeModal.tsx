@@ -6,7 +6,7 @@ import StageInfo from "../StageInfo";
 import { FrontendRecipeHolderContext } from "@/context/FrontendRecipeHolderContextProvider";
 import SecondStage from "./stages/SecondStage";
 import ThirdStage from "./stages/ThirdStage";
-import { Recipe, CreateRecipeBlueprint } from "@/types/RecipeTypes";
+import { CreateRecipeBlueprint } from "@/types/RecipeTypes";
 import { createRecipe } from "@/data/dao/RecipeDao";
 import { RecipeContext } from "@/context/RecipeContextProvider";
 
