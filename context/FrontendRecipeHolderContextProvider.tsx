@@ -124,8 +124,8 @@ export default function FrontendRecipeHolderContextProvider(props: ContextProvid
         if (isBlank(title)) {
             throw Error("Du hast vergessen dem Rezept einen Namen zu geben.");
         }
-        if (recipes.find(recipe => recipe.title == title)) {
-            throw Error(`Du hast bereits ein Rezept mit dem Namen '${title}' im Rezeptbuch.`);
+        if (recipes.find(recipe => recipe.title == title.trim())) {
+            throw Error(`Du hast bereits ein Rezept mit dem Namen '${title.trim()}' im Rezeptbuch.`);
         }
         if (ingredients.length == 0) {
             throw Error('Du hast vergessen dem Rezept Zutaten hinzuzufügen.');
@@ -151,8 +151,8 @@ export default function FrontendRecipeHolderContextProvider(props: ContextProvid
         if (isBlank(title)) {
             throw Error("Du hast vergessen dem Rezept einen Namen zu geben.");
         }
-        if (recipes.find(recipe => recipe.title == title && recipe.recipeId != originalRecipe.recipeId)) {
-            throw Error(`Du hast bereits ein Rezept mit dem Namen '${title}' im Rezeptbuch.`);
+        if (recipes.find(recipe => recipe.title == title.trim() && recipe.recipeId != originalRecipe.recipeId)) {
+            throw Error(`Du hast bereits ein Rezept mit dem Namen '${title.trim()}' im Rezeptbuch.`);
         }
         if (ingredients.length == 0) {
             throw Error('Du hast vergessen dem Rezept Zutaten hinzuzufügen.');
