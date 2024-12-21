@@ -183,7 +183,7 @@ export default function ShoppingListScreen() {
         try {
             // Delete both custom and ingredient items
             await Promise.all([
-                deleteCheckedItems(), // Changed from deleteCheckedCustomItems
+                deleteCheckedItems(),
                 ...shoppingList.ingredientItems
                     .filter(item => item.isChecked)
                     .map(item => deleteIngredientItem(item))

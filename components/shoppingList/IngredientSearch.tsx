@@ -3,7 +3,10 @@ import { StyleSheet, View, FlatList, TouchableOpacity } from "react-native";
 import TextField from "../TextField";
 import { IngredientContext } from "@/context/IngredientContextProvider";
 import { Ingredient } from "@/types/IngredientTypes";
-import { ThemedText } from "../themed/ThemedText";
+import { AppTheme } from "@/types/ThemeTypes";
+import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
+import IngredientSuggestion from "../recipe/IngredientSuggestion";
+import CardView from "../themed/CardView";
 
 type IngredientSearchProps = {
     onSelectIngredient: (ingredient: Ingredient) => void
@@ -11,6 +14,7 @@ type IngredientSearchProps = {
 }
 
 export default function IngredientSearch(props: IngredientSearchProps) {
+    const styles = useThemedStyleSheet(createStyles);
     const { ingredients } = useContext(IngredientContext);
     const [searchText, setSearchText] = useState('');
     const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null);
@@ -49,49 +53,56 @@ export default function IngredientSearch(props: IngredientSearchProps) {
                 style={styles.textField}
             />
             {isFocused && filteredIngredients.length > 0 && (
-                <View style={styles.dropdown}>
+                <CardView style={styles.dropdown}>
                     <FlatList
                         data={filteredIngredients}
                         keyExtractor={item => item.ingredientId.toString()}
+                        ItemSeparatorComponent={() => <View style={styles.separator} />}
                         renderItem={({ item }) => (
                             <TouchableOpacity
                                 onPress={() => handleSelectIngredient(item)}
                                 style={styles.dropdownItem}
+                                activeOpacity={0.7}
                             >
-                                <ThemedText>{item.name}</ThemedText>
+                                <IngredientSuggestion ingredient={item} />
                             </TouchableOpacity>
                         )}
                     />
-                </View>
+                </CardView>
             )}
         </View>
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
     container: {
-        width: "100%"
+        width: "100%",
+        zIndex: 1
     },
     textField: {
         width: "100%",
-        fontSize: 24
+        fontSize: 16,
+        marginBottom: 4
     },
     dropdown: {
         position: "absolute",
         top: 50,
         width: "100%",
-        backgroundColor: "#fff",
-        borderRadius: 5,
-        shadowColor: "#000",
+        maxHeight: 200,
+        shadowColor: "black",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 2,
-        zIndex: 1
+        zIndex: 2
     },
     dropdownItem: {
-        padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: "#ccc"
+        padding: 4
+    },
+    separator: {
+        height: 1,
+        backgroundColor: theme.border,
+        opacity: 0.5,
+        marginVertical: 4
     }
 });
