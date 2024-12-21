@@ -71,16 +71,12 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
 
                         <View style={styles.detailsContainer}>
                             {
-                                recipe.difficulty && (
-
-                                    <DifficultyLabel difficulty={recipe.difficulty} />
-
-                                )
+                                recipe.difficulty != undefined &&
+                                <DifficultyLabel difficulty={recipe.difficulty} />
                             }
                             {
-                                recipe.preparationTime && (
-                                    <DurationLabel duration={recipe.preparationTime} />
-                                )
+                                recipe.preparationTime &&
+                                <DurationLabel duration={recipe.preparationTime} />
                             }
                             {
                                 kcalPerPortion != undefined &&
@@ -101,16 +97,17 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
                         }
                     </CardView>
 
-                    {recipe.description && (
+                    {
+                        recipe.description &&
                         <CardView title="Beschreibung">
                             <View style={styles.descriptionContainer}>
                                 <ThemedText>{recipe.description}</ThemedText>
                             </View>
                         </CardView>
-                    )}
+                    }
 
                     <CardView title="Zutaten">
-                        <View style={[styles.portionContainer]}>
+                        <View style={styles.portionContainer}>
                             <ThemedText>Zutaten für </ThemedText>
                             <TextField
                                 style={styles.portionInput}
@@ -123,12 +120,14 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
                             <ThemedText> Portion(en)</ThemedText>
                         </View>
 
-                        {scaledIngredients.map((ingredient, index) => (
-                            <RecipeIngredientListItem
-                                key={index}
-                                recipeIngredient={ingredient}
-                            />
-                        ))}
+                        {
+                            scaledIngredients.map((ingredient, index) => (
+                                <RecipeIngredientListItem
+                                    key={index}
+                                    recipeIngredient={ingredient}
+                                />
+                            ))
+                        }
                     </CardView>
                 </View>
             </ScrollView>

@@ -11,7 +11,7 @@ export default function CalorieLabel(props: CalorieLabelProps) {
     return (
         <View style={styles.view}>
             <Ionicons name="flame-outline" style={styles.icon} />
-            <ThemedText>{props.kiloCalories.toString()} kcal</ThemedText>
+            <ThemedText>{Number.isInteger(props.kiloCalories) ? props.kiloCalories.toString() : props.kiloCalories.toFixed(1).toString()} kcal</ThemedText>
         </View>
     );
 }
