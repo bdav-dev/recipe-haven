@@ -32,7 +32,6 @@ export default function RecipesScreen() {
   const areRecipesEmpty = () => recipes.length === 0;
   const areFilteredRecipesEmpty = () => filteredRecipes.length === 0;
 
-
   function launchEditRecipeModal(recipe: Recipe) {
     setEditRecipe(recipe);
     setEditRecipeModalVisible(true);
@@ -70,7 +69,7 @@ export default function RecipesScreen() {
 
       <FrontendRecipeHolderContextProvider>
         <CreateRecipeModal isVisible={isCreateRecipeModalVisible} onRequestClose={() => setCreateRecipeModalVisible(false)} />
-        <EditRecipeModal isVisible={isEditRecipeModalVisible} onRequestClose={() => setEditRecipeModalVisible(false)} editRecipe={editRecipe} />
+        <EditRecipeModal isVisible={isEditRecipeModalVisible} onRequestClose={() => {setEditRecipeModalVisible(false); setEditRecipe(undefined); }} editRecipe={editRecipe} />
       </FrontendRecipeHolderContextProvider>
 
       <FloatingActionButton onPress={() => setCreateRecipeModalVisible(true)}>

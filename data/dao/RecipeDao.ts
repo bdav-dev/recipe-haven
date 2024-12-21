@@ -20,13 +20,13 @@ async function getAllRecipesFromDatabase(allIngredients: Ingredient[]) {
                     json_group_array(DISTINCT rt.tagname) AS tagnamesJson,
                     json_group_array(DISTINCT json_object('amount', ril.amount, 'ingredientId', i.ingredientId)) AS ingredientsMapJson
                 FROM Recipe AS r
-                LEFT JOIN RecipeTagLink AS rtl
+                INNER JOIN RecipeTagLink AS rtl
                     ON r.recipeId = rtl.recipeId
-                LEFT JOIN RecipeTag AS rt
+                INNER JOIN RecipeTag AS rt
                     ON rtl.recipeTagId = rt.recipeTagId
-                LEFT JOIN RecipeIngredientLink AS ril
+                INNER JOIN RecipeIngredientLink AS ril
                     ON r.recipeId = ril.recipeId
-                LEFT JOIN Ingredient AS i
+                INNER JOIN Ingredient AS i
                     ON ril.ingredientId = i.ingredientId
                 GROUP BY r.recipeId
             )

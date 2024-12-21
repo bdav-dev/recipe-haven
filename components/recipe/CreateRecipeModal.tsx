@@ -55,8 +55,8 @@ export default function CreateRecipeModal(props: CreateRecipeModalProps) {
     );
 
     function reset() {
-        resetRecipeHolderContext();
         setStage(Stages.ONE);
+        resetRecipeHolderContext();
     }
 
     function close() {
@@ -84,7 +84,7 @@ export default function CreateRecipeModal(props: CreateRecipeModalProps) {
     return (
         <FullScreenModal
             isVisible={props.isVisible}
-            onRequestClose={props.onRequestClose}
+            onRequestClose={close}
             title="Neues Rezept"
             onContentViewLayout={event => setStageWidth(event.nativeEvent.layout.width)}
             preScrollViewChildren={<StageInfo style={styles.stageInfo} stages={mapStagesForStageInfo()} />}

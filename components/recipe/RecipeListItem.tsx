@@ -35,9 +35,7 @@ export default function RecipeListItem(props: RecipeListItemProps) {
     );
 
     return (
-
         <View style={styles.container}>
-
             {
                 recipe.imageSrc &&
                 <Image source={{ uri: recipe.imageSrc }} style={styles.image} />
@@ -62,7 +60,7 @@ export default function RecipeListItem(props: RecipeListItemProps) {
                             <DifficultyLabel difficulty={recipe.difficulty} />
                         }
                         {
-                            kcalPerPortion &&
+                            kcalPerPortion != undefined &&
                             <CalorieLabel kiloCalories={kcalPerPortion} />
                         }
                     </View>
