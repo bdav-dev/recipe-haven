@@ -1,4 +1,4 @@
-import { useContext, useState, useMemo } from 'react';
+import { useContext, useState, useMemo, useEffect } from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '@/hooks/useAppTheme';
@@ -16,6 +16,10 @@ import EditCustomItemModal from '@/components/shoppingList/EditCustomItemModal';
 import CreateIngredientItemModal from '@/components/shoppingList/CreateIngredientItemModal';
 import IngredientShoppingListItem from '@/components/shoppingList/IngredientShoppingListItem';
 import EditIngredientItemModal from '@/components/shoppingList/EditIngredientItemModal';
+import SearchBar from '@/components/SearchBar';
+import NoItemsInfo from '@/components/NoItemsInfo';
+import NoSearchResultsBadge from '@/components/NoSearchResultsBadge';
+import { includesIgnoreCase } from '@/utils/StringUtils';
 
 const INSERT_NEW_ITEMS_AT_TOP = false; // Set to false to add new items at the bottom
 
@@ -34,6 +38,7 @@ export default function ShoppingListScreen() {
     const [editItem, setEditItem] = useState<ShoppingListCustomItem>();
     const [editIngredientItem, setEditIngredientItem] = useState<ShoppingListIngredientItem>();
     const [isEditIngredientModalVisible, setIsEditIngredientModalVisible] = useState(false);
+    const [searchText, setSearchText] = useState('');
 
     const combinedVisibleItems = useMemo(() => {
         const customItems = shoppingList.customItems
@@ -58,6 +63,21 @@ export default function ShoppingListScreen() {
                 : dateA.getTime() - dateB.getTime(); // Newer items at bottom
         });
     }, [shoppingList.customItems, shoppingList.ingredientItems, showCheckedItems]);
+
+    const filteredVisibleItems = useMemo(() => {
+        const items = combinedVisibleItems;
+        if (!searchText.trim()) return items;
+
+        return items.filter(item => {
+            if (item.type === 'custom') {
+                return includesIgnoreCase(item.data.text, searchText);
+            } else {
+                const ingredient = item.data.ingredient.ingredient;
+                return includesIgnoreCase(ingredient.name, searchText) ||
+                    (ingredient.pluralName && includesIgnoreCase(ingredient.pluralName, searchText));
+            }
+        });
+    }, [combinedVisibleItems, searchText]);
 
     // Helper function to merge checked ingredient items
     function mergeCheckedIngredients(items: Array<{ type: 'ingredient', data: ShoppingListIngredientItem }>) {
@@ -87,10 +107,24 @@ export default function ShoppingListScreen() {
         [shoppingList]
     );
 
-    const shouldShowToggle = useMemo(() =>
-        hasAnyItems, // Changed: Show toggle whenever there are any items
-        [hasAnyItems]
+    const hasUncheckedItems = useMemo(() =>
+        shoppingList.customItems.some(item => !item.isChecked) ||
+        shoppingList.ingredientItems.some(item => !item.isChecked),
+        [shoppingList]
     );
+
+    // This ensures the toggle is visible as long as there are ANY items
+    const shouldShowToggle = useMemo(() =>
+        hasCheckedItems || hasUncheckedItems,
+        [hasCheckedItems, hasUncheckedItems]
+    );
+
+    // If we're showing checked items but there are none left, switch to unchecked view
+    useEffect(() => {
+        if (showCheckedItems && !hasCheckedItems) {
+            setShowCheckedItems(false);
+        }
+    }, [hasCheckedItems, showCheckedItems]);
 
     const closeAllModals = () => setActiveModal('none');
 
@@ -229,50 +263,71 @@ export default function ShoppingListScreen() {
 
     return (
         <Page>
-            <FlatList
-                data={combinedVisibleItems}
-                style={styles.list}
-                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                contentContainerStyle={styles.listContainer}
-                renderItem={({ item }) => 
-                    item.type === 'custom' ? (
-                        <CustomShoppingListItem
-                            key={`custom-${item.data.shoppingListCustomItemId}`}
-                            item={item.data}
-                            onToggleCheck={updateItemCheckStatus}
-                            editButton={{ onPress: () => launchEditItemModal(item.data) }}
-                        />
-                    ) : (
-                        <IngredientShoppingListItem
-                            key={`ingredient-${item.data.shoppingListIngredientItemId}`}
-                            item={item.data}
-                            onToggleCheck={updateIngredientCheckStatus}
-                            editButton={{ onPress: () => launchEditIngredientModal(item.data) }}
-                        />
-                    )
-                }
-                keyExtractor={item => 
-                    item.type === 'custom' 
-                        ? `custom-${item.data.shoppingListCustomItemId}` 
-                        : `ingredient-${item.data.shoppingListIngredientItemId}`
-                }
-            />
-
-            <View style={styles.buttonContainer}>
-                <ShoppingListViewToggle
-                    showChecked={showCheckedItems}
-                    onToggle={() => setShowCheckedItems(prev => !prev)}
-                    visible={shouldShowToggle}
+            {hasAnyItems && (
+                <SearchBar 
+                    searchText={searchText} 
+                    onSearchTextChange={setSearchText}
                 />
-            </View>
+            )}
 
-            {showCheckedItems ? (
-                <View style={styles.deleteButtonContainer}>
-                    <ShoppingListViewDeleteButton
-                        onDelete={handleDeleteCheckedItems}
-                        visible={hasCheckedItems}
+            {!hasAnyItems ? (
+                <NoItemsInfo type="shoppingList" />
+            ) : (
+                <FlatList
+                    data={filteredVisibleItems}
+                    style={styles.list}
+                    contentContainerStyle={[
+                        styles.listContainer,
+                        filteredVisibleItems.length === 0 && styles.emptyList
+                    ]}
+                    ListEmptyComponent={() => 
+                        searchText.trim() ? <NoSearchResultsBadge /> : null
+                    }
+                    ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                    renderItem={({ item }) => 
+                        item.type === 'custom' ? (
+                            <CustomShoppingListItem
+                                key={`custom-${item.data.shoppingListCustomItemId}`}
+                                item={item.data}
+                                onToggleCheck={updateItemCheckStatus}
+                                editButton={{ onPress: () => launchEditItemModal(item.data) }}
+                            />
+                        ) : (
+                            <IngredientShoppingListItem
+                                key={`ingredient-${item.data.shoppingListIngredientItemId}`}
+                                item={item.data}
+                                onToggleCheck={updateIngredientCheckStatus}
+                                editButton={{ onPress: () => launchEditIngredientModal(item.data) }}
+                            />
+                        )
+                    }
+                    keyExtractor={item => 
+                        item.type === 'custom' 
+                            ? `custom-${item.data.shoppingListCustomItemId}` 
+                            : `ingredient-${item.data.shoppingListIngredientItemId}`
+                    }
+                />
+            )}
+
+            {shouldShowToggle && (
+                <View style={styles.buttonContainer}>
+                    <ShoppingListViewToggle
+                        showChecked={showCheckedItems}
+                        onToggle={() => setShowCheckedItems(prev => !prev)}
+                        visible={true}
                     />
                 </View>
+            )}
+
+            {showCheckedItems ? (
+                hasCheckedItems && (
+                    <View style={styles.deleteButtonContainer}>
+                        <ShoppingListViewDeleteButton
+                            onDelete={handleDeleteCheckedItems}
+                            visible={true}
+                        />
+                    </View>
+                )
             ) : (
                 <FloatingActionButton onPress={() => setActiveModal('selection')}>
                     <Ionicons name='add-outline' color={theme.card} size={35} />
@@ -352,5 +407,10 @@ const styles = StyleSheet.create({
     listContainer: {
         flex: 1,
         width: '100%'
+    },
+    emptyList: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 });

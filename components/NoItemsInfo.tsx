@@ -7,7 +7,7 @@ import { AppTheme } from "@/types/ThemeTypes";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 
 type NoItemsInfoProps = {
-    type: 'recipes' | 'ingredients';
+    type: 'recipes' | 'ingredients' | 'shoppingList';
 }
 
 export default function NoItemsInfo(props: NoItemsInfoProps) {
@@ -21,6 +21,9 @@ export default function NoItemsInfo(props: NoItemsInfoProps) {
             break;
         case "ingredients":
             text = "Zutaten";
+            break;
+        case "shoppingList":
+            text = "Einträge";
             break;
     }
 
