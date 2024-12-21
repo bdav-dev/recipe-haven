@@ -57,7 +57,7 @@ export default function RecipeListItem(props: RecipeListItemProps) {
                             <DurationLabel duration={recipe.preparationTime} />
                         }
                         {
-                            recipe.difficulty &&
+                            recipe.difficulty != undefined &&
                             <DifficultyLabel difficulty={recipe.difficulty} />
                         }
                         {
