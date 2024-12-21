@@ -57,11 +57,10 @@ export default function RecipesScreen() {
                 style={styles.recipeList}
                 ItemSeparatorComponent={() => <View style={{ height: 18 }} />}
                 renderItem={listItemInfo => (
-                  <TouchableOpacity onPress={() => launchEditRecipeModal(listItemInfo.item)}>
+                  <TouchableOpacity onPress={() => setSelectedRecipe(listItemInfo.item)}>
                     <RecipeListItem
                       key={listItemInfo.index}
                       recipe={listItemInfo.item}
-                    onPress={setSelectedRecipe}
                     />
                   </TouchableOpacity>
                 )}
@@ -78,7 +77,7 @@ export default function RecipesScreen() {
 
       <FrontendRecipeHolderContextProvider>
         <CreateRecipeModal isVisible={isCreateRecipeModalVisible} onRequestClose={() => setCreateRecipeModalVisible(false)} />
-        <EditRecipeModal isVisible={isEditRecipeModalVisible} onRequestClose={() => {setEditRecipeModalVisible(false); setEditRecipe(undefined); }} editRecipe={editRecipe} />
+        <EditRecipeModal isVisible={isEditRecipeModalVisible} onRequestClose={() => { setEditRecipeModalVisible(false); setEditRecipe(undefined); }} editRecipe={editRecipe} />
       </FrontendRecipeHolderContextProvider>
 
       <FloatingActionButton onPress={() => setCreateRecipeModalVisible(true)}>

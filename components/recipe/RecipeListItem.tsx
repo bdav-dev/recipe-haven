@@ -36,13 +36,7 @@ export default function RecipeListItem(props: RecipeListItemProps) {
     );
 
     return (
-
-        <TouchableOpacity 
-            style={styles.container} 
-            onPress={() => props.onPress?.(recipe)}
-            activeOpacity={0.7}
-        >
-
+        <View style={styles.container}>
             {
                 recipe.imageSrc &&
                 <Image source={{ uri: recipe.imageSrc }} style={styles.image} />
@@ -101,7 +95,7 @@ export default function RecipeListItem(props: RecipeListItemProps) {
                     </View>
                 }
             </CardView>
-        </TouchableOpacity>
+        </View>
     );
 
 }
