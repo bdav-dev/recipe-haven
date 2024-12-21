@@ -61,7 +61,9 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
 
                     {recipe.description && (
                         <CardView title="Beschreibung">
-                            <ThemedText>{recipe.description}</ThemedText>
+                            <View style={styles.descriptionContainer}>
+                                <ThemedText>{recipe.description}</ThemedText>
+                            </View>
                         </CardView>
                     )}
 
@@ -122,5 +124,8 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     portionInput: {
         width: 50,
         textAlign: 'center',
+    },
+    descriptionContainer: {
+        flexDirection: 'column',
     },
 });

@@ -6,7 +6,7 @@ import StageInfo from "../StageInfo";
 import { FrontendRecipeHolderContext } from "@/context/EditRecipeContextProvider";
 import SecondStage from "./stages/SecondStage";
 import ThirdStage from "./stages/ThirdStage";
-
+import { RecipeContext } from "@/context/RecipeContextProvider";
 
 type CreateRecipeModalProps = {
     isVisible: boolean,
@@ -29,6 +29,7 @@ const nextStage = (stage: Stage) => Object.values(Stages).find(otherStage => oth
 
 export default function CreateRecipeModal(props: CreateRecipeModalProps) {
     const { toRecipe } = useContext(FrontendRecipeHolderContext);
+    const { recipes, setRecipes } = useContext(RecipeContext); // Daniele: Added RecipeContext
     const scrollViewRef = useRef<ScrollView>(null);
 
     const [stageWidth, setStageWidth] = useState(0);
@@ -51,6 +52,15 @@ export default function CreateRecipeModal(props: CreateRecipeModalProps) {
             }))
     );
 
+    // Daniele: Handler action for adding new recipe 
+    const handleAddRecipe = () => {
+        const newRecipe = toRecipe();
+        if (newRecipe) {
+            setRecipes([...recipes, { ...newRecipe, recipeId: Date.now() }]);
+            props.onRequestClose?.();
+        }
+    };
+
     return (
         <FullScreenModal
             isVisible={props.isVisible}
@@ -65,7 +75,7 @@ export default function CreateRecipeModal(props: CreateRecipeModalProps) {
             }
             rightButton={
                 stage == Stages.THREE
-                    ? { title: 'Hinzufügen', onPress: () => { } }
+                    ? { title: 'Hinzufügen', onPress: handleAddRecipe } // Daniele: Changed onPress to handleAddRecipe
                     : { title: 'Weiter', onPress: () => setStage(nextStage(stage)!) }
             }
         >
