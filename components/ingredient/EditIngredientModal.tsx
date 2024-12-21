@@ -13,6 +13,8 @@ import { CalorificValue, Ingredient, Unit } from "@/types/IngredientTypes";
 import { deleteIngredient, updateIngredient } from "@/data/dao/IngredientDao";
 import Button from "../Button";
 import FullScreenModal from "../modals/FullScreenModal";
+import { RecipeContext } from "@/context/RecipeContextProvider";
+import { ShoppingListContext } from "@/context/ShoppingListContextProvider";
 
 type EditIngredientModalProps = {
     isVisible: boolean,
@@ -24,6 +26,8 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
     const styles = useThemedStyleSheet(createIngredientModalStyles);
 
     const { ingredients, setIngredients } = useContext(IngredientContext);
+    const { recipes } = useContext(RecipeContext);
+    const { shoppingList } = useContext(ShoppingListContext);
 
     const [imageUri, setImageUri] = useState<string>();
     const [name, setName] = useState('');
@@ -98,7 +102,34 @@ export default function EditIngredientModal(props: EditIngredientModalProps) {
             });
     }
 
+    function canIngredientBeDeleted(ingredient: Ingredient) {
+        const isUsedInRecipe = (
+            recipes
+                .flatMap(recipe => recipe.ingredientsForOnePortion)
+                .map(recipeIngredient => recipeIngredient.ingredient)
+                .some(i => i.ingredientId == ingredient.ingredientId)
+        );
+
+        const isUsedInShoppingList = (
+            shoppingList.ingredientItems
+                .map(ingredientItem => ingredientItem.ingredient.ingredient)
+                .some(i => i.ingredientId == ingredient.ingredientId)
+        );
+
+        return !isUsedInRecipe && !isUsedInShoppingList;
+    }
+
     function showConfirmDeleteAlert() {
+        if (!props.editIngredient) return;
+
+        if (!canIngredientBeDeleted(props.editIngredient)) {
+            Alert.alert(
+                'Zutat kann nicht gelöscht werden',
+                'Diese Zutat kann nicht gelöscht werden, da sie noch verwendet wird.'
+            );
+            return;
+        }
+
         Alert.alert('Zutat löschen', 'Möchtest du diese Zutat wirklich löschen?', [
             {
                 text: 'Abbrechen'
