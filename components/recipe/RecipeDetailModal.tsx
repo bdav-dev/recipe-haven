@@ -5,7 +5,7 @@ import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { AppTheme } from "@/types/ThemeTypes";
 import CardView from "../themed/CardView";
 import { ThemedText } from "../themed/ThemedText";
-import { useState, useContext } from "react";
+import { useState } from "react";
 import DifficultyLabel from "./DifficultyLabel";
 import DurationLabel from "./DurationLabel";
 import AutoColorBadge from "../AutoColorBadge";
@@ -14,7 +14,6 @@ import RecipeIngredientListItem from "./RecipeIngredientListItem";
 import TextField from "../TextField";
 import { isPositiveInteger } from "@/utils/MathUtils";
 import Star from "./Star";
-import { RecipeContext } from "@/context/RecipeContextProvider";
 
 type RecipeDetailModalProps = {
     recipe: Recipe | null;
@@ -25,18 +24,12 @@ type RecipeDetailModalProps = {
 export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }: RecipeDetailModalProps) {
     const styles = useThemedStyleSheet(createStyles);
     const [portionMultiplier, setPortionMultiplier] = useState("1");
-    const { recipes, setRecipes } = useContext(RecipeContext);
     
     if (!recipe) return null;
 
-    const toggleFavorite = () => {
-        if (!recipe) return;
-        const updatedRecipes = recipes.map(r => 
-            r.recipeId === recipe.recipeId 
-                ? { ...r, isFavorite: !r.isFavorite }
-                : r
-        );
-        setRecipes(updatedRecipes);
+    const handleFavoriteToggle = () => {
+        console.log(`Favourite for recipe ${recipe.recipeId} toggled!`);
+        // Placeholder for future implementation
     };
 
     const multiplier = isPositiveInteger(+portionMultiplier) ? +portionMultiplier : 1;
@@ -62,7 +55,7 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
                             <ThemedText type="midtitle" style={styles.title}>
                                 {recipe.title}
                             </ThemedText>
-                            <Star filled={recipe.isFavorite} onPress={toggleFavorite} />
+                            <Star filled={recipe.isFavorite} onPress={handleFavoriteToggle} />
                         </View>
 
                         <View style={styles.detailsContainer}>
