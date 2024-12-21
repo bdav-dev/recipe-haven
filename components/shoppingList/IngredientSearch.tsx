@@ -1,12 +1,12 @@
-import { useState, useContext, useEffect } from "react";
-import { StyleSheet, View, FlatList, TouchableOpacity } from "react-native";
+import { useState, useContext, useMemo } from "react";
+import { StyleSheet, View, TouchableOpacity, ScrollView } from "react-native";
 import TextField from "../TextField";
 import { IngredientContext } from "@/context/IngredientContextProvider";
 import { Ingredient } from "@/types/IngredientTypes";
 import { AppTheme } from "@/types/ThemeTypes";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import IngredientSuggestion from "../recipe/IngredientSuggestion";
-import CardView from "../themed/CardView";
+import { includesIgnoreCase } from "@/utils/StringUtils";
 
 type IngredientSearchProps = {
     onSelectIngredient: (ingredient: Ingredient) => void
@@ -18,19 +18,14 @@ export default function IngredientSearch(props: IngredientSearchProps) {
     const { ingredients } = useContext(IngredientContext);
     const [searchText, setSearchText] = useState('');
     const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null);
-    const [filteredIngredients, setFilteredIngredients] = useState<Ingredient[]>([]);
     const [isFocused, setIsFocused] = useState(false);
 
-    useEffect(() => {
-        if (searchText && !selectedIngredient) {
-            setFilteredIngredients(
-                ingredients.filter(ingredient =>
-                    ingredient.name.toLowerCase().includes(searchText.toLowerCase())
-                )
-            );
-        } else {
-            setFilteredIngredients([]);
-        }
+    const filteredIngredients = useMemo(() => {
+        if (!searchText || selectedIngredient) return [];
+        return ingredients.filter(ingredient =>
+            includesIgnoreCase(ingredient.name, searchText) || 
+            includesIgnoreCase(ingredient.pluralName ?? "", searchText)
+        );
     }, [searchText, ingredients, selectedIngredient]);
 
     const handleSelectIngredient = (ingredient: Ingredient) => {
@@ -53,22 +48,24 @@ export default function IngredientSearch(props: IngredientSearchProps) {
                 style={styles.textField}
             />
             {isFocused && filteredIngredients.length > 0 && (
-                <CardView style={styles.dropdown}>
-                    <FlatList
-                        data={filteredIngredients}
-                        keyExtractor={item => item.ingredientId.toString()}
-                        ItemSeparatorComponent={() => <View style={styles.separator} />}
-                        renderItem={({ item }) => (
+                <View style={styles.suggestionsContainer}>
+                    <ScrollView 
+                        horizontal 
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.scrollContent}
+                    >
+                        {filteredIngredients.map((ingredient, index) => (
                             <TouchableOpacity
-                                onPress={() => handleSelectIngredient(item)}
-                                style={styles.dropdownItem}
+                                key={ingredient.ingredientId}
+                                onPress={() => handleSelectIngredient(ingredient)}
+                                style={styles.suggestionItem}
                                 activeOpacity={0.7}
                             >
-                                <IngredientSuggestion ingredient={item} />
+                                <IngredientSuggestion ingredient={ingredient} />
                             </TouchableOpacity>
-                        )}
-                    />
-                </CardView>
+                        ))}
+                    </ScrollView>
+                </View>
             )}
         </View>
     );
@@ -84,25 +81,20 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         fontSize: 16,
         marginBottom: 4
     },
-    dropdown: {
+    suggestionsContainer: {
         position: "absolute",
         top: 50,
-        width: "100%",
-        maxHeight: 200,
-        shadowColor: "black",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 2,
+        left: 0,
+        right: 0,
+        maxHeight: 50,
         zIndex: 2
     },
-    dropdownItem: {
-        padding: 4
+    scrollContent: {
+        paddingHorizontal: 4,
+        gap: 8
     },
-    separator: {
-        height: 1,
-        backgroundColor: theme.border,
-        opacity: 0.5,
-        marginVertical: 4
+    suggestionItem: {
+        height: 40,
+        justifyContent: 'center'
     }
 });
