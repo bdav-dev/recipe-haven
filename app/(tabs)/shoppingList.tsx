@@ -8,8 +8,8 @@ import SelectShoppingListItemTypeModal from '@/components/shoppingList/SelectSho
 import CreateCustomItemModal from '@/components/shoppingList/CreateCustomItemModal';
 import { ShoppingListContext } from '@/context/ShoppingListContextProvider';
 import CustomShoppingListItem from '@/components/shoppingList/CustomShoppingListItem';
-import { ShoppingListCustomItem, ShoppingListIngredientItem } from '@/types/ShoppingListTypes';
-import { updateCustomItem, deleteCheckedCustomItems, updateIngredientItem, deleteIngredientItem } from '@/data/dao/ShoppingListDao';
+import { ShoppingListCustomItem, ShoppingListIngredientItem, ShoppingList } from '@/types/ShoppingListTypes';
+import { updateCustomItem, deleteCheckedItems, updateIngredientItem, deleteIngredientItem } from '@/data/dao/ShoppingListDao';
 import ShoppingListViewToggle from '@/components/shoppingList/ShoppingListViewToggle';
 import ShoppingListViewDeleteButton from '@/components/shoppingList/ShoppingListViewDeleteButton';
 import EditCustomItemModal from '@/components/shoppingList/EditCustomItemModal';
@@ -40,61 +40,10 @@ export default function ShoppingListScreen() {
     const [isEditIngredientModalVisible, setIsEditIngredientModalVisible] = useState(false);
     const [searchText, setSearchText] = useState('');
 
-    const combinedVisibleItems = useMemo(() => {
-        const customItems = shoppingList.customItems
-            .filter(item => item.isChecked === showCheckedItems)
-            .map(item => ({ type: 'custom' as const, data: item }));
-            
-        const ingredientItems = shoppingList.ingredientItems
-            .filter(item => item.isChecked === showCheckedItems)
-            .map(item => ({ type: 'ingredient' as const, data: item }));
-
-        // Group and merge checked ingredient items if needed
-        const processedIngredientItems = showCheckedItems 
-            ? mergeCheckedIngredients(ingredientItems)
-            : ingredientItems;
-
-        return [...customItems, ...processedIngredientItems].sort((a, b) => {
-            const dateA = a.data.creationTimestamp;
-            const dateB = b.data.creationTimestamp;
-            // Reverse the sort order based on the flag
-            return INSERT_NEW_ITEMS_AT_TOP 
-                ? dateB.getTime() - dateA.getTime()  // Newer items at top
-                : dateA.getTime() - dateB.getTime(); // Newer items at bottom
-        });
-    }, [shoppingList.customItems, shoppingList.ingredientItems, showCheckedItems]);
-
-    const filteredVisibleItems = useMemo(() => {
-        const items = combinedVisibleItems;
-        if (!searchText.trim()) return items;
-
-        return items.filter(item => {
-            if (item.type === 'custom') {
-                return includesIgnoreCase(item.data.text, searchText);
-            } else {
-                const ingredient = item.data.ingredient.ingredient;
-                return includesIgnoreCase(ingredient.name, searchText) ||
-                    (ingredient.pluralName && includesIgnoreCase(ingredient.pluralName, searchText));
-            }
-        });
-    }, [combinedVisibleItems, searchText]);
-
-    // Helper function to merge checked ingredient items
-    function mergeCheckedIngredients(items: Array<{ type: 'ingredient', data: ShoppingListIngredientItem }>) {
-        return items.reduce((acc, curr) => {
-            const existingItemIndex = acc.findIndex(item => 
-                item.data.ingredient.ingredient.ingredientId === curr.data.ingredient.ingredient.ingredientId
-            );
-
-            if (existingItemIndex >= 0) {
-                acc[existingItemIndex].data.ingredient.amount += curr.data.ingredient.amount;
-                acc[existingItemIndex].data.isAggregated = true;
-                return acc;
-            }
-
-            return [...acc, curr];
-        }, [] as typeof items);
-    }
+    const visibleItems = useMemo(() => {
+        const items = filterAndSortItems(shoppingList, showCheckedItems);
+        return searchText.trim() ? filterBySearch(items, searchText) : items;
+    }, [shoppingList, showCheckedItems, searchText]);
 
     const hasAnyItems = useMemo(() =>
         shoppingList.customItems.length > 0 || shoppingList.ingredientItems.length > 0,
@@ -244,7 +193,7 @@ export default function ShoppingListScreen() {
         try {
             // Delete both custom and ingredient items
             await Promise.all([
-                deleteCheckedCustomItems(),
+                deleteCheckedItems(), // Changed from deleteCheckedCustomItems
                 ...shoppingList.ingredientItems
                     .filter(item => item.isChecked)
                     .map(item => deleteIngredientItem(item))
@@ -261,6 +210,36 @@ export default function ShoppingListScreen() {
         }
     };
 
+    const handleEditItem = (item: ShoppingListCustomItem | ShoppingListIngredientItem) => {
+        if ('text' in item) {
+            setEditItem(item);
+            setIsEditModalVisible(true);
+        } else {
+            setEditIngredientItem(item);
+            setIsEditIngredientModalVisible(true);
+        }
+    };
+
+    const renderItem = ({ item }: { item: ShoppingListItem }) => {
+        if (item.type === 'custom') {
+            return (
+                <CustomShoppingListItem
+                    item={item.data}
+                    onToggleCheck={updateItemCheckStatus}
+                    editButton={{ onPress: () => handleEditItem(item.data) }}
+                />
+            );
+        }
+        
+        return (
+            <IngredientShoppingListItem
+                item={item.data}
+                onToggleCheck={updateIngredientCheckStatus}
+                editButton={{ onPress: () => handleEditItem(item.data) }}
+            />
+        );
+    };
+
     return (
         <Page>
             {hasAnyItems && (
@@ -274,37 +253,21 @@ export default function ShoppingListScreen() {
                 <NoItemsInfo type="shoppingList" />
             ) : (
                 <FlatList
-                    data={filteredVisibleItems}
+                    data={visibleItems}
                     style={styles.list}
                     contentContainerStyle={[
                         styles.listContainer,
-                        filteredVisibleItems.length === 0 && styles.emptyList
+                        visibleItems.length === 0 && styles.emptyList
                     ]}
                     ListEmptyComponent={() => 
                         searchText.trim() ? <NoSearchResultsBadge /> : null
                     }
                     ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                    renderItem={({ item }) => 
-                        item.type === 'custom' ? (
-                            <CustomShoppingListItem
-                                key={`custom-${item.data.shoppingListCustomItemId}`}
-                                item={item.data}
-                                onToggleCheck={updateItemCheckStatus}
-                                editButton={{ onPress: () => launchEditItemModal(item.data) }}
-                            />
-                        ) : (
-                            <IngredientShoppingListItem
-                                key={`ingredient-${item.data.shoppingListIngredientItemId}`}
-                                item={item.data}
-                                onToggleCheck={updateIngredientCheckStatus}
-                                editButton={{ onPress: () => launchEditIngredientModal(item.data) }}
-                            />
-                        )
-                    }
+                    renderItem={renderItem}
                     keyExtractor={item => 
-                        item.type === 'custom' 
-                            ? `custom-${item.data.shoppingListCustomItemId}` 
-                            : `ingredient-${item.data.shoppingListIngredientItemId}`
+                        `${item.type}-${item.type === 'custom' 
+                            ? item.data.shoppingListCustomItemId 
+                            : item.data.shoppingListIngredientItemId}`
                     }
                 />
             )}
@@ -386,6 +349,68 @@ export default function ShoppingListScreen() {
             */}
         </Page>
     );
+}
+
+// Helper functions
+function filterAndSortItems(shoppingList: ShoppingList, showChecked: boolean): ShoppingListItem[] {
+    const customItems: Array<ShoppingListItem> = shoppingList.customItems
+        .filter((item: ShoppingListCustomItem) => item.isChecked === showChecked)
+        .map((item: ShoppingListCustomItem) => ({ type: 'custom' as const, data: item }));
+        
+    const ingredientItems: Array<{ type: 'ingredient', data: ShoppingListIngredientItem }> = shoppingList.ingredientItems
+        .filter((item: ShoppingListIngredientItem) => item.isChecked === showChecked)
+        .map((item: ShoppingListIngredientItem) => ({ type: 'ingredient' as const, data: item }));
+
+    const processedIngredientItems = showChecked 
+        ? mergeCheckedIngredients(ingredientItems)
+        : ingredientItems;
+
+    return sortByTimestamp([...customItems, ...processedIngredientItems]);
+}
+
+function filterBySearch(items: ShoppingListItem[], searchText: string): ShoppingListItem[] {
+    const trimmed = searchText.trim();
+    return items.filter(item => {
+        if (item.type === 'custom') {
+            return includesIgnoreCase(item.data.text, trimmed);
+        }
+        const ingredient = item.data.ingredient.ingredient;
+        return includesIgnoreCase(ingredient.name, trimmed) ||
+            (ingredient.pluralName && includesIgnoreCase(ingredient.pluralName, trimmed));
+    });
+}
+
+function sortByTimestamp(items: ShoppingListItem[]): ShoppingListItem[] {
+    return items.sort((a, b) => 
+        INSERT_NEW_ITEMS_AT_TOP
+            ? b.data.creationTimestamp.getTime() - a.data.creationTimestamp.getTime()
+            : a.data.creationTimestamp.getTime() - b.data.creationTimestamp.getTime()
+    );
+}
+
+// Helper function to merge checked ingredient items
+function mergeCheckedIngredients(items: Array<{ type: 'ingredient', data: ShoppingListIngredientItem }>): Array<{ type: 'ingredient', data: ShoppingListIngredientItem }> {
+    return items.reduce((acc, curr) => {
+        const existingItemIndex = acc.findIndex(item => 
+            item.data.ingredient.ingredient.ingredientId === curr.data.ingredient.ingredient.ingredientId
+        );
+
+        if (existingItemIndex >= 0) {
+            const updatedItem = { ...acc[existingItemIndex] };
+            updatedItem.data = {
+                ...updatedItem.data,
+                ingredient: {
+                    ...updatedItem.data.ingredient,
+                    amount: updatedItem.data.ingredient.amount + curr.data.ingredient.amount
+                },
+                isAggregated: true
+            };
+            acc[existingItemIndex] = updatedItem;
+            return acc;
+        }
+
+        return [...acc, curr];
+    }, [] as Array<{ type: 'ingredient', data: ShoppingListIngredientItem }>);
 }
 
 const styles = StyleSheet.create({

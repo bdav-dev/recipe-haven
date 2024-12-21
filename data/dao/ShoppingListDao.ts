@@ -25,9 +25,95 @@ export function createShoppingListTableIfNotExists() {
     `);
 }
 
+// Database operations for custom items
+const CustomItemsDB = {
+    insert: async (item: Omit<ShoppingListCustomItem, 'shoppingListCustomItemId'>): Promise<ShoppingListCustomItem> => {
+        const dbItem = prepareCustomItemForDatabase(item);
+        const result = await database.runAsync(
+            'INSERT INTO ShoppingListCustomItem (text, isChecked, creationTimestamp) VALUES (?, ?, ?);',
+            [dbItem.text, dbItem.isChecked, dbItem.timestamp]
+        );
+        return { shoppingListCustomItemId: result.lastInsertRowId, ...item };
+    },
+
+    update: async (item: ShoppingListCustomItem) => {
+        await database.runAsync(
+            `UPDATE ShoppingListCustomItem
+             SET text = ?, isChecked = ?, creationTimestamp = ?
+             WHERE shoppingListCustomItemId = ?`,
+            [item.text, item.isChecked ? 1 : 0, item.creationTimestamp.toISOString(), item.shoppingListCustomItemId]
+        );
+    },
+
+    delete: async (itemId: number) => {
+        await database.runAsync(
+            'DELETE FROM ShoppingListCustomItem WHERE shoppingListCustomItemId = ?',
+            itemId
+        );
+    },
+
+    deleteChecked: async () => {
+        await database.runAsync('DELETE FROM ShoppingListCustomItem WHERE isChecked = 1;');
+    }
+};
+
+// Database operations for ingredient items
+const IngredientItemsDB = {
+    insert: async (item: Omit<ShoppingListIngredientItem, 'shoppingListIngredientItemId'>): Promise<ShoppingListIngredientItem> => {
+        const dbItem = prepareIngredientItemForDatabase(item);
+        const insertResult = await database.runAsync(
+            `INSERT INTO ShoppingListIngredientItem (ingredientId, quantity, isChecked, creationTimestamp)
+             VALUES (?, ?, ?, ?);`,
+            [dbItem.ingredientId, dbItem.quantity, dbItem.isChecked, dbItem.timestamp]
+        );
+
+        return {
+            shoppingListIngredientItemId: insertResult.lastInsertRowId,
+            ...item
+        };
+    },
+
+    update: async (item: ShoppingListIngredientItem) => {
+        await database.runAsync(
+            `
+            UPDATE ShoppingListIngredientItem
+            SET ingredientId = ?,
+                quantity = ?,
+                isChecked = ?,
+                creationTimestamp = ?
+            WHERE shoppingListIngredientItemId = ?
+            `,
+            [
+                item.ingredient.ingredient.ingredientId,
+                item.ingredient.amount,
+                item.isChecked ? 1 : 0,
+                item.creationTimestamp.toISOString(),
+                item.shoppingListIngredientItemId
+            ]
+        );
+    },
+
+    delete: async (itemId: number) => {
+        await database.runAsync(
+            `
+            DELETE FROM ShoppingListIngredientItem
+            WHERE shoppingListIngredientItemId = ?
+            `,
+            itemId
+        );
+    },
+
+    deleteChecked: async () => {
+        await database.runAsync(
+            `DELETE FROM ShoppingListIngredientItem
+             WHERE isChecked = 1;`
+        );
+    }
+};
+
 // Create Operations
 export async function createCustomItem(blueprint: CreateShoppingListCustomItemBlueprint) {
-    return await insertCustomItemInDatabase({
+    return await CustomItemsDB.insert({
         text: blueprint.text,
         isChecked: false,
         creationTimestamp: new Date()
@@ -35,7 +121,7 @@ export async function createCustomItem(blueprint: CreateShoppingListCustomItemBl
 }
 
 export async function createIngredientItem(blueprint: CreateShoppingListIngredientItemBlueprint) {
-    return await insertIngredientItemInDatabase({
+    return await IngredientItemsDB.insert({
         ingredient: blueprint.ingredient,
         isChecked: false,
         creationTimestamp: new Date()
@@ -74,7 +160,7 @@ export async function updateCustomItem(blueprint: UpdateShoppingListCustomItemBl
         ...blueprint.updatedValues
     };
 
-    await updateCustomItemInDatabase(updatedItem);
+    await CustomItemsDB.update(updatedItem);
     return updatedItem;
 }
 
@@ -83,87 +169,27 @@ export async function updateIngredientItem(blueprint: UpdateShoppingListIngredie
         shoppingListIngredientItemId: blueprint.originalItem.shoppingListIngredientItemId,
         ...blueprint.updatedValues
     };
-    await updateIngredientItemInDatabase(updatedItem);
+    await IngredientItemsDB.update(updatedItem);
     return updatedItem;
 }
 
 // Delete Operations
 export async function deleteCustomItem(item: ShoppingListCustomItem) {
-    await deleteCustomItemInDatabase(item.shoppingListCustomItemId);
+    await CustomItemsDB.delete(item.shoppingListCustomItemId);
 }
 
 export async function deleteIngredientItem(item: ShoppingListIngredientItem) {
-    await deleteIngredientItemInDatabase(item.shoppingListIngredientItemId);
+    await IngredientItemsDB.delete(item.shoppingListIngredientItemId);
 }
 
 export async function deleteCheckedItems(){
     await Promise.all([
-        deleteCheckedCustomItems(),
-        deleteCheckedIngredientItems()
+        CustomItemsDB.deleteChecked(),
+        IngredientItemsDB.deleteChecked()
     ]);
 }
 
-export async function deleteCheckedCustomItems() {
-    await database.runAsync(
-        `DELETE FROM ShoppingListCustomItem
-         WHERE isChecked = 1;`
-    );
-}
-
-export async function deleteCheckedIngredientItems() {
-    await database.runAsync(
-        `DELETE FROM ShoppingListIngredientItem
-         WHERE isChecked = 1;`
-    );
-}
-
 // Database Operations
-async function insertCustomItemInDatabase(item: Omit<ShoppingListCustomItem, 'shoppingListCustomItemId'>): Promise<ShoppingListCustomItem> {
-    const dbItem = prepareCustomItemForDatabase(item);
-    const insertResult = await database.runAsync(
-        `INSERT INTO ShoppingListCustomItem (text, isChecked, creationTimestamp)
-         VALUES (?, ?, ?);`,
-        [dbItem.text, dbItem.isChecked, dbItem.timestamp]
-    );
-    
-    return {
-        shoppingListCustomItemId: insertResult.lastInsertRowId,
-        ...item
-    };
-}
-
-async function insertIngredientItemInDatabase(item: Omit<ShoppingListIngredientItem, 'shoppingListIngredientItemId'>): Promise<ShoppingListIngredientItem> {
-    const dbItem = prepareIngredientItemForDatabase(item);
-    const insertResult = await database.runAsync(
-        `INSERT INTO ShoppingListIngredientItem (ingredientId, quantity, isChecked, creationTimestamp)
-         VALUES (?, ?, ?, ?);`,
-        [dbItem.ingredientId, dbItem.quantity, dbItem.isChecked, dbItem.timestamp]
-    );
-
-    return {
-        shoppingListIngredientItemId: insertResult.lastInsertRowId,
-        ...item
-    };
-
-}
-
-function prepareCustomItemForDatabase(item: Omit<ShoppingListCustomItem, 'shoppingListCustomItemId'>) {
-    return {
-        text: item.text,
-        isChecked: item.isChecked ? 1 : 0,
-        timestamp: item.creationTimestamp.toISOString()
-    };
-}
-
-function prepareIngredientItemForDatabase(item: Omit<ShoppingListIngredientItem, 'shoppingListIngredientItemId'>) {
-    return {
-        ingredientId: item.ingredient.ingredient.ingredientId,
-        quantity: item.ingredient.amount,
-        isChecked: item.isChecked ? 1 : 0,
-        timestamp: item.creationTimestamp.toISOString()
-    };
-}
-
 async function getAllCustomItemsFromDatabase(): Promise<ShoppingListCustomItem[]> {
     const result = await database.getAllAsync<DatabaseShoppingListCustomItem>(
         'SELECT * FROM ShoppingListCustomItem;'
@@ -190,62 +216,21 @@ async function getAllIngredientItemsFromDatabase(): Promise<ShoppingListIngredie
     return result.map(mapIngredientItemFromDatabaseModel);
 }
 
-async function updateCustomItemInDatabase(item: ShoppingListCustomItem) {
-    await database.runAsync(
-        `
-        UPDATE ShoppingListCustomItem
-        SET text = ?,
-            isChecked = ?,
-            creationTimestamp = ?
-        WHERE shoppingListCustomItemId = ?
-        `,
-        [
-            item.text,
-            item.isChecked ? 1 : 0,
-            item.creationTimestamp.toISOString(),
-            item.shoppingListCustomItemId
-        ]
-    );
+function prepareCustomItemForDatabase(item: Omit<ShoppingListCustomItem, 'shoppingListCustomItemId'>) {
+    return {
+        text: item.text,
+        isChecked: item.isChecked ? 1 : 0,
+        timestamp: item.creationTimestamp.toISOString()
+    };
 }
 
-async function updateIngredientItemInDatabase(item: ShoppingListIngredientItem) {
-    await database.runAsync(
-        `
-        UPDATE ShoppingListIngredientItem
-        SET ingredientId = ?,
-            quantity = ?,
-            isChecked = ?,
-            creationTimestamp = ?
-        WHERE shoppingListIngredientItemId = ?
-        `,
-        [
-            item.ingredient.ingredient.ingredientId,
-            item.ingredient.amount,
-            item.isChecked ? 1 : 0,
-            item.creationTimestamp.toISOString(),
-            item.shoppingListIngredientItemId
-        ]
-    );
-}
-
-async function deleteCustomItemInDatabase(itemId: number) {
-    await database.runAsync(
-        `
-        DELETE FROM ShoppingListCustomItem
-        WHERE shoppingListCustomItemId = ?
-        `,
-        itemId
-    );
-}
-
-async function deleteIngredientItemInDatabase(itemId: number) {
-    await database.runAsync(
-        `
-        DELETE FROM ShoppingListIngredientItem
-        WHERE shoppingListIngredientItemId = ?
-        `,
-        itemId
-    );
+function prepareIngredientItemForDatabase(item: Omit<ShoppingListIngredientItem, 'shoppingListIngredientItemId'>) {
+    return {
+        ingredientId: item.ingredient.ingredient.ingredientId,
+        quantity: item.ingredient.amount,
+        isChecked: item.isChecked ? 1 : 0,
+        timestamp: item.creationTimestamp.toISOString()
+    };
 }
 
 function mapCustomItemFromDatabaseModel(dbItem: DatabaseShoppingListCustomItem): ShoppingListCustomItem {
