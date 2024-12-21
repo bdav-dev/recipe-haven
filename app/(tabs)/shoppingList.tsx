@@ -62,13 +62,13 @@ export default function ShoppingListScreen() {
         [shoppingList]
     );
 
-    // This ensures the toggle is visible as long as there are ANY items
+    // This ensures the checked / unchecked toggle is visible as long as there are ANY items
     const shouldShowToggle = useMemo(() =>
         hasCheckedItems || hasUncheckedItems,
         [hasCheckedItems, hasUncheckedItems]
     );
 
-    // If we're showing checked items but there are none left, switch to unchecked view
+    // If showing checked items but there are none left, switch to unchecked view
     useEffect(() => {
         if (showCheckedItems && !hasCheckedItems) {
             setShowCheckedItems(false);
@@ -76,16 +76,6 @@ export default function ShoppingListScreen() {
     }, [hasCheckedItems, showCheckedItems]);
 
     const closeAllModals = () => setActiveModal('none');
-
-    const launchEditItemModal = (item: ShoppingListCustomItem) => {
-        setEditItem(item);
-        setIsEditModalVisible(true);
-    }
-
-    const launchEditIngredientModal = (item: ShoppingListIngredientItem) => {
-        setEditIngredientItem(item);
-        setIsEditIngredientModalVisible(true);
-    };
 
     const replaceActiveModal = (newValue: ModalType) => { // absolute bullshit, but needs to be there to work on iOS
         setActiveModal("none");
