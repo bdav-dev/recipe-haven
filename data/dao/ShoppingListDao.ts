@@ -2,7 +2,7 @@ import { ShoppingList, ShoppingListCustomItem, ShoppingListIngredientItem } from
 import database from "../database/Database";
 import { DatabaseIngredient, DatabaseShoppingListCustomItem, DatabaseShoppingListIngredientItem } from "@/types/DatabaseTypes";
 import { CreateShoppingListCustomItemBlueprint, CreateShoppingListIngredientItemBlueprint, UpdateShoppingListCustomItemBlueprint, UpdateShoppingListIngredientItemBlueprint } from "@/types/dao/ShoppingListDaoTypes";
-import { CalorificValue, Ingredient, QuantizedIngredient } from "@/types/IngredientTypes";
+import { QuantizedIngredient } from "@/types/IngredientTypes";
 import { mapFromDatabaseModel as mapIngredientFromDatabaseModel } from './IngredientDao';
 
 export function createShoppingListTableIfNotExists() {
@@ -14,7 +14,7 @@ export function createShoppingListTableIfNotExists() {
             creationTimestamp TEXT NOT NULL
         );
 
-         CREATE TABLE IF NOT EXISTS ShoppingListIngredientItem(
+        CREATE TABLE IF NOT EXISTS ShoppingListIngredientItem(
             shoppingListIngredientItemId INTEGER PRIMARY KEY AUTOINCREMENT,
             ingredientId INTEGER NOT NULL,
             quantity REAL NOT NULL,

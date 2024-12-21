@@ -5,7 +5,7 @@ import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { AppTheme } from "@/types/ThemeTypes";
 import CardView from "../themed/CardView";
 import { ThemedText } from "../themed/ThemedText";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import DifficultyLabel from "./DifficultyLabel";
 import DurationLabel from "./DurationLabel";
 import AutoColorBadge from "../AutoColorBadge";
@@ -14,6 +14,10 @@ import RecipeIngredientListItem from "./RecipeIngredientListItem";
 import TextField from "../TextField";
 import { isPositiveInteger } from "@/utils/MathUtils";
 import Star from "./Star";
+import { RecipeContext } from "@/context/RecipeContextProvider";
+import { setRecipeFavorite } from "@/data/dao/RecipeDao";
+import CalorieLabel from "./CalorieLabel";
+import { getTotalKcalPerPortion } from "@/utils/RecipeUtils";
 
 type RecipeDetailModalProps = {
     recipe: Recipe | null;
@@ -22,14 +26,19 @@ type RecipeDetailModalProps = {
 }
 
 export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }: RecipeDetailModalProps) {
+    const { setRecipes } = useContext(RecipeContext);
+
     const styles = useThemedStyleSheet(createStyles);
     const [portionMultiplier, setPortionMultiplier] = useState("1");
-    
+
     if (!recipe) return null;
 
+    const kcalPerPortion = getTotalKcalPerPortion(recipe);
+
     const handleFavoriteToggle = () => {
-        console.log(`Favourite for recipe ${recipe.recipeId} toggled!`);
-        // Placeholder for future implementation
+        recipe.isFavorite = !recipe.isFavorite;
+        setRecipes(recipes => [...recipes]);
+        setRecipeFavorite(recipe.recipeId, recipe.isFavorite);
     };
 
     const multiplier = isPositiveInteger(+portionMultiplier) ? +portionMultiplier : 1;
@@ -46,10 +55,12 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
         >
             <ScrollView style={styles.scrollView}>
                 <View style={styles.content}>
-                    <CardView title="Details">
-                        {recipe.imageSrc && (
-                            <Image source={{ uri: recipe.imageSrc }} style={styles.detailImage} />
-                        )}
+                    <CardView>
+                        {
+                            recipe.imageSrc && (
+                                <Image source={{ uri: recipe.imageSrc }} style={styles.detailImage} />
+                            )
+                        }
 
                         <View style={styles.titleContainer}>
                             <ThemedText type="midtitle" style={styles.title}>
@@ -59,25 +70,35 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
                         </View>
 
                         <View style={styles.detailsContainer}>
-                            {recipe.difficulty && (
-                                <View style={styles.detailItem}>
+                            {
+                                recipe.difficulty && (
+
                                     <DifficultyLabel difficulty={recipe.difficulty} />
-                                </View>
-                            )}
-                        {recipe.preparationTime && (
-                            <View style={styles.detailItem}>
-                                <DurationLabel duration={recipe.preparationTime} />
-                            </View>
-                        )}
-                        {recipe.tags.length > 0 && (
-                            <View style={styles.tagsContainer}>
-                                {recipe.tags.map((tag, index) => (
-                                    <AutoColorBadge key={index} text={tag} />
-                                ))}
-                            </View>
-                        )}
-                        
+
+                                )
+                            }
+                            {
+                                recipe.preparationTime && (
+                                    <DurationLabel duration={recipe.preparationTime} />
+                                )
+                            }
+                            {
+                                kcalPerPortion != undefined &&
+                                <CalorieLabel kiloCalories={kcalPerPortion} />
+                            }
                         </View>
+
+                        {
+                            recipe.tags.length > 0 && (
+                                <View style={styles.tagsContainer}>
+                                    {
+                                        recipe.tags.map((tag, index) => (
+                                            <AutoColorBadge key={index} text={tag} />
+                                        ))
+                                    }
+                                </View>
+                            )
+                        }
                     </CardView>
 
                     {recipe.description && (
@@ -89,7 +110,7 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
                     )}
 
                     <CardView title="Zutaten">
-                        <View style={styles.portionContainer}>
+                        <View style={[styles.portionContainer]}>
                             <ThemedText>Zutaten für </ThemedText>
                             <TextField
                                 style={styles.portionInput}
@@ -97,6 +118,7 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
                                 value={portionMultiplier}
                                 onChangeText={setPortionMultiplier}
                                 isErroneous={!isPositiveInteger(+portionMultiplier)}
+                                readOnly={true}
                             />
                             <ThemedText> Portion(en)</ThemedText>
                         </View>
@@ -138,6 +160,7 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         gap: 8,
     },
     portionContainer: {
+        justifyContent: "center",
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 16,
@@ -164,8 +187,5 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     title: {
         flex: 1,
         marginRight: 8,
-    },
-    detailItem: {
-        marginRight: 16,
-    },
+    }
 });

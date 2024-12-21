@@ -3,7 +3,6 @@ import database from "../database/Database";
 import { FullRecipeQueryResult, RecipeIngredientMap } from "@/types/DatabaseTypes";
 import { CreateRecipeBlueprint, Recipe } from "@/types/RecipeTypes";
 import { Duration } from "../misc/Duration";
-import { insertIngredientInDatabase } from "./IngredientDao";
 import * as FileSystem from 'expo-file-system';
 import { djb2 } from "@/utils/HashUtils";
 import { UpdateRecipeBlueprint } from "@/types/dao/RecipeDaoTypes";
@@ -49,6 +48,14 @@ async function getAllRecipesFromDatabase(allIngredients: Ingredient[]) {
     )
         .filter(item => item.recipeId != undefined) // If no items are in the database the query above selects a record where everything is null or and empty array. This fixes some bugs that would occur if this "ghost" record would be displayed.
         .map(item => mapFromFullRecipeQueryResult(item, allIngredients));
+}
+
+export async function setRecipeFavorite(recipeId: number, isFavorite: boolean) {
+    await database.runAsync(
+        'UPDATE Recipe SET isFavorite = ? WHERE recipeId = ?',
+        isFavorite ? 1 : 0,
+        recipeId
+    );
 }
 
 async function insertRecipeInDatabase(blueprint: CreateRecipeBlueprint) {
@@ -284,16 +291,6 @@ export async function updateRecipe(blueprint: UpdateRecipeBlueprint) {
     return updatedRecipe;
 }
 
-async function saveRecipeImage(recipeId: number, temporaryImageUri: string) {
-    const directoryUri = `${FileSystem.documentDirectory}recipes/${recipeId}/`;
-    const imageUri = `${directoryUri}img.${getFileExtension(temporaryImageUri)}`;
-
-    await createDirectoryIfNotExists(directoryUri);
-    await FileSystem.copyAsync({ from: temporaryImageUri, to: imageUri });
-
-    return imageUri;
-}
-
 async function deleteRecipeFromDatabase(recipeId: number) {
     await database.runAsync(
         `DELETE FROM RecipeTagLink WHERE recipeId = ?;`,
@@ -331,32 +328,11 @@ async function updateRecipeInDatabase(recipe: Recipe) {
     );
 
     // Update tags
-    await database.runAsync(
-        `DELETE FROM RecipeTagLink WHERE recipeId = ?;`,
-        recipe.recipeId
-    );
-
-    for (const tag of recipe.tags) {
-        const tagId = await insertRecipeTagInDatabase(tag);
-        await database.runAsync(
-            `INSERT INTO RecipeTagLink (recipeId, recipeTagId) VALUES (?, ?);`,
-            recipe.recipeId,
-            tagId
-        );
-    }
+    await database.runAsync('DELETE FROM RecipeTagLink WHERE recipeId = ?', recipe.recipeId);
+    await database.runAsync('DELETE FROM RecipeTag WHERE recipeId = ?', recipe.recipeId);
+    await insertRecipeTagsInDatabase(recipe.recipeId, recipe.tags);
 
     // Update ingredients
-    await database.runAsync(
-        `DELETE FROM RecipeIngredientLink WHERE recipeId = ?;`,
-        recipe.recipeId
-    );
-
-    for (const ingredient of recipe.ingredientsForOnePortion) {
-        await database.runAsync(
-            `INSERT INTO RecipeIngredientLink (recipeId, ingredientId, amount) VALUES (?, ?, ?);`,
-            recipe.recipeId,
-            ingredient.ingredient.ingredientId,
-            ingredient.amount
-        );
-    }
+    await database.runAsync('DELETE FROM RecipeIngredientLink WHERE recipeId = ?', recipe.recipeId);
+    await insertRecipeIngredients(recipe.recipeId, recipe.ingredientsForOnePortion);
 }
