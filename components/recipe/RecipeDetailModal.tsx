@@ -18,6 +18,7 @@ import { RecipeContext } from "@/context/RecipeContextProvider";
 import { setRecipeFavorite } from "@/data/dao/RecipeDao";
 import CalorieLabel from "./CalorieLabel";
 import { getTotalKcalPerPortion } from "@/utils/RecipeUtils";
+import Button from "../Button";
 
 type RecipeDetailModalProps = {
     recipe: Recipe | null;
@@ -33,12 +34,24 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
 
     if (!recipe) return null;
 
+    const isAtMinPortions = portionMultiplier === "1";
+
     const kcalPerPortion = getTotalKcalPerPortion(recipe);
 
     const handleFavoriteToggle = () => {
         recipe.isFavorite = !recipe.isFavorite;
         setRecipes(recipes => [...recipes]);
         setRecipeFavorite(recipe.recipeId, recipe.isFavorite);
+    };
+
+    const handleIncreasePortions = () => {
+        const newValue = parseInt(portionMultiplier) + 1;
+        setPortionMultiplier(newValue.toString());
+    };
+
+    const handleDecreasePortions = () => {
+        const newValue = Math.max(1, parseInt(portionMultiplier) - 1);
+        setPortionMultiplier(newValue.toString());
     };
 
     const multiplier = isPositiveInteger(+portionMultiplier) ? +portionMultiplier : 1;
@@ -71,13 +84,6 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
 
                         <View style={styles.detailsContainer}>
                             {
-                                recipe.difficulty && (
-
-                                    <DifficultyLabel difficulty={recipe.difficulty} />
-
-                                )
-                            }
-                            {
                                 recipe.preparationTime && (
                                     <DurationLabel duration={recipe.preparationTime} />
                                 )
@@ -85,6 +91,13 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
                             {
                                 kcalPerPortion != undefined &&
                                 <CalorieLabel kiloCalories={kcalPerPortion} />
+                            }
+                            {
+                                recipe.difficulty && (
+
+                                    <DifficultyLabel difficulty={recipe.difficulty} />
+
+                                )
                             }
                         </View>
 
@@ -112,14 +125,27 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
                     <CardView title="Zutaten">
                         <View style={[styles.portionContainer]}>
                             <ThemedText>Zutaten für </ThemedText>
-                            <TextField
-                                style={styles.portionInput}
-                                keyboardType="numeric"
-                                value={portionMultiplier}
-                                onChangeText={setPortionMultiplier}
-                                isErroneous={!isPositiveInteger(+portionMultiplier)}
-                                readOnly={true}
-                            />
+                            <View style={styles.portionControlContainer}>
+                                <Button
+                                    style={styles.portionButton}
+                                    ionicon="chevron-down-outline"
+                                    onPress={handleDecreasePortions}
+                                    disabled={isAtMinPortions}
+                                />
+                                <TextField
+                                    style={styles.portionInput}
+                                    keyboardType="numeric"
+                                    value={portionMultiplier}
+                                    onChangeText={setPortionMultiplier}
+                                    isErroneous={!isPositiveInteger(+portionMultiplier)}
+                                    readOnly={true}
+                                />
+                                <Button
+                                    style={styles.portionButton}
+                                    ionicon="chevron-up-outline"
+                                    onPress={handleIncreasePortions}
+                                />
+                            </View>
                             <ThemedText> Portion(en)</ThemedText>
                         </View>
 
@@ -164,6 +190,16 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 16,
+    },
+    portionControlContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4
+    },
+    portionButton: {
+        marginHorizontal: 0,
+        paddingHorizontal: 0,
+        paddingVertical: 0
     },
     portionInput: {
         width: 50,
