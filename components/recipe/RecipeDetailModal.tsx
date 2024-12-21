@@ -84,10 +84,6 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
 
                         <View style={styles.detailsContainer}>
                             {
-                                recipe.difficulty != undefined &&
-                                <DifficultyLabel difficulty={recipe.difficulty} />
-                            }
-                            {
                                 recipe.preparationTime &&
                                 <DurationLabel duration={recipe.preparationTime} />
                             }
@@ -96,11 +92,8 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose }:
                                 <CalorieLabel kiloCalories={kcalPerPortion} />
                             }
                             {
-                                recipe.difficulty && (
-
-                                    <DifficultyLabel difficulty={recipe.difficulty} />
-
-                                )
+                                recipe.difficulty != undefined &&
+                                <DifficultyLabel difficulty={recipe.difficulty} />
                             }
                         </View>
 
