@@ -25,7 +25,7 @@ export default function RecipeListItem(props: RecipeListItemProps) {
     const theme = useAppTheme();
     const styles = useThemedStyleSheet(createStyles);
     const recipe = props.recipe;
-    const kcalPerPortion = getTotalKcalPerPortion(recipe);
+    const kcalPerPortion = getTotalKcalPerPortion(recipe.ingredientsForOnePortion);
 
     const doesRecipeHaveTags = recipe.tags.length != 0;
     const doesRecipeHaveIngredientsWithImage = recipe.ingredientsForOnePortion.filter(item => item.ingredient.imageSrc).length != 0;

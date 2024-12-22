@@ -1,11 +1,12 @@
+import { QuantizedIngredient } from "@/types/IngredientTypes";
 import { Recipe } from "@/types/RecipeTypes";
 
-export function getTotalKcalPerPortion(recipe: Recipe) {
-    if (recipe.ingredientsForOnePortion.length == 0) {
+export function getTotalKcalPerPortion(ingredients: QuantizedIngredient[]) {
+    if (ingredients.length == 0) {
         return undefined;
     }
 
-    return recipe.ingredientsForOnePortion
+    return ingredients
         .map(quantizedIngredient => {
             const amount = quantizedIngredient.amount;
             const ingredient = quantizedIngredient.ingredient;

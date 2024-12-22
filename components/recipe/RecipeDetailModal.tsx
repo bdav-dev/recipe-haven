@@ -5,7 +5,7 @@ import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { AppTheme } from "@/types/ThemeTypes";
 import CardView from "../themed/CardView";
 import { ThemedText } from "../themed/ThemedText";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import DifficultyLabel from "./DifficultyLabel";
 import DurationLabel from "./DurationLabel";
 import AutoColorBadge from "../AutoColorBadge";
@@ -41,7 +41,7 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose, o
 
     const isAtMinPortions = portionMultiplier === "1";
 
-    const kcalPerPortion = getTotalKcalPerPortion(recipe);
+    const kcalPerPortion = getTotalKcalPerPortion(recipe.ingredientsForOnePortion);
 
     const handleFavoriteToggle = () => {
         recipe.isFavorite = !recipe.isFavorite;
@@ -61,31 +61,31 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose, o
 
     const handleAddToShoppingList = async () => {
         if (!recipe) return;
-        
+
         try {
             const newItems = await addIngredientsToBulk(scaledIngredients);
-            
+
             setShoppingList(current => {
                 const updatedIngredientItems = [...current.ingredientItems];
-                
+
                 newItems.forEach(newItem => {
-                    const existingIndex = updatedIngredientItems.findIndex(item => 
+                    const existingIndex = updatedIngredientItems.findIndex(item =>
                         item.shoppingListIngredientItemId === newItem.shoppingListIngredientItemId
                     );
-                    
+
                     if (existingIndex >= 0) {
                         updatedIngredientItems[existingIndex] = newItem;
                     } else {
                         updatedIngredientItems.push(newItem);
                     }
                 });
-                
+
                 return {
                     ...current,
                     ingredientItems: updatedIngredientItems
                 };
             });
-            
+
             Alert.alert('Erfolg', 'Zutaten wurden zur Einkaufsliste hinzugefügt.');
         } catch (error) {
             console.log('Failed to add ingredients to shopping list:', error);
@@ -103,6 +103,8 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose, o
         + (recipe.difficulty != undefined ? 1 : 0)
         + (kcalPerPortion != undefined ? 1 : 0)
     );
+
+    const kcalPortions = useMemo(() => getTotalKcalPerPortion(scaledIngredients), [scaledIngredients]);
 
 
     function triggerDelete() {
@@ -206,6 +208,14 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose, o
                             />
                         ))
                     }
+
+                    {
+                        kcalPortions != undefined &&
+                        <View style={{ marginTop: 4, marginLeft: "auto" }}>
+                            <CalorieLabel kiloCalories={kcalPortions} />
+                        </View>
+                    }
+
                     <Button
                         title="Zur Einkaufsliste hinzufügen"
                         ionicon="cart-outline"
