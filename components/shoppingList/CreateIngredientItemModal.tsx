@@ -1,31 +1,37 @@
 import { useState, useContext, useEffect } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Modal from "../modals/Modal";
 import TextField from "../TextField";
-import UnitPicker from "../ingredient/UnitPicker";
 import { createIngredientItem } from "@/data/dao/ShoppingListDao";
 import { ShoppingListContext } from "@/context/ShoppingListContextProvider";
-import IngredientSearch from "./IngredientSearch";
-import { Ingredient, QuantizedIngredient, Unit } from "@/types/IngredientTypes";
+import { Ingredient, QuantizedIngredient } from "@/types/IngredientTypes";
 import { ThemedText } from "../themed/ThemedText";
+import { equalsIgnoreCase, includesIgnoreCase, isBlank } from "@/utils/StringUtils";
+import IngredientSuggestion from "../recipe/IngredientSuggestion";
+import { isValidAmount, unitToString } from "@/utils/UnitUtils";
+import CardView from "../themed/CardView";
+import IngredientItemPicker from "./IngredientItemPicker";
 
 type CreateIngredientItemModalProps = {
     isVisible: boolean,
-    onRequestClose: () => void
+    onRequestClose: () => void,
+    ingredientSuggestions: Ingredient[]
 }
 
 export default function CreateIngredientItemModal(props: CreateIngredientItemModalProps) {
-    const [ingredient, setIngredient] = useState<Ingredient | null>(null);
-    const [quantity, setQuantity] = useState('');
+    const [amountText, setAmountText] = useState('');
+    const [ingredient, setIngredient] = useState<Ingredient>();
     const { setShoppingList } = useContext(ShoppingListContext);
 
 
     const handleCreate = async () => {
-        if (!ingredient || !quantity) return;
+        const amount = +amountText;
+        if (!ingredient || !isValidAmount(+amount))
+            return;
 
         const quantizedIngredient: QuantizedIngredient = {
             ingredient,
-            amount: parseFloat(quantity)
+            amount
         };
 
         const newItem = await createIngredientItem({
@@ -48,59 +54,40 @@ export default function CreateIngredientItemModal(props: CreateIngredientItemMod
             rightButton={{
                 title: "Hinzufügen",
                 onPress: handleCreate,
-                disabled: !ingredient || !quantity
+                disabled: !ingredient || !isValidAmount(+amountText)
             }}
         >
-            <View style={styles.contentContainer}>
-                <View style={styles.searchContainer}>
-                    <ThemedText type="defaultSemiBold">Zutat</ThemedText>
-                    <IngredientSearch onSelectIngredient={setIngredient} />
-                </View>
-                <View style={styles.quantityContainer}>
-                    <ThemedText type="defaultSemiBold">Menge</ThemedText>
-                    <View style={styles.quantityInputContainer}>
-                        <TextField
-                            placeholder="Menge"
-                            value={quantity}
-                            onChangeText={setQuantity}
-                            style={styles.quantityField}
-                            keyboardType="numeric"
-                        />
-                    </View>
-                </View>
-            </View>
+            <CardView style={styles.main} title="Zutat">
+                <IngredientItemPicker
+                    amountText={amountText}
+                    setAmountText={setAmountText}
+                    ingredientSuggestions={props.ingredientSuggestions}
+                    ingredient={ingredient}
+                    setIngredient={setIngredient}
+                />
+            </CardView>
         </Modal>
     );
 }
 
 const styles = StyleSheet.create({
-    contentContainer: {
-        padding: 20,
-        gap: 16,
+    ingredientSuggestionView: {
+        position: "absolute",
+        bottom: 38,
         width: "100%",
-    },
-    searchContainer: {
-        gap: 8
-    },
-    quantityContainer: {
-        gap: 8
-    },
-    quantityInputContainer: {
+        overflow: "hidden",
         flexDirection: "row",
+        flexWrap: "nowrap",
+        gap: 3
+    },
+    amountTextField: {
+        minWidth: 80,
+        textAlign: "center"
+    },
+    main: {
+        flexDirection: "row",
+        gap: 6,
         alignItems: "center",
-        gap: 12,
-        height: 40
-    },
-    quantityField: {
-        flex: 0.3,
-        height: "100%",
-        fontSize: 16,
-        paddingHorizontal: 12,
-        borderWidth: 1,
-        borderRadius: 4
-    },
-    unitPicker: {
-        flex: 0.6,
-        height: "100%"
+        margin: 4
     }
 });
