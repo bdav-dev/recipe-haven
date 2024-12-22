@@ -31,7 +31,7 @@ export default function ShoppingListViewDeleteButton({ onDelete }: ShoppingListV
     };
 
     return (
-        <FloatingActionButton position='right' color={theme.button.destructive} onPress={onDelete} round={false}>
+        <FloatingActionButton position='right' color={theme.button.destructive} onPress={triggerDelete} round={false}>
             <View style={styles.content}>
                 <Ionicons name='trash-outline' size={22} color={"white"} />
                 <ThemedText style={styles.text}>{"Löschen"}</ThemedText>
