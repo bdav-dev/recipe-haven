@@ -21,7 +21,7 @@ type EditIngredientItemModalProps = {
 }
 
 export default function EditIngredientItemModal(props: EditIngredientItemModalProps) {
-    const { setShoppingList } = useContext(ShoppingListContext);
+    const { shoppingList, setShoppingList } = useContext(ShoppingListContext);
     const [ingredient, setIngredient] = useState<Ingredient>();
     const [amountText, setAmountText] = useState('');
 
@@ -29,9 +29,26 @@ export default function EditIngredientItemModal(props: EditIngredientItemModalPr
         reset();
     }, [props.editItem]);
 
+    function getRealAmount(editItem: ShoppingListIngredientItem): number {
+        if (!editItem.isAggregated) {
+            return editItem.ingredient.amount;
+        }
+
+        // Find all related items of the same ingredient type
+        const relatedItems = shoppingList.ingredientItems.filter(item => 
+            item.ingredient.ingredient.ingredientId === editItem.ingredient.ingredient.ingredientId &&
+            !item.isChecked &&
+            !item.isAggregated
+        );
+
+        // Sum up the amounts of the related items
+        return relatedItems.reduce((sum, item) => sum + item.ingredient.amount, 0);
+    }
+
     function reset() {
         if (props.editItem) {
-            setAmountText(props.editItem.ingredient.amount.toString());
+            const realAmount = getRealAmount(props.editItem);
+            setAmountText(realAmount.toString());
             setIngredient(props.editItem.ingredient.ingredient);
         }
     }
@@ -46,32 +63,74 @@ export default function EditIngredientItemModal(props: EditIngredientItemModalPr
     }
 
     function update() {
-        const amount = +amountText;
-        if (!props.editItem || !ingredient || !isValidAmount(amount)) return;
+        const newAmount = +amountText;
+        if (!props.editItem || !ingredient || !isValidAmount(newAmount)) return;
 
-        const updatedItem = {
-            ...props.editItem,
-            ingredient: {
-                ingredient: ingredient,
-                amount
-            }
-        };
+        if (props.editItem.isAggregated) {
+            // Delete all non-checked items of this ingredient type
+            const itemsToDelete = shoppingList.ingredientItems.filter(item => 
+                item.ingredient.ingredient.ingredientId === props.editItem?.ingredient.ingredient.ingredientId &&
+                !item.isChecked &&
+                !item.isAggregated
+            );
 
-        updateIngredientItem({
-            originalItem: props.editItem,
-            updatedValues: updatedItem
-        })
-            .then(() => {
-                setShoppingList(current => ({
-                    ...current,
-                    ingredientItems: current.ingredientItems.map(item =>
-                        item.shoppingListIngredientItemId === updatedItem.shoppingListIngredientItemId
-                            ? updatedItem
-                            : item
-                    )
-                }));
-                close();
-            });
+            // Create a single new item with the entered amount
+            const newItem = {
+                ...props.editItem,
+                isAggregated: false,
+                ingredient: {
+                    ingredient: ingredient,
+                    amount: newAmount
+                }
+            };
+
+            // Update the shopping list
+            Promise.all(itemsToDelete.map(item => deleteIngredientItem(item)))
+                .then(() => updateIngredientItem({
+                    originalItem: props.editItem!,
+                    updatedValues: newItem
+                }))
+                .then(() => {
+                    setShoppingList(current => ({
+                        ...current,
+                        ingredientItems: [
+                            ...current.ingredientItems.filter(item => 
+                                !itemsToDelete.some(deleteItem => 
+                                    deleteItem.shoppingListIngredientItemId === item.shoppingListIngredientItemId
+                                )
+                            ),
+                            newItem
+                        ]
+                    }));
+                    close();
+                });
+        } else {
+            // Update the item with the new ingredient and amount
+            const updatedItem = {
+                ...props.editItem,
+                isAggregated: false,
+                ingredient: {
+                    ingredient: ingredient,
+                    amount: newAmount
+                }
+            };
+
+            updateIngredientItem({
+                originalItem: props.editItem,
+                updatedValues: updatedItem
+            })
+                .then(() => {
+                    setShoppingList(current => ({
+                        ...current,
+                        ingredientItems: current.ingredientItems.map(item =>
+                            item.shoppingListIngredientItemId === updatedItem.shoppingListIngredientItemId
+                                ? updatedItem
+                                : item
+                        )
+                    }));
+                    close();
+                });
+        }
     }
 
     function remove() {

@@ -16,7 +16,7 @@ export default function ShoppingListViewToggle({ showChecked, onToggle }: Shoppi
         <FloatingActionButton position='left' color={theme.button.default} onPress={onToggle} round={false}>
             <View style={styles.content}>
                 <Ionicons name='list-outline' size={22} color={"white"} />
-                <ThemedText style={styles.text}>{showChecked ? "Erledigte" : "Offene"}</ThemedText>
+                <ThemedText style={styles.text}>{showChecked ? "Offene" : "Erledigte"}</ThemedText>
             </View>
         </FloatingActionButton>
     );
