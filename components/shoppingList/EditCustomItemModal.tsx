@@ -1,4 +1,4 @@
-import { Alert, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 import TextField from "../TextField";
 import { useContext, useEffect, useState } from "react";
 import { ShoppingListContext } from "@/context/ShoppingListContextProvider";
@@ -8,6 +8,7 @@ import { deleteCustomItem, updateCustomItem } from "@/data/dao/ShoppingListDao";
 import Button from "../Button";
 import FullScreenModal from "../modals/FullScreenModal";
 import Modal from "../modals/Modal";
+import CardView from "../themed/CardView";
 
 type EditCustomItemModalProps = {
     isVisible: boolean,
@@ -46,32 +47,32 @@ export default function EditCustomItemModal(props: EditCustomItemModalProps) {
                 text: text
             }
         })
-        .then(updatedItem => {
-            setShoppingList(current => ({
-                ...current,
-                customItems: current.customItems.map(item => 
-                    item.shoppingListCustomItemId === updatedItem.shoppingListCustomItemId 
-                        ? updatedItem 
-                        : item
-                )
-            }));
-            close();
-        });
+            .then(updatedItem => {
+                setShoppingList(current => ({
+                    ...current,
+                    customItems: current.customItems.map(item =>
+                        item.shoppingListCustomItemId === updatedItem.shoppingListCustomItemId
+                            ? updatedItem
+                            : item
+                    )
+                }));
+                close();
+            });
     }
 
     function remove() {
         if (!props.editItem) return;
 
         deleteCustomItem(props.editItem)
-        .then(() => {
-            setShoppingList(current => ({
-                ...current,
-                customItems: current.customItems.filter(item => 
-                    item.shoppingListCustomItemId !== props.editItem?.shoppingListCustomItemId
-                )
-            }));
-            close();
-        });
+            .then(() => {
+                setShoppingList(current => ({
+                    ...current,
+                    customItems: current.customItems.filter(item =>
+                        item.shoppingListCustomItemId !== props.editItem?.shoppingListCustomItemId
+                    )
+                }));
+                close();
+            });
     }
 
     function showConfirmDeleteAlert() {
@@ -98,22 +99,33 @@ export default function EditCustomItemModal(props: EditCustomItemModalProps) {
                 disabled: !isReadyForSubmit()
             }}
         >
-            <View>
+            <View style={styles.view}>
                 <TextField
                     placeholder="Text"
                     onChangeText={setText}
+                    style={styles.textField}
                 >
                     {props.editItem?.text}
                 </TextField>
 
-                <Button 
-                    style={{ marginTop: 16 }} 
-                    title="Eintrag löschen" 
-                    ionicon="trash-outline" 
-                    type="destructive" 
-                    onPress={showConfirmDeleteAlert} 
+                <Button
+                    style={{ marginVertical: 10 }}
+                    title="Eintrag löschen"
+                    ionicon="trash-outline"
+                    type="destructive"
+                    onPress={showConfirmDeleteAlert}
                 />
             </View>
         </Modal>
     );
 }
+
+const styles = StyleSheet.create({
+    view: {
+        padding: 8
+    },
+    textField: {
+        width: "100%",
+        fontSize: 24
+    }
+});

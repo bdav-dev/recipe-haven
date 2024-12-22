@@ -6,6 +6,8 @@ import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { ShoppingListIngredientItem } from "@/types/ShoppingListTypes";
 import CardView from "../themed/CardView";
 import { ThemedText } from "../themed/ThemedText";
+import { unitToConvertedString } from "@/utils/UnitUtils";
+import { quantizedIngredientNameToString } from "@/utils/IngredientUtils";
 
 type IngredientShoppingListItemProps = {
     item: ShoppingListIngredientItem;
@@ -22,44 +24,52 @@ export default function IngredientShoppingListItem(props: IngredientShoppingList
         const amount = item.ingredient.amount;
         const unit = item.ingredient.ingredient.unit;
         const ingredient = item.ingredient.ingredient;
-        
+
         // Get name based on amount
         const name = amount === 1 ? ingredient.name : (ingredient.pluralName || ingredient.name);
-        
+
         return `${amount} ${name}`;
     };
 
     return (
         <CardView style={styles.card} noPadding>
-            <TouchableOpacity 
-                style={styles.actionButton} 
+            <TouchableOpacity
+                style={styles.actionButton}
                 onPress={() => onToggleCheck(item)}
             >
-                <Ionicons 
-                    name={item.isChecked ? "checkbox" : "square-outline"} 
-                    size={24} 
-                    color={theme.primary} 
+                <Ionicons
+                    name={item.isChecked ? "checkbox" : "square-outline"}
+                    size={24}
+                    color={theme.primary}
                 />
             </TouchableOpacity>
 
-            <Image 
-                source={{ uri: item.ingredient.ingredient.imageSrc }} 
-                style={styles.image} 
-            />
+
+
 
             <View style={styles.contentContainer}>
-                <ThemedText 
-                    type="largeSemiBold" 
+                <ThemedText
+                    type="largeSemiBold"
                     style={[item.isChecked && styles.checkedText]}
                 >
-                    {getDisplayName()}
+                    {unitToConvertedString(item.ingredient.amount, item.ingredient.ingredient.unit)} {quantizedIngredientNameToString(item.ingredient)}
                 </ThemedText>
             </View>
 
             {
+                item.ingredient.ingredient.imageSrc &&
+                <Image
+                    source={{ uri: item.ingredient.ingredient.imageSrc }}
+                    style={styles.image}
+                />
+            }
+
+            <View style={{ flex: 1 }} />
+
+            {
                 editButton &&
-                <TouchableOpacity 
-                    style={styles.actionButton} 
+                <TouchableOpacity
+                    style={styles.actionButton}
                     onPress={editButton.onPress}>
                     <Ionicons name="pencil-outline" size={24} color={theme.primary} />
                 </TouchableOpacity>
@@ -90,7 +100,6 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
         marginRight: 8
     },
     contentContainer: {
-        flex: 1,
         marginRight: 16,
         justifyContent: 'center'
     },

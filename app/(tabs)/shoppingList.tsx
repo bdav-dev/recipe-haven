@@ -20,6 +20,7 @@ import SearchBar from '@/components/SearchBar';
 import NoItemsInfo from '@/components/NoItemsInfo';
 import NoSearchResultsBadge from '@/components/NoSearchResultsBadge';
 import { includesIgnoreCase } from '@/utils/StringUtils';
+import { IngredientContext } from '@/context/IngredientContextProvider';
 
 const INSERT_NEW_ITEMS_AT_TOP = false; // Set to false to add new items at the bottom
 
@@ -30,6 +31,8 @@ type ShoppingListItem =
 type ModalType = 'none' | 'selection' | 'custom' | 'ingredient' | 'recipe';
 
 export default function ShoppingListScreen() {
+    const { ingredients } = useContext(IngredientContext);
+
     const theme = useAppTheme();
     const { shoppingList, setShoppingList } = useContext(ShoppingListContext);
     const [showCheckedItems, setShowCheckedItems] = useState(false);
@@ -230,7 +233,6 @@ export default function ShoppingListScreen() {
                     data={visibleItems}
                     style={styles.list}
                     contentContainerStyle={[
-                        styles.listContainer,
                         visibleItems.length === 0 && styles.emptyList
                     ]}
                     ListEmptyComponent={() =>
@@ -243,6 +245,7 @@ export default function ShoppingListScreen() {
                             ? item.data.shoppingListCustomItemId
                             : item.data.shoppingListIngredientItemId}`
                     }
+                    ListFooterComponent={<View style={{ height: 100 }} />}
                 />
             )}
 
@@ -287,6 +290,7 @@ export default function ShoppingListScreen() {
             {
                 activeModal == 'ingredient' && // absolute bullshit, but needs to be there to work on iOS
                 <CreateIngredientItemModal
+                    ingredientSuggestions={ingredients}
                     isVisible={activeModal == 'ingredient'}
                     onRequestClose={closeAllModals}
                 />
@@ -300,6 +304,7 @@ export default function ShoppingListScreen() {
 
             {/* Edit ingredient item modal */}
             <EditIngredientItemModal
+                ingredientSuggestions={ingredients}
                 isVisible={isEditIngredientModalVisible}
                 onRequestClose={() => setIsEditIngredientModalVisible(false)}
                 editItem={editIngredientItem}
@@ -408,10 +413,7 @@ const styles = StyleSheet.create({
         right: 20,
         zIndex: 1,
     },
-    listContainer: {
-        flex: 1,
-        width: '100%'
-    },
+
     emptyList: {
         flex: 1,
         justifyContent: 'center',

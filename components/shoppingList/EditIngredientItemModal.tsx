@@ -9,17 +9,21 @@ import TextField from "../TextField";
 import { ThemedText } from "../themed/ThemedText";
 import IngredientSearch from "./IngredientSearch";
 import { Ingredient } from "@/types/IngredientTypes";
+import CardView from "../themed/CardView";
+import IngredientItemPicker from "./IngredientItemPicker";
+import { isValidAmount } from "@/utils/UnitUtils";
 
 type EditIngredientItemModalProps = {
     isVisible: boolean;
     onRequestClose?: () => void;
     editItem?: ShoppingListIngredientItem;
+    ingredientSuggestions: Ingredient[]
 }
 
 export default function EditIngredientItemModal(props: EditIngredientItemModalProps) {
     const { setShoppingList } = useContext(ShoppingListContext);
-    const [quantity, setQuantity] = useState('');
     const [ingredient, setIngredient] = useState<Ingredient>();
+    const [amountText, setAmountText] = useState('');
 
     useEffect(() => {
         reset();
@@ -27,7 +31,7 @@ export default function EditIngredientItemModal(props: EditIngredientItemModalPr
 
     function reset() {
         if (props.editItem) {
-            setQuantity(props.editItem.ingredient.amount.toString());
+            setAmountText(props.editItem.ingredient.amount.toString());
             setIngredient(props.editItem.ingredient.ingredient);
         }
     }
@@ -38,17 +42,18 @@ export default function EditIngredientItemModal(props: EditIngredientItemModalPr
     }
 
     function isReadyForSubmit() {
-        return ingredient && quantity;
+        return ingredient && isValidAmount(+amountText);
     }
 
     function update() {
-        if (!props.editItem || !ingredient || !quantity) return;
+        const amount = +amountText;
+        if (!props.editItem || !ingredient || !isValidAmount(amount)) return;
 
         const updatedItem = {
             ...props.editItem,
             ingredient: {
                 ingredient: ingredient,
-                amount: parseFloat(quantity)
+                amount
             }
         };
 
@@ -56,36 +61,36 @@ export default function EditIngredientItemModal(props: EditIngredientItemModalPr
             originalItem: props.editItem,
             updatedValues: updatedItem
         })
-        .then(() => {
-            setShoppingList(current => ({
-                ...current,
-                ingredientItems: current.ingredientItems.map(item =>
-                    item.shoppingListIngredientItemId === updatedItem.shoppingListIngredientItemId
-                        ? updatedItem
-                        : item
-                )
-            }));
-            close();
-        });
+            .then(() => {
+                setShoppingList(current => ({
+                    ...current,
+                    ingredientItems: current.ingredientItems.map(item =>
+                        item.shoppingListIngredientItemId === updatedItem.shoppingListIngredientItemId
+                            ? updatedItem
+                            : item
+                    )
+                }));
+                close();
+            });
     }
 
     function remove() {
         if (!props.editItem) return;
 
         deleteIngredientItem(props.editItem)
-        .then(() => {
-            setShoppingList(current => ({
-                ...current,
-                ingredientItems: current.ingredientItems.filter(item =>
-                    item.shoppingListIngredientItemId !== props.editItem?.shoppingListIngredientItemId
-                )
-            }));
-            close();
-        });
+            .then(() => {
+                setShoppingList(current => ({
+                    ...current,
+                    ingredientItems: current.ingredientItems.filter(item =>
+                        item.shoppingListIngredientItemId !== props.editItem?.shoppingListIngredientItemId
+                    )
+                }));
+                close();
+            });
     }
 
     function showConfirmDeleteAlert() {
-        Alert.alert('Zutat löschen', 'Möchtest du diese Zutat wirklich löschen?', [
+        Alert.alert('Eintrag löschen', 'Möchtest du diesen Eintrag wirklich löschen?', [
             {
                 text: 'Abbrechen'
             },
@@ -109,29 +114,23 @@ export default function EditIngredientItemModal(props: EditIngredientItemModalPr
             }}
         >
             <View style={styles.contentContainer}>
-                <View style={styles.searchContainer}>
-                    <ThemedText type="defaultSemiBold">Zutat</ThemedText>
-                    <IngredientSearch 
-                        onSelectIngredient={setIngredient}
+                <CardView style={styles.main} title="Zutat">
+                    <IngredientItemPicker
+                        initialIngredientText={ingredient?.name}
+                        amountText={amountText}
+                        setAmountText={setAmountText}
+                        ingredientSuggestions={props.ingredientSuggestions}
+                        ingredient={ingredient}
+                        setIngredient={setIngredient}
                     />
-                </View>
-                <View style={styles.quantityContainer}>
-                    <ThemedText type="defaultSemiBold">Menge</ThemedText>
-                    <TextField
-                        placeholder="Menge"
-                        value={quantity}
-                        onChangeText={setQuantity}
-                        style={styles.quantityField}
-                        keyboardType="numeric"
-                    />
-                </View>
+                </CardView>
 
-                <Button 
-                    style={styles.deleteButton} 
-                    title="Zutat löschen" 
-                    ionicon="trash-outline" 
-                    type="destructive" 
-                    onPress={showConfirmDeleteAlert} 
+                <Button
+                    style={styles.deleteButton}
+                    title="Eintrag löschen"
+                    ionicon="trash-outline"
+                    type="destructive"
+                    onPress={showConfirmDeleteAlert}
                 />
             </View>
         </Modal>
@@ -140,8 +139,6 @@ export default function EditIngredientItemModal(props: EditIngredientItemModalPr
 
 const styles = StyleSheet.create({
     contentContainer: {
-        padding: 20,
-        gap: 16,
         width: "100%",
     },
     searchContainer: {
@@ -158,6 +155,12 @@ const styles = StyleSheet.create({
         borderRadius: 4
     },
     deleteButton: {
-        marginTop: 16
+        marginVertical: 10
+    },
+    main: {
+        flexDirection: "row",
+        gap: 6,
+        alignItems: "center",
+        margin: 4
     }
 });
