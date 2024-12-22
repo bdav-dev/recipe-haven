@@ -34,7 +34,7 @@ export default function FullScreenModal({
                 <KeyboardAvoidingView
                     style={styles.modal}
                     keyboardVerticalOffset={Platform.select({ ios: 11, android: 11 })}
-                    behavior="height"
+                    behavior={Platform.OS == "android" ? "padding" : "height"}
                 >
                     <ModalHeader customLeftButton={customLeftButton} {...header} />
                     {preScrollViewChildren}
