@@ -130,11 +130,9 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose, o
         >
             <View style={styles.content}>
                 <CardView>
-                    {
-                        recipe.imageSrc && (
-                            <Image source={{ uri: recipe.imageSrc }} style={styles.detailImage} />
-                        )
-                    }
+                    {recipe.imageSrc && (
+                        <Image source={{ uri: recipe.imageSrc }} style={styles.detailImage} />
+                    )}
 
                     <View style={styles.titleContainer}>
                         <ThemedText type="midtitle" style={styles.title}>
@@ -143,32 +141,25 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose, o
                         <Star filled={recipe.isFavorite} onPress={handleFavoriteToggle} />
                     </View>
 
-                    <View style={[styles.detailsContainer, { justifyContent: amountOfRecipeInfo == 3 ? 'space-between' : 'flex-start' }]}>
-                        {
-                            recipe.preparationTime &&
+                    <View style={styles.infoContainer}>
+                        {recipe.preparationTime && (
                             <DurationLabel duration={recipe.preparationTime} />
-                        }
-                        {
-                            kcalPerPortion != undefined &&
-                            <CalorieLabel kiloCalories={kcalPerPortion} />
-                        }
-                        {
-                            recipe.difficulty != undefined &&
+                        )}
+                        {recipe.difficulty != undefined && (
                             <DifficultyLabel difficulty={recipe.difficulty} />
-                        }
+                        )}
+                        {kcalPerPortion != undefined && (
+                            <CalorieLabel kiloCalories={kcalPerPortion} />
+                        )}
                     </View>
 
-                    {
-                        recipe.tags.length > 0 && (
-                            <View style={styles.tagsContainer}>
-                                {
-                                    recipe.tags.map((tag, index) => (
-                                        <AutoColorBadge key={index} text={tag} />
-                                    ))
-                                }
-                            </View>
-                        )
-                    }
+                    {recipe.tags.length > 0 && (
+                        <View style={styles.tagsContainer}>
+                            {recipe.tags.map((tag, index) => (
+                                <AutoColorBadge key={index} text={tag} />
+                            ))}
+                        </View>
+                    )}
                 </CardView>
 
                 {
@@ -299,5 +290,10 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     },
     addToCartButton: {
         marginTop: 16
-    }
+    },
+    infoContainer: {
+        flexDirection: 'column',
+        gap: 8,
+        marginBottom: 12
+    },
 });
