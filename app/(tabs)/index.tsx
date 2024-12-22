@@ -102,7 +102,7 @@ export default function RecipesScreen() {
                 }
             </FrontendRecipeHolderContextProvider>
 
-            <FloatingActionButton onPress={() => setCreateRecipeModalVisible(true)}>
+            <FloatingActionButton onPress={() => setCreateRecipeModalVisible(true)} position='right'>
                 <Ionicons name='add-outline' color={theme.card} size={35} />
             </FloatingActionButton>
         </Page>

@@ -65,7 +65,7 @@ export default function IngredientsScreen() {
           )
       }
 
-      <FloatingActionButton onPress={() => setIsCreateModalVisible(true)}>
+      <FloatingActionButton onPress={() => setIsCreateModalVisible(true)} position='right'>
         <Ionicons name='add-outline' color={theme.card} size={35} />
       </FloatingActionButton>
 

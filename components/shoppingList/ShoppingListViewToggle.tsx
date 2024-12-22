@@ -1,46 +1,36 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useAppTheme } from '@/hooks/useAppTheme';
-import Button from '../Button';
+import FloatingActionButton from '../FloatingActionButton';
+import { Ionicons } from '@expo/vector-icons';
+import { ThemedText } from '../themed/ThemedText';
 
 type ShoppingListViewToggleProps = {
     showChecked: boolean;
     onToggle: () => void;
-    visible?: boolean;
 }
 
-export default function ShoppingListViewToggle({ showChecked, onToggle, visible }: ShoppingListViewToggleProps) {
+export default function ShoppingListViewToggle({ showChecked, onToggle }: ShoppingListViewToggleProps) {
     const theme = useAppTheme();
 
-    if (!visible) return null;
-
     return (
-        <Button 
-            title={showChecked ? "Erledigte" : "Offene"}
-            ionicon="list-outline"  // Added icon for consistency
-            onPress={onToggle}
-            style={[styles.toggleButton, { backgroundColor: theme.button.default }]}
-            textStyle={styles.buttonText}
-            type="normal"
-            iconColor="white"  // Add this line to make icon white
-        />
+        <FloatingActionButton position='left' color={theme.button.default} onPress={onToggle} round={false}>
+            <View style={styles.content}>
+                <Ionicons name='list-outline' size={22} color={"white"} />
+                <ThemedText style={styles.text}>{showChecked ? "Erledigte" : "Offene"}</ThemedText>
+            </View>
+        </FloatingActionButton>
     );
 }
 
 const styles = StyleSheet.create({
-    toggleButton: {
+    content: {
+        flexDirection: 'row',
         paddingVertical: 10,
         paddingHorizontal: 16,
-        borderRadius: 20,
-        shadowColor: "black",
-        shadowOffset: { height: 2, width: 0 },
-        shadowRadius: 4,
-        shadowOpacity: 0.15,
-        elevation: 3,
-        width: 130, // Same width as delete button
+        alignItems: 'center',
+        gap: 6
     },
-    buttonText: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: 'white'
+    text: {
+        color: "white"
     }
 });

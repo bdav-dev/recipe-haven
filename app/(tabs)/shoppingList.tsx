@@ -23,7 +23,7 @@ import { includesIgnoreCase } from '@/utils/StringUtils';
 
 const INSERT_NEW_ITEMS_AT_TOP = false; // Set to false to add new items at the bottom
 
-type ShoppingListItem = 
+type ShoppingListItem =
     | { type: 'custom'; data: ShoppingListCustomItem }
     | { type: 'ingredient'; data: ShoppingListIngredientItem };
 
@@ -54,18 +54,6 @@ export default function ShoppingListScreen() {
         shoppingList.customItems.some(item => item.isChecked) ||
         shoppingList.ingredientItems.some(item => item.isChecked),
         [shoppingList]
-    );
-
-    const hasUncheckedItems = useMemo(() =>
-        shoppingList.customItems.some(item => !item.isChecked) ||
-        shoppingList.ingredientItems.some(item => !item.isChecked),
-        [shoppingList]
-    );
-
-    // This ensures the checked / unchecked toggle is visible as long as there are ANY items
-    const shouldShowToggle = useMemo(() =>
-        hasCheckedItems || hasUncheckedItems,
-        [hasCheckedItems, hasUncheckedItems]
     );
 
     // If showing checked items but there are none left, switch to unchecked view
@@ -132,7 +120,7 @@ export default function ShoppingListScreen() {
                 setShoppingList(current => ({
                     ...current,
                     ingredientItems: [
-                        ...current.ingredientItems.filter(i => 
+                        ...current.ingredientItems.filter(i =>
                             i.ingredient.ingredient.ingredientId !== item.ingredient.ingredient.ingredientId ||
                             i.isChecked
                         ),
@@ -141,7 +129,7 @@ export default function ShoppingListScreen() {
                 }));
 
                 // Delete the old unchecked items from the database
-                const itemsToDelete = shoppingList.ingredientItems.filter(i => 
+                const itemsToDelete = shoppingList.ingredientItems.filter(i =>
                     i.ingredient.ingredient.ingredientId === item.ingredient.ingredient.ingredientId &&
                     !i.isChecked
                 );
@@ -216,7 +204,7 @@ export default function ShoppingListScreen() {
                 />
             );
         }
-        
+
         return (
             <IngredientShoppingListItem
                 item={item.data}
@@ -229,8 +217,8 @@ export default function ShoppingListScreen() {
     return (
         <Page>
             {hasAnyItems && (
-                <SearchBar 
-                    searchText={searchText} 
+                <SearchBar
+                    searchText={searchText}
                     onSearchTextChange={setSearchText}
                 />
             )}
@@ -245,40 +233,35 @@ export default function ShoppingListScreen() {
                         styles.listContainer,
                         visibleItems.length === 0 && styles.emptyList
                     ]}
-                    ListEmptyComponent={() => 
+                    ListEmptyComponent={() =>
                         searchText.trim() ? <NoSearchResultsBadge /> : null
                     }
                     ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
                     renderItem={renderItem}
-                    keyExtractor={item => 
-                        `${item.type}-${item.type === 'custom' 
-                            ? item.data.shoppingListCustomItemId 
+                    keyExtractor={item =>
+                        `${item.type}-${item.type === 'custom'
+                            ? item.data.shoppingListCustomItemId
                             : item.data.shoppingListIngredientItemId}`
                     }
                 />
             )}
 
-            {shouldShowToggle && (
-                <View style={styles.buttonContainer}>
-                    <ShoppingListViewToggle
-                        showChecked={showCheckedItems}
-                        onToggle={() => setShowCheckedItems(prev => !prev)}
-                        visible={true}
-                    />
-                </View>
-            )}
+            {
+                hasCheckedItems &&
+                <ShoppingListViewToggle
+                    showChecked={showCheckedItems}
+                    onToggle={() => setShowCheckedItems(prev => !prev)}
+                />
+            }
 
             {showCheckedItems ? (
                 hasCheckedItems && (
-                    <View style={styles.deleteButtonContainer}>
-                        <ShoppingListViewDeleteButton
-                            onDelete={handleDeleteCheckedItems}
-                            visible={true}
-                        />
-                    </View>
+                    <ShoppingListViewDeleteButton
+                        onDelete={handleDeleteCheckedItems}
+                    />
                 )
             ) : (
-                <FloatingActionButton onPress={() => setActiveModal('selection')}>
+                <FloatingActionButton onPress={() => setActiveModal('selection')} position='right'>
                     <Ionicons name='add-outline' color={theme.card} size={35} />
                 </FloatingActionButton>
             )}
@@ -342,14 +325,14 @@ function filterAndSortItems(shoppingList: ShoppingList, showChecked: boolean): S
     const customItems: Array<ShoppingListItem> = shoppingList.customItems
         .filter((item: ShoppingListCustomItem) => item.isChecked === showChecked)
         .map((item: ShoppingListCustomItem) => ({ type: 'custom' as const, data: item }));
-        
+
     const ingredientItems: Array<{ type: 'ingredient', data: ShoppingListIngredientItem }> = shoppingList.ingredientItems
         .filter((item: ShoppingListIngredientItem) => item.isChecked === showChecked)
         .map((item: ShoppingListIngredientItem) => ({ type: 'ingredient' as const, data: item }));
 
     // Merge unchecked ingredients
-    const processedIngredientItems = showChecked 
-        ? ingredientItems 
+    const processedIngredientItems = showChecked
+        ? ingredientItems
         : mergeIngredients(ingredientItems);
 
     return sortByTimestamp([...customItems, ...processedIngredientItems]);
@@ -358,10 +341,10 @@ function filterAndSortItems(shoppingList: ShoppingList, showChecked: boolean): S
 // Helper function to merge ingredients with the same ID
 function mergeIngredients(items: Array<{ type: 'ingredient', data: ShoppingListIngredientItem }>): Array<{ type: 'ingredient', data: ShoppingListIngredientItem }> {
     const mergedMap = new Map<number, { type: 'ingredient', data: ShoppingListIngredientItem }>();
-    
+
     items.forEach(item => {
         const ingredientId = item.data.ingredient.ingredient.ingredientId;
-        
+
         if (mergedMap.has(ingredientId)) {
             const existing = mergedMap.get(ingredientId)!;
             const updatedItem = {
@@ -402,7 +385,7 @@ function filterBySearch(items: ShoppingListItem[], searchText: string): Shopping
 
 // Helper function to sort items by timestamp
 function sortByTimestamp(items: ShoppingListItem[]): ShoppingListItem[] {
-    return items.sort((a, b) => 
+    return items.sort((a, b) =>
         INSERT_NEW_ITEMS_AT_TOP
             ? b.data.creationTimestamp.getTime() - a.data.creationTimestamp.getTime()
             : a.data.creationTimestamp.getTime() - b.data.creationTimestamp.getTime()

@@ -1,37 +1,49 @@
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { AppTheme } from "@/types/ThemeTypes";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, TouchableOpacityProps, ViewStyle } from "react-native";
 
 type FloatingActionButtonProps = {
     children?: React.ReactNode,
-    onPress?: () => void
+    onPress?: () => void,
+    position: 'left' | 'right',
+    color?: string,
+    style?: ViewStyle,
+    round?: boolean
 }
 
 export default function FloatingActionButton(props: FloatingActionButtonProps) {
-    const styles = useThemedStyleSheet(createStyles);
+    const theme = useAppTheme();
+
+    const round = props.round == undefined ? true : props.round;
 
     return (
         <TouchableOpacity
             onPress={props.onPress}
-            style={styles.fab}
+            style={
+                [
+                    styles.fab,
+                    { left: props.position == 'left' ? GAP : undefined, right: props.position == "right" ? GAP : undefined },
+                    { backgroundColor: props.color ?? theme.accent },
+                    round ? { width: 55, height: 55} : undefined,
+                    props.style
+                ]
+            }
         >
             {props.children}
         </TouchableOpacity>
     );
 }
 
-const createStyles = (theme: AppTheme) => StyleSheet.create({
-    fab: {
-        width: 55,
-        height: 55,
+const GAP = 25;
+const styles = StyleSheet.create({
+    fab: { 
         borderRadius: 999,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: theme.accent,
         position: "absolute",
-        bottom: 25,
-        right: 25,
+        bottom: GAP,
         zIndex: 1,
         shadowColor: "black",
         shadowOffset: { height: 0, width: 0 },
