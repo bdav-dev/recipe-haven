@@ -13,6 +13,13 @@ type IngredientSuggestionProps = {
 export default function IngredientSuggestion(props: IngredientSuggestionProps) {
     const styles = useThemedStyleSheet(createStyles);
 
+    const MAX_NAME_LENGTH = 20;
+    const ingredientName = (
+        props.ingredient.name.length > MAX_NAME_LENGTH
+            ? props.ingredient.name.slice(0, MAX_NAME_LENGTH - 3) + "..."
+            : props.ingredient.name
+    );
+
     return (
         <CardView style={styles.cardView} noPadding>
             {
@@ -20,7 +27,7 @@ export default function IngredientSuggestion(props: IngredientSuggestionProps) {
                     ? <Image source={{ uri: props.ingredient.imageSrc }} style={styles.image} />
                     : <View style={{ width: 3 }} />
             }
-            <ThemedText style={styles.text}>{props.ingredient.name}</ThemedText>
+            <ThemedText style={styles.text}>{ingredientName}</ThemedText>
         </CardView>
     );
 }

@@ -41,6 +41,7 @@ export default function IngredientItemPicker(props: IngredientItemPickerProps) {
                 value={ingredientText}
                 onChangeText={setIngredientText}
             />
+
             <View style={[styles.ingredientSuggestionView, { display: ingredientSuggestionsVisible ? "flex" : "none" }]}>
                 {
                     props.ingredientSuggestions
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
         gap: 3
     },
     amountTextField: {
-        minWidth: 80,
+        minWidth: 65,
         textAlign: "center"
     },
     recipeIngredientPicker: {
