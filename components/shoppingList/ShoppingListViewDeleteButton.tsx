@@ -37,6 +37,7 @@ export default function ShoppingListViewDeleteButton({ onDelete, visible }: Shop
             type="destructive"
             style={[styles.deleteButton, { backgroundColor: theme.button.destructive }]}
             textStyle={styles.buttonText}
+            iconColor="white"  // Add this line to make icon white
         />
     );
 }

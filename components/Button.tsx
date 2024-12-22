@@ -6,8 +6,9 @@ import { StyleSheet, Text, TextStyle, TouchableOpacity, TouchableOpacityProps } 
 type ButtonProps = Omit<TouchableOpacityProps, 'children'> & {
     title?: string,
     ionicon?: Ionicon,
-    textStyle?: TextStyle
-    type?: 'normal' | 'destructive'
+    textStyle?: TextStyle,
+    type?: 'normal' | 'destructive',
+    iconColor?: string  // Add this line to support custom icon colors
 }
 
 export default function Button({
@@ -17,6 +18,7 @@ export default function Button({
     style,
     disabled,
     textStyle,
+    iconColor,
     ...rest
 }: ButtonProps) {
     const theme = useAppTheme();
@@ -34,7 +36,7 @@ export default function Button({
             disabled={disabled}
             {...rest}
         >
-            {ioniconName && <Ionicons name={ioniconName} size={26} color={color} />}
+            {ioniconName && <Ionicons name={ioniconName} size={26} color={iconColor || color} />}
             {title && <Text style={[styles.text, { color }, textStyle]}>{title}</Text>}
         </TouchableOpacity>
     );

@@ -21,6 +21,7 @@ export default function ShoppingListViewToggle({ showChecked, onToggle, visible 
             style={[styles.toggleButton, { backgroundColor: theme.button.default }]}
             textStyle={styles.buttonText}
             type="normal"
+            iconColor="white"  // Add this line to make icon white
         />
     );
 }
