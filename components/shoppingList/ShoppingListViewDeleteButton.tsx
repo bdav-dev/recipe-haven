@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Alert } from 'react-native';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import Button from '../Button';
 
@@ -12,10 +12,27 @@ export default function ShoppingListViewDeleteButton({ onDelete, visible }: Shop
 
     if (!visible) return null;
 
+    const triggerDelete = () => {
+        Alert.alert(
+            'Erledigte Einträge löschen', 
+            'Möchtest du alle erledigten Einträge wirklich löschen?', 
+            [
+                {
+                    text: 'Abbrechen'
+                },
+                {
+                    text: 'Löschen',
+                    onPress: onDelete,
+                    style: "destructive"
+                }
+            ]
+        );
+    };
+
     return (
         <Button 
             title="Erledigte löschen"
-            onPress={onDelete}
+            onPress={triggerDelete}
             type="destructive"
             style={[styles.deleteButton, { backgroundColor: theme.accent }]}
         />
