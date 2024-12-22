@@ -9,7 +9,7 @@ import CreateCustomItemModal from '@/components/shoppingList/CreateCustomItemMod
 import { ShoppingListContext } from '@/context/ShoppingListContextProvider';
 import CustomShoppingListItem from '@/components/shoppingList/CustomShoppingListItem';
 import { ShoppingListCustomItem, ShoppingListIngredientItem, ShoppingList } from '@/types/ShoppingListTypes';
-import { updateCustomItem, deleteCheckedItems, updateIngredientItem, deleteIngredientItem } from '@/data/dao/ShoppingListDao';
+import { updateCustomItem, deleteCheckedItems, updateIngredientItem, deleteIngredientItem, createIngredientItem } from '@/data/dao/ShoppingListDao';
 import ShoppingListViewToggle from '@/components/shoppingList/ShoppingListViewToggle';
 import ShoppingListViewDeleteButton from '@/components/shoppingList/ShoppingListViewDeleteButton';
 import EditCustomItemModal from '@/components/shoppingList/EditCustomItemModal';
@@ -110,51 +110,47 @@ export default function ShoppingListScreen() {
         }
     };
 
+    // Update the check status of an ingredient itemS
     const updateIngredientCheckStatus = async (item: ShoppingListIngredientItem) => {
         try {
-            // If this is an aggregated item being unchecked
-            if (item.isAggregated && item.isChecked) {
-                // Find all related checked items
-                const relatedItems = shoppingList.ingredientItems.filter(i => 
-                    i.isChecked && 
-                    i.ingredient.ingredient.ingredientId === item.ingredient.ingredient.ingredientId
-                );
+            // When checking an aggregated item, create a new entry with the total amount
+            if (item.isAggregated && !item.isChecked) {
+                const newItem = {
+                    ...item,
+                    isChecked: true,
+                    isAggregated: false,
+                    shoppingListIngredientItemId: undefined,
+                    creationTimestamp: new Date()
+                };
 
-                // Calculate original quantities by timestamps
-                const timestamps = new Set(relatedItems.map(i => i.creationTimestamp.getTime()));
-                const separateItems = Array.from(timestamps).map(timestamp => {
-                    const items = relatedItems.filter(i => i.creationTimestamp.getTime() === timestamp);
-                    return {
-                        ...items[0],
-                        ingredient: {
-                            ...items[0].ingredient,
-                            amount: items.reduce((sum, i) => sum + i.ingredient.amount, 0)
-                        },
-                        isChecked: false,
-                        isAggregated: false
-                    };
+                // Create a new entry in the database
+                const createdItem = await createIngredientItem({
+                    ingredient: newItem.ingredient
                 });
 
-                // Update all items
-                await Promise.all(
-                    separateItems.map(item => 
-                        updateIngredientItem({
-                            originalItem: item,
-                            updatedValues: item
-                        })
-                    )
-                );
-
+                // Remove all unchecked items of this ingredient type and add the new checked item
                 setShoppingList(current => ({
                     ...current,
-                    ingredientItems: current.ingredientItems
-                        .filter(i => !relatedItems.some(ri => ri.shoppingListIngredientItemId === i.shoppingListIngredientItemId))
-                        .concat(separateItems)
+                    ingredientItems: [
+                        ...current.ingredientItems.filter(i => 
+                            i.ingredient.ingredient.ingredientId !== item.ingredient.ingredient.ingredientId ||
+                            i.isChecked
+                        ),
+                        createdItem
+                    ]
                 }));
+
+                // Delete the old unchecked items from the database
+                const itemsToDelete = shoppingList.ingredientItems.filter(i => 
+                    i.ingredient.ingredient.ingredientId === item.ingredient.ingredient.ingredientId &&
+                    !i.isChecked
+                );
+                await Promise.all(itemsToDelete.map(i => deleteIngredientItem(i)));
+
                 return;
             }
 
-            // Normal single item toggle
+            // Update the check status of the item
             const updatedItem = {
                 ...item,
                 isChecked: !item.isChecked,
@@ -351,13 +347,47 @@ function filterAndSortItems(shoppingList: ShoppingList, showChecked: boolean): S
         .filter((item: ShoppingListIngredientItem) => item.isChecked === showChecked)
         .map((item: ShoppingListIngredientItem) => ({ type: 'ingredient' as const, data: item }));
 
+    // Merge unchecked ingredients
     const processedIngredientItems = showChecked 
-        ? mergeCheckedIngredients(ingredientItems)
-        : ingredientItems;
+        ? ingredientItems 
+        : mergeIngredients(ingredientItems);
 
     return sortByTimestamp([...customItems, ...processedIngredientItems]);
 }
 
+// Helper function to merge ingredients with the same ID
+function mergeIngredients(items: Array<{ type: 'ingredient', data: ShoppingListIngredientItem }>): Array<{ type: 'ingredient', data: ShoppingListIngredientItem }> {
+    const mergedMap = new Map<number, { type: 'ingredient', data: ShoppingListIngredientItem }>();
+    
+    items.forEach(item => {
+        const ingredientId = item.data.ingredient.ingredient.ingredientId;
+        
+        if (mergedMap.has(ingredientId)) {
+            const existing = mergedMap.get(ingredientId)!;
+            const updatedItem = {
+                type: 'ingredient' as const,
+                data: {
+                    ...existing.data,
+                    ingredient: {
+                        ...existing.data.ingredient,
+                        amount: existing.data.ingredient.amount + item.data.ingredient.amount
+                    },
+                    isAggregated: true
+                }
+            };
+            mergedMap.set(ingredientId, updatedItem);
+        } else {
+            mergedMap.set(ingredientId, {
+                type: 'ingredient',
+                data: { ...item.data, isAggregated: false }
+            });
+        }
+    });
+
+    return Array.from(mergedMap.values());
+}
+
+// Helper function to filter items by search text
 function filterBySearch(items: ShoppingListItem[], searchText: string): ShoppingListItem[] {
     const trimmed = searchText.trim();
     return items.filter(item => {
@@ -370,37 +400,13 @@ function filterBySearch(items: ShoppingListItem[], searchText: string): Shopping
     });
 }
 
+// Helper function to sort items by timestamp
 function sortByTimestamp(items: ShoppingListItem[]): ShoppingListItem[] {
     return items.sort((a, b) => 
         INSERT_NEW_ITEMS_AT_TOP
             ? b.data.creationTimestamp.getTime() - a.data.creationTimestamp.getTime()
             : a.data.creationTimestamp.getTime() - b.data.creationTimestamp.getTime()
     );
-}
-
-// Helper function to merge checked ingredient items
-function mergeCheckedIngredients(items: Array<{ type: 'ingredient', data: ShoppingListIngredientItem }>): Array<{ type: 'ingredient', data: ShoppingListIngredientItem }> {
-    return items.reduce((acc, curr) => {
-        const existingItemIndex = acc.findIndex(item => 
-            item.data.ingredient.ingredient.ingredientId === curr.data.ingredient.ingredient.ingredientId
-        );
-
-        if (existingItemIndex >= 0) {
-            const updatedItem = { ...acc[existingItemIndex] };
-            updatedItem.data = {
-                ...updatedItem.data,
-                ingredient: {
-                    ...updatedItem.data.ingredient,
-                    amount: updatedItem.data.ingredient.amount + curr.data.ingredient.amount
-                },
-                isAggregated: true
-            };
-            acc[existingItemIndex] = updatedItem;
-            return acc;
-        }
-
-        return [...acc, curr];
-    }, [] as Array<{ type: 'ingredient', data: ShoppingListIngredientItem }>);
 }
 
 const styles = StyleSheet.create({
