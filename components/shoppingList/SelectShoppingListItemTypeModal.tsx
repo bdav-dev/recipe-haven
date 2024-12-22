@@ -31,8 +31,8 @@ export default function SelectShoppingListItemTypeModal(props: SelectShoppingLis
                     </CardView>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={props.onSelectRecipe}>
-                    <CardView style={styles.optionCard}>
+                <TouchableOpacity disabled={true}>
+                    <CardView style={[styles.optionCard, { opacity: 0.5 }]}>
                         <ThemedText type="largeSemiBold">Aus Rezept</ThemedText>
                     </CardView>
                 </TouchableOpacity>
