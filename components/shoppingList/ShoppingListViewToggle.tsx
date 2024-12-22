@@ -15,26 +15,31 @@ export default function ShoppingListViewToggle({ showChecked, onToggle, visible 
 
     return (
         <Button 
-            title={showChecked ? "Erledigte anzeigen" : "Offene anzeigen"}
+            title={showChecked ? "Erledigte" : "Offene"}
+            ionicon="list-outline"  // Added icon for consistency
             onPress={onToggle}
-            style={[styles.toggleButton, { backgroundColor: theme.accent }]}
+            style={[styles.toggleButton, { backgroundColor: theme.button.default }]}
+            textStyle={styles.buttonText}
+            type="normal"
         />
     );
 }
 
 const styles = StyleSheet.create({
     toggleButton: {
-        paddingVertical: 12,
+        paddingVertical: 10,
         paddingHorizontal: 16,
-        borderRadius: 25,
+        borderRadius: 20,
         shadowColor: "black",
-        shadowOffset: { height: 0, width: 0 },
-        shadowRadius: 10,
-        shadowOpacity: 0.2,
-        elevation: 5,
+        shadowOffset: { height: 2, width: 0 },
+        shadowRadius: 4,
+        shadowOpacity: 0.15,
+        elevation: 3,
+        width: 130, // Same width as delete button
     },
-    toggleButtonText: {
-        fontSize: 16,
-        fontWeight: '600'
+    buttonText: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: 'white'
     }
 });

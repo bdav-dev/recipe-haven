@@ -31,23 +31,27 @@ export default function ShoppingListViewDeleteButton({ onDelete, visible }: Shop
 
     return (
         <Button 
-            title="Erledigte löschen"
+            title="Löschen"
+            ionicon="trash-outline"
             onPress={triggerDelete}
             type="destructive"
-            style={[styles.deleteButton, { backgroundColor: theme.accent }]}
+            style={[styles.deleteButton, { backgroundColor: theme.button.destructive }]}
+            textStyle={styles.buttonText}
         />
     );
 }
 
 const styles = StyleSheet.create({
     deleteButton: {
-        paddingVertical: 12,
+        paddingVertical: 10,
         paddingHorizontal: 16,
-        borderRadius: 25,
-        shadowColor: "black",
-        shadowOffset: { height: 0, width: 0 },
-        shadowRadius: 10,
-        shadowOpacity: 0.2,
-        elevation: 5,
+        borderRadius: 20,
+        elevation: 3,
+        width: 130,  // Same width as toggle button
+    },
+    buttonText: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: 'white'
     }
 });

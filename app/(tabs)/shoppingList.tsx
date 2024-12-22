@@ -416,13 +416,13 @@ const styles = StyleSheet.create({
     buttonContainer: {
         position: 'absolute',
         bottom: 25,
-        left: 25,
+        left: 20,
         zIndex: 1,
     },
     deleteButtonContainer: {
         position: 'absolute',
         bottom: 25,
-        right: 25,
+        right: 20,
         zIndex: 1,
     },
     listContainer: {
