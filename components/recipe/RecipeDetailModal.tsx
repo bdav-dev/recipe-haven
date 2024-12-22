@@ -19,6 +19,8 @@ import { deleteRecipe, setRecipeFavorite } from "@/data/dao/RecipeDao";
 import CalorieLabel from "./CalorieLabel";
 import { getTotalKcalPerPortion } from "@/utils/RecipeUtils";
 import Button from "../Button";
+import { addIngredientsToBulk } from "@/data/dao/ShoppingListDao";
+import { ShoppingListContext } from "@/context/ShoppingListContextProvider";
 
 type RecipeDetailModalProps = {
     recipe: Recipe | null;
@@ -30,6 +32,7 @@ type RecipeDetailModalProps = {
 
 export default function RecipeDetailModal({ recipe, isVisible, onRequestClose, onEdit, onDelete }: RecipeDetailModalProps) {
     const { setRecipes } = useContext(RecipeContext);
+    const { setShoppingList } = useContext(ShoppingListContext);
 
     const styles = useThemedStyleSheet(createStyles);
     const [portionMultiplier, setPortionMultiplier] = useState("1");
@@ -54,6 +57,40 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose, o
     const handleDecreasePortions = () => {
         const newValue = Math.max(1, parseInt(portionMultiplier) - 1);
         setPortionMultiplier(newValue.toString());
+    };
+
+    const handleAddToShoppingList = async () => {
+        if (!recipe) return;
+        
+        try {
+            const newItems = await addIngredientsToBulk(scaledIngredients);
+            
+            setShoppingList(current => {
+                const updatedIngredientItems = [...current.ingredientItems];
+                
+                newItems.forEach(newItem => {
+                    const existingIndex = updatedIngredientItems.findIndex(item => 
+                        item.shoppingListIngredientItemId === newItem.shoppingListIngredientItemId
+                    );
+                    
+                    if (existingIndex >= 0) {
+                        updatedIngredientItems[existingIndex] = newItem;
+                    } else {
+                        updatedIngredientItems.push(newItem);
+                    }
+                });
+                
+                return {
+                    ...current,
+                    ingredientItems: updatedIngredientItems
+                };
+            });
+            
+            Alert.alert('Erfolg', 'Zutaten wurden zur Einkaufsliste hinzugefügt.');
+        } catch (error) {
+            console.log('Failed to add ingredients to shopping list:', error);
+            Alert.alert('Fehler', 'Zutaten konnten nicht zur Einkaufsliste hinzugefügt werden.');
+        }
     };
 
     const multiplier = isPositiveInteger(+portionMultiplier) ? +portionMultiplier : 1;
@@ -178,6 +215,12 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose, o
                             />
                         ))
                     }
+                    <Button
+                        title="Zur Einkaufsliste hinzufügen"
+                        ionicon="cart-outline"
+                        style={styles.addToCartButton}
+                        onPress={handleAddToShoppingList}
+                    />
                 </CardView>
 
                 <Button
@@ -253,5 +296,8 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     title: {
         flex: 1,
         marginRight: 8,
+    },
+    addToCartButton: {
+        marginTop: 16
     }
 });

@@ -128,6 +128,40 @@ export async function createIngredientItem(blueprint: CreateShoppingListIngredie
     });
 }
 
+export async function addIngredientsToBulk(ingredients: QuantizedIngredient[]): Promise<ShoppingListIngredientItem[]> {
+    const existingItems = await getAllIngredientItemsFromDatabase();
+    const results: ShoppingListIngredientItem[] = [];
+
+    for (const ingredient of ingredients) {
+        // Check if ingredient already exists and is not checked
+        const existingItem = existingItems.find(item => 
+            item.ingredient.ingredient.ingredientId === ingredient.ingredient.ingredientId &&
+            !item.isChecked
+        );
+
+        if (existingItem) {
+            // Update existing item
+            const updatedItem = {
+                ...existingItem,
+                ingredient: {
+                    ...existingItem.ingredient,
+                    amount: existingItem.ingredient.amount + ingredient.amount
+                }
+            };
+            await IngredientItemsDB.update(updatedItem);
+            results.push(updatedItem);
+        } else {
+            // Create new item
+            const newItem = await createIngredientItem({
+                ingredient: ingredient
+            });
+            results.push(newItem);
+        }
+    }
+
+    return results;
+}
+
 // Read Operations
 export async function getAllCustomItems() {
     return await getAllCustomItemsFromDatabase();
