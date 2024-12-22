@@ -59,19 +59,20 @@ export default function RecipeIngredientPicker(props: RecipeIngredientPickerProp
                     value={ingredientText}
                     onChangeText={setIngredientText}
                 />
-                <View style={[styles.ingredientSuggestionView, { display: ingredientSuggestionsVisible ? "flex" : "none" }]}>
-                    {
-                        props.ingredientSuggestions
-                            .filter(() => ingredient == undefined)
-                            .filter(ing => includesIgnoreCase(ing.name, ingredientText) || includesIgnoreCase(ing.pluralName ?? "", ingredientText))
-                            .map(
-                                (ingredient, index) =>
-                                    <TouchableOpacity key={index} onPress={() => setIngredientText(ingredient.name)}>
-                                        <IngredientSuggestion key={index} ingredient={ingredient} />
-                                    </TouchableOpacity>
-                            )
-                    }
-                </View>
+            </View>
+
+            <View style={[styles.ingredientSuggestionView, { display: ingredientSuggestionsVisible ? "flex" : "none" }]}>
+                {
+                    props.ingredientSuggestions
+                        .filter(() => ingredient == undefined)
+                        .filter(ing => includesIgnoreCase(ing.name, ingredientText) || includesIgnoreCase(ing.pluralName ?? "", ingredientText))
+                        .map(
+                            (ingredient, index) =>
+                                <TouchableOpacity key={index} onPress={() => setIngredientText(ingredient.name)}>
+                                    <IngredientSuggestion key={index} ingredient={ingredient} />
+                                </TouchableOpacity>
+                        )
+                }
             </View>
 
             <TextField
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
         gap: 3
     },
     amountTextField: {
-        minWidth: 80,
+        minWidth: 65,
         textAlign: "center"
     },
     recipeIngredientPicker: {

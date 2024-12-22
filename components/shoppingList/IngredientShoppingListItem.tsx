@@ -6,7 +6,7 @@ import { useThemedStyleSheet } from "@/hooks/useThemedStyleSheet";
 import { ShoppingListIngredientItem } from "@/types/ShoppingListTypes";
 import CardView from "../themed/CardView";
 import { ThemedText } from "../themed/ThemedText";
-import { unitToConvertedString } from "@/utils/UnitUtils";
+import { getQuantizedIngredientFrontendText, unitToConvertedString } from "@/utils/UnitUtils";
 import { quantizedIngredientNameToString } from "@/utils/IngredientUtils";
 
 type IngredientShoppingListItemProps = {
@@ -20,16 +20,7 @@ export default function IngredientShoppingListItem(props: IngredientShoppingList
     const theme = useAppTheme();
     const styles = useThemedStyleSheet(createStyles);
 
-    const getDisplayName = () => {
-        const amount = item.ingredient.amount;
-        const unit = item.ingredient.ingredient.unit;
-        const ingredient = item.ingredient.ingredient;
-
-        // Get name based on amount
-        const name = amount === 1 ? ingredient.name : (ingredient.pluralName || ingredient.name);
-
-        return `${amount} ${name}`;
-    };
+    const text = getQuantizedIngredientFrontendText(props.item.ingredient);
 
     return (
         <CardView style={styles.card} noPadding>
@@ -44,18 +35,6 @@ export default function IngredientShoppingListItem(props: IngredientShoppingList
                 />
             </TouchableOpacity>
 
-
-
-
-            <View style={styles.contentContainer}>
-                <ThemedText
-                    type="largeSemiBold"
-                    style={[item.isChecked && styles.checkedText]}
-                >
-                    {unitToConvertedString(item.ingredient.amount, item.ingredient.ingredient.unit)} {quantizedIngredientNameToString(item.ingredient)}
-                </ThemedText>
-            </View>
-
             {
                 item.ingredient.ingredient.imageSrc &&
                 <Image
@@ -64,7 +43,13 @@ export default function IngredientShoppingListItem(props: IngredientShoppingList
                 />
             }
 
-            <View style={{ flex: 1 }} />
+            <ThemedText
+                type="largeSemiBold"
+                style={[item.isChecked && styles.checkedText, { flex: 1 }]}
+                numberOfLines={1}
+            >
+                {text.amount}{text.unit} {text.displayName}
+            </ThemedText>
 
             {
                 editButton &&
@@ -101,7 +86,9 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     },
     contentContainer: {
         marginRight: 16,
-        justifyContent: 'center'
+        justifyContent: 'center',
+        backgroundColor: "red",
+        flex: 1
     },
     amount: {
         fontSize: 12,

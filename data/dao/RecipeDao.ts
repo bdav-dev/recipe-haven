@@ -21,13 +21,13 @@ async function getAllRecipesFromDatabase(allIngredients: Ingredient[]) {
                     json_group_array(DISTINCT rt.tagname) AS tagnamesJson,
                     json_group_array(DISTINCT json_object('amount', ril.amount, 'ingredientId', i.ingredientId)) AS ingredientsMapJson
                 FROM Recipe AS r
-                INNER JOIN RecipeTagLink AS rtl
+                LEFT JOIN RecipeTagLink AS rtl
                     ON r.recipeId = rtl.recipeId
-                INNER JOIN RecipeTag AS rt
+                LEFT JOIN RecipeTag AS rt
                     ON rtl.recipeTagId = rt.recipeTagId
-                INNER JOIN RecipeIngredientLink AS ril
+                LEFT JOIN RecipeIngredientLink AS ril
                     ON r.recipeId = ril.recipeId
-                INNER JOIN Ingredient AS i
+                LEFT JOIN Ingredient AS i
                     ON ril.ingredientId = i.ingredientId
                 GROUP BY r.recipeId
             )
@@ -169,8 +169,14 @@ async function saveRecipeImage(recipeId: number, temporaryImageUri: string) {
 }
 
 function mapFromFullRecipeQueryResult(item: FullRecipeQueryResult, allIngredients: Ingredient[]): Recipe {
-    const tagnames: string[] = JSON.parse(item.tagnamesJson);
-    const recipeIngredientMaps: RecipeIngredientMap[] = JSON.parse(item.ingredientsMapJson);
+    const tagnames: string[] = (
+        JSON.parse(item.tagnamesJson)
+            .filter((tag: string) => tag != null)
+    );
+    const recipeIngredientMaps: RecipeIngredientMap[] = (
+        JSON.parse(item.ingredientsMapJson)
+            .filter((map: RecipeIngredientMap) => map != null)
+    );
 
     const quantizedIngredients: QuantizedIngredient[] = (
         recipeIngredientMaps

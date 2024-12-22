@@ -1,4 +1,5 @@
-import { Unit } from "@/types/IngredientTypes"
+import { QuantizedIngredient, Unit } from "@/types/IngredientTypes"
+import { quantizedIngredientNameToString } from "./IngredientUtils";
 
 export function unitToString(unit: Unit) {
     switch (+unit) {
@@ -15,18 +16,8 @@ export function unitFromValue(unitValue: number) {
 }
 
 export function unitToConvertedString(amount: number, unit: Unit) {
-    switch (+unit) {
-        case Unit.GRAMM:
-            return amount >= 1000
-                ? (amount / 1000) + "kg"
-                : amount + "g";
-        case Unit.LITER:
-            return amount < 1
-                ? (amount * 1000) + "ml"
-                : amount + "l";
-        default:
-            return amount + "";
-    }
+    const result = unitToConvertedStringAsObject(amount, unit);
+    return result.amount + ' ' + result.unit;
 }
 
 export function isValidAmount(amount: number) {
@@ -35,4 +26,41 @@ export function isValidAmount(amount: number) {
     }
 
     return amount > 0;
+}
+
+export function unitToConvertedStringAsObject(amount: number, unit: Unit) {
+    let unitText: string = '';
+    let adjustedAmount = amount;
+
+    switch (+unit) {
+        case Unit.GRAMM:
+            if (amount >= 1000) {
+                adjustedAmount = (amount / 1000);
+                unitText = "kg";
+            } else {
+                unitText = "g";
+            }
+            break;
+        case Unit.LITER:
+            if (amount < 1) {
+                adjustedAmount = amount * 1000;
+                unitText = "ml";
+            } else {
+                unitText = "l";
+            }
+            break;
+    }
+
+    return {
+        unit: unitText,
+        amount: (Number.isInteger(adjustedAmount) ? adjustedAmount.toString() : adjustedAmount.toFixed(1))
+    }
+}
+
+export function getQuantizedIngredientFrontendText(quantizedIngredient: QuantizedIngredient) {
+    const result = unitToConvertedStringAsObject(quantizedIngredient.amount, quantizedIngredient.ingredient.unit);
+    return {
+        ...result,
+        displayName: quantizedIngredientNameToString(quantizedIngredient)
+    }
 }

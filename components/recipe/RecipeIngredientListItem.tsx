@@ -4,8 +4,9 @@ import { ThemedText } from "../themed/ThemedText";
 import { Image } from "react-native";
 import Button from "../Button";
 import { QuantizedIngredient } from "@/types/IngredientTypes";
-import { unitToString } from "@/utils/UnitUtils";
+import { getQuantizedIngredientFrontendText, unitToConvertedStringAsObject, unitToString } from "@/utils/UnitUtils";
 import { quantizedIngredientNameToString } from "@/utils/IngredientUtils";
+import { isBlank } from "@/utils/StringUtils";
 
 
 type RecipeIngredientListItemProps = {
@@ -19,22 +20,25 @@ type RecipeIngredientListItemProps = {
 
 export default function RecipeIngredientListItem(props: RecipeIngredientListItemProps) {
 
+    const text = getQuantizedIngredientFrontendText(props.recipeIngredient);
+
     return (
         <View style={styles.recipeIngredientListItem}>
             <TextField
                 style={styles.amountTextField}
                 keyboardType="numeric"
                 readOnly
-                value={Number.isInteger(props.recipeIngredient.amount) ? props.recipeIngredient.amount.toString() : props.recipeIngredient.amount.toFixed(1).toString()}
+                value={text.amount}
             />
-            <ThemedText style={styles.unitText}>{unitToString(props.recipeIngredient.ingredient.unit)}</ThemedText>
             {
-                props.recipeIngredient.ingredient.imageSrc
-                    ? <Image source={{ uri: props.recipeIngredient.ingredient.imageSrc }} style={styles.image} />
-                    : <View style={styles.imagePlaceholder} />
+                !isBlank(text.unit) &&
+                <ThemedText style={styles.unitText}>{text.unit}</ThemedText>
             }
-            <ThemedText>{quantizedIngredientNameToString(props.recipeIngredient)}</ThemedText>
-            <View style={styles.spacer} />
+            {
+                props.recipeIngredient.ingredient.imageSrc &&
+                <Image source={{ uri: props.recipeIngredient.ingredient.imageSrc }} style={styles.image} />
+            }
+            <ThemedText style={{ flex: 1 }} numberOfLines={1}>{text.displayName}</ThemedText>
 
             {
                 (props.control?.onMoveDown || props.control?.onMoveUp) &&
@@ -85,7 +89,7 @@ const styles = StyleSheet.create({
         textAlign: "center"
     },
     unitText: {
-        minWidth: 70
+        marginRight: 3
     },
     image: {
         width: IMAGE_SIZE,

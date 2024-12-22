@@ -20,30 +20,29 @@ export default function CustomShoppingListItem(props: CustomShoppingListItemProp
 
     return (
         <CardView style={styles.card} noPadding>
-            <TouchableOpacity 
-                style={styles.actionButton} 
+            <TouchableOpacity
+                style={styles.actionButton}
                 onPress={() => onToggleCheck(item)}
             >
-                <Ionicons 
-                    name={item.isChecked ? "checkbox" : "square-outline"} 
-                    size={24} 
-                    color={theme.primary} 
+                <Ionicons
+                    name={item.isChecked ? "checkbox" : "square-outline"}
+                    size={24}
+                    color={theme.primary}
                 />
             </TouchableOpacity>
 
-            <View style={styles.contentContainer}>
-                <ThemedText 
-                    type="largeSemiBold" 
-                    style={[item.isChecked && styles.checkedText]}
-                >
-                    {item.text}
-                </ThemedText>
-            </View>
+            <ThemedText
+                type="largeSemiBold"
+                numberOfLines={2}
+                style={[item.isChecked && styles.checkedText, { flex: 1 }]}
+            >
+                {item.text}
+            </ThemedText>
 
             {
                 editButton &&
-                <TouchableOpacity 
-                    style={styles.actionButton} 
+                <TouchableOpacity
+                    style={styles.actionButton}
                     onPress={editButton.onPress}>
                     <Ionicons name="pencil-outline" size={24} color={theme.primary} />
                 </TouchableOpacity>

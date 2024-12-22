@@ -28,6 +28,8 @@ export default function ThirdStage() {
 const styles = StyleSheet.create({
     descriptionTextField: {
         minHeight: 300,
-        marginTop: 5
+        marginTop: 5,
+        textAlign: "left",
+        textAlignVertical: "top"
     }
 });
