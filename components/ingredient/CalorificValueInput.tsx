@@ -76,7 +76,7 @@ export default function CalorificValueInput(props: CalorificValueInputProps) {
             <ThemedText>kcal pro</ThemedText>
             <TextField
                 keyboardType="numeric"
-                placeholder={unitToString(props.unit)}
+                placeholder={"Menge"}
                 style={styles.smallTextField}
                 isErroneous={!(parseNUnitsText() != null || isBlank(nUnitsText))}
                 onChangeText={setNUnitsText}
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
         flexWrap: "wrap"
     },
     smallTextField: {
-        minWidth: 75,
+        minWidth: 78,
         textAlign: "center"
     }
 });

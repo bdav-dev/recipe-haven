@@ -164,15 +164,6 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose, o
                     )}
                 </CardView>
 
-                {
-                    recipe.description &&
-                    <CardView title="Beschreibung">
-                        <View style={styles.descriptionContainer}>
-                            <ThemedText>{recipe.description}</ThemedText>
-                        </View>
-                    </CardView>
-                }
-
                 <CardView title="Zutaten">
                     <View style={styles.portionContainer}>
                         <ThemedText>Zutaten für </ThemedText>
@@ -223,6 +214,15 @@ export default function RecipeDetailModal({ recipe, isVisible, onRequestClose, o
                         onPress={handleAddToShoppingList}
                     />
                 </CardView>
+
+                {
+                    recipe.description &&
+                    <CardView title="Beschreibung">
+                        <View style={styles.descriptionContainer}>
+                            <ThemedText>{recipe.description}</ThemedText>
+                        </View>
+                    </CardView>
+                }
 
                 <Button
                     ionicon="trash-outline"

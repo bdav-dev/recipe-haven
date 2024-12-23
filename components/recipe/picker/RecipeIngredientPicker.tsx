@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
         gap: 3
     },
     amountTextField: {
-        minWidth: 70,
+        minWidth: 72,
         textAlign: "center"
     },
     recipeIngredientPicker: {

@@ -51,7 +51,7 @@ export default function RecipeListItem(props: RecipeListItemProps) {
 
                 {
                     amountOfRecipeInfo != 0 &&
-                    <View style={[styles.infoView, { justifyContent: amountOfRecipeInfo == 3 ? 'space-between' : 'flex-start' }]}>
+                    <View style={[styles.infoView, { justifyContent: 'space-between' }]}>
                         {
                             recipe.preparationTime &&
                             <DurationLabel duration={recipe.preparationTime} />

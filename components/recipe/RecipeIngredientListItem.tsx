@@ -31,7 +31,6 @@ export default function RecipeIngredientListItem(props: RecipeIngredientListItem
                 value={text.amount}
             />
             {
-                !isBlank(text.unit) &&
                 <ThemedText style={styles.unitText}>{text.unit}</ThemedText>
             }
             {
@@ -89,7 +88,8 @@ const styles = StyleSheet.create({
         textAlign: "center"
     },
     unitText: {
-        marginRight: 3
+        marginRight: 3,
+        minWidth: 15
     },
     image: {
         width: IMAGE_SIZE,
