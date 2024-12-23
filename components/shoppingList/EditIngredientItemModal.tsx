@@ -5,9 +5,6 @@ import { ShoppingListIngredientItem } from "@/types/ShoppingListTypes";
 import { deleteIngredientItem, updateIngredientItem } from "@/data/dao/ShoppingListDao";
 import Button from "../Button";
 import Modal from "../modals/Modal";
-import TextField from "../TextField";
-import { ThemedText } from "../themed/ThemedText";
-import IngredientSearch from "./IngredientSearch";
 import { Ingredient } from "@/types/IngredientTypes";
 import CardView from "../themed/CardView";
 import IngredientItemPicker from "./IngredientItemPicker";
@@ -59,11 +56,11 @@ export default function EditIngredientItemModal(props: EditIngredientItemModalPr
     }
 
     function isReadyForSubmit() {
-        return ingredient && isValidAmount(+amountText);
+        return ingredient && isValidAmount(+(amountText.replace(',', '.')));
     }
 
     function update() {
-        const newAmount = +amountText;
+        const newAmount = +(amountText.replace(',', '.'));
         if (!props.editItem || !ingredient || !isValidAmount(newAmount)) return;
 
         if (props.editItem.isAggregated) {

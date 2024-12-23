@@ -63,7 +63,7 @@ export default function IngredientItemPicker(props: IngredientItemPickerProps) {
                 readOnly={props.ingredient == undefined}
                 value={props.amountText}
                 onChangeText={props.setAmountText}
-                isErroneous={props.ingredient != undefined && (isBlank(props.amountText) || !isValidAmount(+props.amountText))}
+                isErroneous={props.ingredient != undefined && (isBlank(props.amountText) || !isValidAmount(+(props.amountText.replace(',', '.'))))}
             />
             {
                 props.ingredient &&

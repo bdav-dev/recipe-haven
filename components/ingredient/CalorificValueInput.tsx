@@ -27,11 +27,13 @@ export default function CalorificValueInput(props: CalorificValueInputProps) {
     }, [kcalText, nUnitsText]);
 
     function parseKcalText(): number | undefined {
-        if (isBlank(kcalText) || !isNumeric(kcalText)) {
+        const formattedKcalText = kcalText.replace(',', '.');
+
+        if (isBlank(formattedKcalText) || !isNumeric(formattedKcalText)) {
             return undefined;
         }
 
-        const kcal = +kcalText;
+        const kcal = +(formattedKcalText);
 
         return kcal >= 0
             ? kcal
@@ -39,11 +41,13 @@ export default function CalorificValueInput(props: CalorificValueInputProps) {
     }
 
     function parseNUnitsText(): number | undefined {
-        if (isBlank(nUnitsText) || !isNumeric(nUnitsText)) {
+        const formattedNUnitsText = nUnitsText.replace(',', '.');
+        
+        if (isBlank(formattedNUnitsText) || !isNumeric(formattedNUnitsText)) {
             return undefined;
         }
 
-        const kcal = +nUnitsText;
+        const kcal = +formattedNUnitsText;
 
         return kcal > 0
             ? kcal

@@ -30,7 +30,7 @@ export default function RecipeIngredientPicker(props: RecipeIngredientPickerProp
 
 
     function addRecipeIngredient() {
-        const amount = +amountText;
+        const amount = +(amountText.replace(',', '.'));
         if (!isValidAmount(amount) || ingredient == undefined) {
             return;
         }
@@ -82,7 +82,7 @@ export default function RecipeIngredientPicker(props: RecipeIngredientPickerProp
                 readOnly={ingredient == undefined}
                 value={amountText}
                 onChangeText={setAmountText}
-                isErroneous={ingredient != undefined && (isBlank(amountText) || !isValidAmount(+amountText))}
+                isErroneous={ingredient != undefined && (isBlank(amountText) || !isValidAmount(+(amountText.replace(',', '.'))))}
             />
             {
                 ingredient &&
