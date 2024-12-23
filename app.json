@@ -7,11 +7,6 @@
     "icon": "",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "supportsTablet": true
     },
@@ -29,7 +24,32 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-asset",
+        {
+          "assets": [
+            "assets/burger.jpg",
+            "assets/burger-buns.jpg",
+            "assets/burger-sauce.jpg",
+            "assets/cheese.jpg",
+            "assets/lettuce.jpg",
+            "assets/minced-meat.jpg",
+            "assets/onion.jpg",
+            "assets/yeast.jpg",
+            "assets/flour.jpg",
+            "assets/salt.jpg",
+            "assets/water.jpg",
+            "assets/bread.jpg"
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

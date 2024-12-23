@@ -46,7 +46,7 @@ export default function RecipeListItem(props: RecipeListItemProps) {
 
                 <View style={styles.header}>
                     <ThemedText style={styles.recipeTitle} type="midtitle">{recipe.title}</ThemedText>
-                    <Star filled={recipe.isFavorite} />
+                    <Star filled={recipe.isFavorite} disabled />
                 </View>
 
                 {

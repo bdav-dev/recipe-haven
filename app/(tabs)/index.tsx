@@ -17,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Alert, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { deleteRecipe } from '@/data/dao/RecipeDao';
-import { createDefaultIngredients, isInitial, setIsInitial } from '@/data/dao/InitDao';
+import { createDefaultIngredientsAndRecipes, isInitial, setIsInitial } from '@/data/dao/InitDao';
 import { IngredientContext } from '@/context/IngredientContextProvider';
 
 
@@ -43,7 +43,7 @@ export default function RecipesScreen() {
     async function runInit() {
         const initial = await isInitial();
         if (!initial) {
-            //return;
+            return;
         }
 
         Alert.alert(
@@ -64,9 +64,11 @@ export default function RecipesScreen() {
 
 
     function insertDefault() {
-        createDefaultIngredients()
-            .then(defaultIngredients => setIngredients(ings => [...ings, ...defaultIngredients]));
-
+        createDefaultIngredientsAndRecipes()
+            .then(defaultItems => {
+                setIngredients(ingredients => [...ingredients, ...defaultItems.ingredients]);
+                setRecipes(recipes => [...recipes, ...defaultItems.recipes]);
+            });
     }
 
     function launchEditRecipeModal(recipe: Recipe) {

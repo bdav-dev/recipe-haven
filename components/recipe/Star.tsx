@@ -3,14 +3,15 @@ import { StyleSheet, TouchableWithoutFeedback, View } from "react-native";
 
 type StarProps = {
     filled?: boolean,
-    onPress?: () => void
+    onPress?: () => void,
+    disabled?: boolean
 }
 
 export default function Star(props: StarProps) {
     const iconName = props.filled ? "star" : "star-outline";
 
     return (
-        <TouchableWithoutFeedback onPress={props.onPress}>
+        <TouchableWithoutFeedback onPress={props.onPress} disabled={props.disabled}>
             <View>
                 <Ionicons name={iconName} style={styles.star} />
             </View>
