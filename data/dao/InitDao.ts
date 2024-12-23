@@ -80,13 +80,13 @@ export async function createDefaultIngredientsAndRecipes(): Promise<{ ingredient
         name: "Burgerbrötchen",
         unit: Unit.PIECE,
         calorificValue: { kcal: 300, nUnits: 1 },
-        temporaryImageUri: await createTemporaryUriOfStaticFile(require('../../assets/burger-buns.jpg')) ?? undefined,
+        temporaryImageUri: await createTemporaryUriOfStaticFile(require('../../assets/burger_buns.jpg')) ?? undefined,
     });
     const burgerSauce = await createIngredient({
         name: "Burger Sauce",
         unit: Unit.GRAMM,
         calorificValue: { kcal: 407, nUnits: 100 },
-        temporaryImageUri: await createTemporaryUriOfStaticFile(require('../../assets/burger-sauce.jpg')) ?? undefined,
+        temporaryImageUri: await createTemporaryUriOfStaticFile(require('../../assets/burger_sauce.jpg')) ?? undefined,
     });
     const onion = await createIngredient({
         name: "Zwiebel",
@@ -113,7 +113,7 @@ export async function createDefaultIngredientsAndRecipes(): Promise<{ ingredient
         name: "Hackfleisch",
         unit: Unit.GRAMM,
         calorificValue: { kcal: 241, nUnits: 100 },
-        temporaryImageUri: await createTemporaryUriOfStaticFile(require('../../assets/minced-meat.jpg')) ?? undefined,
+        temporaryImageUri: await createTemporaryUriOfStaticFile(require('../../assets/minced_meat.jpg')) ?? undefined,
     });
 
     const burger = await createRecipe({

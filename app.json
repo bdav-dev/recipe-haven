@@ -26,21 +26,15 @@
       "expo-router",
       "expo-font",
       [
-        "expo-splash-screen",
-        {
-          "backgroundColor": "#ffffff"
-        }
-      ],
-      [
         "expo-asset",
         {
           "assets": [
             "assets/burger.jpg",
-            "assets/burger-buns.jpg",
-            "assets/burger-sauce.jpg",
+            "assets/burger_buns.jpg",
+            "assets/burger_sauce.jpg",
             "assets/cheese.jpg",
             "assets/lettuce.jpg",
-            "assets/minced-meat.jpg",
+            "assets/minced_meat.jpg",
             "assets/onion.jpg",
             "assets/yeast.jpg",
             "assets/flour.jpg",
