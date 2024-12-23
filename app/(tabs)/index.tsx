@@ -17,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Alert, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { deleteRecipe } from '@/data/dao/RecipeDao';
-import { createDefaultIngredients, isInitial } from '@/data/dao/InitDao';
+import { createDefaultIngredients, isInitial, setIsInitial } from '@/data/dao/InitDao';
 import { IngredientContext } from '@/context/IngredientContextProvider';
 
 
@@ -59,13 +59,14 @@ export default function RecipesScreen() {
                 }
             ]
         );
-
+        setIsInitial(false);
     }
 
 
     function insertDefault() {
         createDefaultIngredients()
-            .then(defaultIngredients => setIngredients(ings => [...ings, ...defaultIngredients]))
+            .then(defaultIngredients => setIngredients(ings => [...ings, ...defaultIngredients]));
+
     }
 
     function launchEditRecipeModal(recipe: Recipe) {

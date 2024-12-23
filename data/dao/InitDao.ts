@@ -17,10 +17,10 @@ export async function isInitial() {
 
 async function imagetest() {
     const imgFile = "a.png";
-    const aImage = require('../../assets/' + imgFile);
+    //const aImage = require('../../assets/' + imgFile);
     const filePath = FileSystem.cacheDirectory + "a.png"
 
-    console.log(aImage);
+    //console.log(aImage);
     
     
 }

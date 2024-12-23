@@ -43,7 +43,7 @@ export default function CreateCustomItemModal(props: CreateCustomItemModalProps)
         <Modal
             isVisible={props.isVisible}
             onRequestClose={handleClose}
-            title="Neuer Artikel"
+            title="Neuer Eintrag"
             rightButton={{
                 title: "Hinzufügen",
                 onPress: handleSubmit,
