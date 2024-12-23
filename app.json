@@ -19,7 +19,8 @@
       "adaptiveIcon": {
         "foregroundImage": "",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.bdavdevdhbw.recipehaven"
     },
     "web": {
       "bundler": "metro",
@@ -33,6 +34,11 @@
     "experiments": {
       "typedRoutes": true
     },
-    "newArchEnabled": true
+    "newArchEnabled": true,
+    "extra": {
+      "eas": {
+        "projectId": "21286a34-59bf-4522-a0e3-7ab90e21f2bc"
+      }
+    }
   }
 }
