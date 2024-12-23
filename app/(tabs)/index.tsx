@@ -14,14 +14,17 @@ import { Recipe } from '@/types/RecipeTypes';
 import { difficultyToString } from '@/utils/DifficultyUtils';
 import { includesIgnoreCase, isBlank } from '@/utils/StringUtils';
 import { Ionicons } from '@expo/vector-icons';
-import { useContext, useMemo, useState } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { Alert, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { deleteRecipe } from '@/data/dao/RecipeDao';
+import { createDefaultIngredients, isInitial } from '@/data/dao/InitDao';
+import { IngredientContext } from '@/context/IngredientContextProvider';
 
 
 export default function RecipesScreen() {
     const theme = useAppTheme();
     const { recipes, setRecipes } = useContext(RecipeContext);
+    const { setIngredients } = useContext(IngredientContext);
 
     const [isCreateRecipeModalVisible, setCreateRecipeModalVisible] = useState(false);
     const [isEditRecipeModalVisible, setEditRecipeModalVisible] = useState(false);
@@ -34,6 +37,36 @@ export default function RecipesScreen() {
 
     const areRecipesEmpty = () => recipes.length === 0;
     const areFilteredRecipesEmpty = () => filteredRecipes.length === 0;
+
+    useEffect(() => { runInit() }, []);
+
+    async function runInit() {
+        const initial = await isInitial();
+        if (!initial) {
+            //return;
+        }
+
+        Alert.alert(
+            'Neu hier?',
+            'Möchtest Du einige vorgefertigten Zutaten und Rezepte zu deinem Rezeptbuch hinzufügen?',
+            [
+                {
+                    text: 'Ja',
+                    onPress: insertDefault
+                },
+                {
+                    text: 'Nein'
+                }
+            ]
+        );
+
+    }
+
+
+    function insertDefault() {
+        createDefaultIngredients()
+            .then(defaultIngredients => setIngredients(ings => [...ings, ...defaultIngredients]))
+    }
 
     function launchEditRecipeModal(recipe: Recipe) {
         setEditRecipe(recipe);
