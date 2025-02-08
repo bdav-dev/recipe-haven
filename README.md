@@ -10,6 +10,7 @@
 </div>
 
 ## Über dieses Projekt
+- Recipe Haven ist eine mobile App zur Verwaltung von Zutaten, Rezepten und Einkaufslisten
 - Entwickelt mit **React Native** und **Expo**
 
 ## Funktionen
