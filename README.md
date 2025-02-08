@@ -61,7 +61,7 @@ In der Einkaufsliste können zwei Arten von Objekten hinzugefügt werden:
    - werden als Text angegeben (z.B. Zahnpasta, Kaugummi)
    - kann verwendet werden, um Einkäufe hinzuzufügen, die keine Zutaten eines Rezepts sind
 
-Abgehakte Objekte in der Einkaufsliste werden separat angezeigt und können wiederhergestellt oder entgültig gelöscht werden.
+Abgehakte Objekte in der Einkaufsliste werden separat angezeigt und können wiederhergestellt oder endgültig gelöscht werden.
 
 <br/>
 <hr/>
